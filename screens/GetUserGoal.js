@@ -41,7 +41,7 @@ const GetUserGoal = ({navigation}) => {
             <Text style={{fontWeight: 'bold', color: '#000'}}> here!</Text>       
         </Text>
         <TouchableOpacity 
-          onPress={() => navigation.navigate('Forum')}>
+          onPress={() => navigation.navigate('Foruminstack')}>
           <Text style={[styles.text, {fontStyle: 'italic', textDecorationLine: 'underline'}]}>
             Later
           </Text>
