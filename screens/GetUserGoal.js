@@ -7,8 +7,10 @@ const GetUserGoal = ({navigation}) => {
     
   return (
     <View style={styles.container}>
-        <Image source={require('../assets/penguin.png')} style={styles.img} />
-        <View style={styles.cont3}>
+      <Text style={styles.headerText}>Welcome to our app</Text>
+      <Image source={require('../assets/penguin.png')} style={styles.img} />
+      <View style={styles.cont3}>
+      <Text style={styles.text}>To achieve better training results, please let us know some information below.</Text>
         <Text style={styles.title}>Enter Your Expected Exam Date</Text> 
         <FormInput
               //lbValue={email}
@@ -40,12 +42,20 @@ const GetUserGoal = ({navigation}) => {
         <Text style={styles.text}>If you don't know your current level, take a mini test to estimate your current score 
             <Text style={{fontWeight: 'bold', color: '#000'}}> here!</Text>       
         </Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
         <TouchableOpacity 
-          onPress={() => navigation.navigate('Foruminstack')}>
+          onPress={() => navigation.navigate('Login')}>
           <Text style={[styles.text, {fontStyle: 'italic', textDecorationLine: 'underline'}]}>
             Later
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('Login')}>
+          <Text style={[styles.text, {fontStyle: 'italic', textDecorationLine: 'underline'}]}>
+            Save
+          </Text>
+        </TouchableOpacity>
+        </View>     
       </View>
     </View>
   )
@@ -60,6 +70,10 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       backgroundColor: "#fff",
       padding: 20,
+    },
+    headerText:{
+      fontSize: 24,
+      color: 'green',
     },
     title: {
       fontSize: 17,
@@ -98,8 +112,8 @@ const styles = StyleSheet.create({
     img: {
       height: 200,
       width: 200,
-      marginTop: 50,
-      marginBottom: 40      
+      marginTop: 20,
+      marginBottom: 10      
     },
     cont3: {
       flex: 1,

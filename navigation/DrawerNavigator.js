@@ -1,8 +1,6 @@
 import {View, Text, SafeAreaView,Image, StatusBar} from 'react-native';
 import React, {useState, useEffect} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
 import {DrawerItemList, createDrawerNavigator} from '@react-navigation/drawer';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SettingScreen from '../screens/SettingScreen';
 import Route from '../screens/Route';
@@ -12,7 +10,6 @@ import HomeStack from './HomeStack';
 import ForumStack from './ForumStack';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 const Drawer = createDrawerNavigator();
 const SideMenu = () => {
@@ -20,26 +17,6 @@ const SideMenu = () => {
     <View></View>
   </SafeAreaView>;
 };
-// const MainStack = createNativeStackNavigator({
-//   Home:{
-//     screen:HomeStack,
-//   },
-//   Test:{
-//     screen:Test,
-//   },
-//   Vocab:{
-//     screen:Vocab,
-//   },
-//   Route:{
-//     screen:Route,
-//   },
-//   Forum:{
-//     screen:ForumStack,
-//   },
-//   Setting:{
-//     screen:SettingScreen,
-//   },
-// },{initialRouteName:'Home'})
 function DrawerNavigator() {
   return (
     <Drawer.Navigator
@@ -114,10 +91,4 @@ function DrawerNavigator() {
     
   );
 }
-// const DrawerNavigator = createDrawerNavigator({
-//   drawer: MainStack
-// },
-// {
-//   contentComponent: SideMenu,
-// })
 export default DrawerNavigator;

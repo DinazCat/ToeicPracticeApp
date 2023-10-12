@@ -2,6 +2,7 @@ import React, {useContext, useState} from 'react';
 import {View, Text, TouchableOpacity, Platform, StyleSheet, ImageBackground, Image} from 'react-native';
 import FormInput from '../components/FormInput';
 import FormButton from '../components/FormButton';
+import { AuthContext } from '../navigation/AuthProvider';
 
 const SignupScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -9,7 +10,7 @@ const SignupScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  //const {register, googleSignup} = useContext(AuthContext);
+  const {register, googleSignin} = useContext(AuthContext);
 
   return (
     <ImageBackground source={require('../assets/bg1.jpg')} resizeMode="cover" style={{flex:1}}>
@@ -65,7 +66,8 @@ const SignupScreen = ({navigation}) => {
       <Text style={styles.orText}>_or_</Text>
 
       {Platform.OS === 'android' ? (
-        <TouchableOpacity style={styles.googleButton}>
+        <TouchableOpacity style={styles.googleButton}
+        onPress={() => googleLogin()}>
                 <Image style={styles.iconWrapper}
                 source={require('../assets/google.png')}/>
           <View style={styles.btnTxtWrapper}>

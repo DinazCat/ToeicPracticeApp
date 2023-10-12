@@ -1,11 +1,13 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, ImageBackground } from 'react-native'
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import FormInput from '../components/FormInput';
 import FormButton from '../components/FormButton';
+import { AuthContext } from '../navigation/AuthProvider';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const {login, googleLogin} = useContext(AuthContext);
 
   return (
     <ImageBackground source={require('../assets/bg1.jpg')} resizeMode="cover" style={{flex:1}}>
@@ -37,14 +39,14 @@ const LoginScreen = ({navigation}) => {
           </TouchableOpacity>
           <FormButton
               title="Sign in"              
-              //onPress={() => login(email, password)}
-              onPress={() => navigation.navigate('GetUserGoal')}
+              onPress={() => login(email, password)}
           />
 
           <Text style={styles.orText}>_or_</Text>
 
           {Platform.OS === 'android' ? (
-            <TouchableOpacity style={styles.googleButton}>
+            <TouchableOpacity style={styles.googleButton} 
+            onPress={() => googleLogin()}>
                 <Image style={styles.iconWrapper}
                 source={require('../assets/google.png')}/>
               <View style={styles.btnTxtWrapper}>
@@ -75,7 +77,7 @@ const styles = StyleSheet.create({
     //backgroundColor: '#fff'
   },
   logo: {
-    height: 180,
+    height: 200,
     width: 200,
     resizeMode: 'stretch',
     alignSelf: 'center',

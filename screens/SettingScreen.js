@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
-import React from 'react'
+import React, {useContext} from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { AuthContext } from '../navigation/AuthProvider';
 
 const SettingScreen = ({navigation}) => {
+  const {logout} = useContext(AuthContext);
   return (
       <View style={styles.container} >
         <TouchableOpacity style={styles.btnContainer}
