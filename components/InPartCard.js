@@ -6,22 +6,230 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import DropDownPicker from 'react-native-dropdown-picker';
+import firestore from '@react-native-firebase/firestore';
 import * as Progress from 'react-native-progress';
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
-const InPartCard = () => {
+import QuestionScreen from '../screens/QuestionScreen';
+const InPartCard = ({route, navigation}) => {
   const [number, setnumber] = useState('5');
   const [isopen, setopen] = useState(false);
+  const [questionList, setquestionL] = useState(null);
+ // const [screen, setscreen] = useState('');
+  const [partname, setpartname]= useState('');
+  const [collection, setcollection]= useState('');
+  const { part } = route.params;
+   const fetchQuestionL1 = async()=>{
+    try{
+     await firestore()
+      .collection('ListenPart1')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Answer, Audio, Image, Level, Key, Correct, Explain} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Answer: Answer,
+            Audio: Audio,
+            Image: Image,
+            Level: Level,
+            Key:Key,
+            Correct:Correct,
+            Explain: Explain,
+          });
+        })
+        setquestionL(list);
+      })
+     
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionL2 = async()=>{
+    try{
+     await firestore()
+      .collection('ListenPart2')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Answer, Audio, Explain, Level, Correct} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Answer: Answer,
+            Audio: Audio,
+            Explain: Explain,
+            Level: Level,
+            Correct:Correct,
+          });
+        })
+        setquestionL(list);
+      })
+     
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionL3 = async()=>{
+    try{
+     await firestore()
+      .collection('ListenPart3')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain, Audio, Question, Level, Key, Correct} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Audio: Audio,
+            Question: Question,
+            Level: Level,
+            Key:Key,
+            Correct:Correct,
+          });
+        })
+        setquestionL(list);
+      })
+     
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionL4 = async()=>{
+    try{
+     await firestore()
+      .collection('ListenPart4')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain, Audio, Question, Level} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Audio: Audio,
+            Question: Question,
+            Level: Level,
+          });
+        })
+        setquestionL(list);
+      })
+     
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionR1 = async()=>{
+    try{
+     await firestore()
+      .collection('ReadPart1')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain,Question, Level, Answer} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Answer: Answer,
+            Question: Question,
+            Level: Level,
+          });
+        })
+        setquestionL(list);
+      })
+     
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionR2 = async()=>{
+    try{
+     await firestore()
+      .collection('ReadPart2')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain,Question} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Question: Question,
+          });
+        })
+        setquestionL(list);
+      })
+     
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionR3 = async()=>{
+    try{
+     await firestore()
+      .collection('ReadPart3')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain,Question, Paragraph} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Question: Question,
+            Paragraph:Paragraph,
+          });
+        })
+        setquestionL(list);
+      })
+     
+    } catch(e){
+      console.log(e);
+    }
+  }
+  useEffect(() => {
+    if(part=='L1'){
+      setpartname('Photographs');
+      fetchQuestionL1();
+    }
+    else if(part=='L2'){
+       setpartname('Question & Response');
+       fetchQuestionL2();
+     }
+     else if(part=='L3'){
+       setpartname('Short Conversations');
+       fetchQuestionL3();
+     }
+     else if(part=='L4'){
+       setpartname('Short Talks');
+       fetchQuestionL4();
+     }
+     else if(part=='R1'){
+       setpartname('Incomplete Sentences');
+       fetchQuestionR1();
+     }
+     else if(part=='R2'){
+       setpartname('Text Completion');
+       fetchQuestionR2();
+     }
+     else if(part=='R3'){
+       setpartname('Reading Comprehension');
+       fetchQuestionR3();
+     }
+  }, []);
   return (
     <View style={styles.container}>
       <ImageBackground
         source={require('../assets/bg8.png')}
         style={{flex: 1, resizeMode: 'cover'}}>
         <View style={AppStyle.viewstyle.component_upzone}>
-          <TouchableOpacity style={{marginLeft: '2%'}}>
+          <TouchableOpacity style={{marginLeft: '2%'}} onPress={() => navigation.goBack()}>
             <FontAwesome name="chevron-left" color="white" size={20} />
           </TouchableOpacity>
           <Text
@@ -31,7 +239,7 @@ const InPartCard = () => {
               fontSize: 20,
               marginLeft: 15,
             }}>
-            Photographs
+            {partname}
           </Text>
         </View>
 
@@ -134,9 +342,9 @@ const InPartCard = () => {
             zIndex={1}
           />
         </View>
-        <TouchableOpacity style={[AppStyle.button.button2,{marginTop:70, zIndex:0}]}>
+        {questionList&&<TouchableOpacity style={[AppStyle.button.button2,{marginTop:70, zIndex:0}]} onPress={() => navigation.push('QuestionScreen',{questionList:questionList, part:part})}>
             <Text style={AppStyle.button.button2_Text}>Begin</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>}
       </ImageBackground>
     </View>
   );

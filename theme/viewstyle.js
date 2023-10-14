@@ -15,7 +15,6 @@ const viewstyle = StyleSheet.create({
         backgroundColor:PRIMARY_COLOR,
         justifyContent:'flex-start',
         alignItems: 'center',
-        justifyContent:'center',
         flexDirection:'row',
     },
     row_evenly:{

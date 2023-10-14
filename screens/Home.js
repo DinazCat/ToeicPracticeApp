@@ -16,11 +16,18 @@ import CustomHeader from '../components/CustomHeader'
         <Text style={AppStyle.textstyle.parttext}>Practice</Text>
         <View style={[AppStyle.viewstyle.row_evenly,{marginTop:'5%'}]}>
           <View style={styles.buttonzone}>
-          <TouchableOpacity style={styles.buttonmain}>
+          <TouchableOpacity style={styles.buttonmain} onPress={() => navigation.push('PartFormat', {skill:'L'})}>
             <Image source={require("../assets/headphones.png")}
                 resizeMode="contain"></Image>
             </TouchableOpacity>
             <Text style={AppStyle.textstyle.normaltext}>Listening</Text>
+          </View>
+          <View style={styles.buttonzone}>
+          <TouchableOpacity style={styles.buttonmain} onPress={() => navigation.push('PartFormat', {skill:'R'})}>
+            <Image source={require("../assets/book.png")}
+                resizeMode="contain"></Image>
+            </TouchableOpacity>
+            <Text style={AppStyle.textstyle.normaltext}>Reading</Text>
           </View>
           <View style={styles.buttonzone}>
           <TouchableOpacity style={styles.buttonmain}>
@@ -30,13 +37,6 @@ import CustomHeader from '../components/CustomHeader'
             <Text style={AppStyle.textstyle.normaltext}>Speaking</Text>
           </View>
             
-          <View style={styles.buttonzone}>
-          <TouchableOpacity style={styles.buttonmain}>
-            <Image source={require("../assets/book.png")}
-                resizeMode="contain"></Image>
-            </TouchableOpacity>
-            <Text style={AppStyle.textstyle.normaltext}>Reading</Text>
-          </View>
           <View style={styles.buttonzone}>
           <TouchableOpacity style={styles.buttonmain}>
             <Image source={require("../assets/pen.png")}

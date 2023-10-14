@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native'
 import React from 'react'
 
 import FormInput from '../components/FormInput';
@@ -7,6 +7,7 @@ const GetUserGoal = ({navigation}) => {
     
   return (
     <View style={styles.container}>
+      <ScrollView>
       <Text style={styles.headerText}>Welcome to our app</Text>
       <Image source={require('../assets/penguin.png')} style={styles.img} />
       <View style={styles.cont3}>
@@ -57,6 +58,7 @@ const GetUserGoal = ({navigation}) => {
         </TouchableOpacity>
         </View>     
       </View>
+      </ScrollView>
     </View>
   )
 }

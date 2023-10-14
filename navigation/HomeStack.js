@@ -19,6 +19,7 @@ import WriteP1QuestionForm from '../components/WriteP1QuestionForm';
 import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
 import ReadP1QuestionForm from '../components/ReadP1QuestionForm';
 import ReadP23QuestionForm from '../components/ReadP23QuestionForm';
+import QuestionScreen from '../screens/QuestionScreen';
 const Stack = createNativeStackNavigator();
 export default function HomeStack() {
     return (
@@ -28,6 +29,7 @@ export default function HomeStack() {
                 <Stack.Screen name='InPartCard' component={InPartCard} options={{ header: () => null }}/>
                 <Stack.Screen name='InTestCard' component={InTestCard} options={{ header: () => null }}/>
                 <Stack.Screen name='Testinstack' component={Test} options={{ header: () => null }}/>
+                <Stack.Screen name='QuestionScreen' component={QuestionScreen} options={{ header: () => null }}/>
                 <Stack.Screen name='ListenP1QuestionForm' component={ListenP1QuestionForm} options={{ header: () => null }}/>
                 <Stack.Screen name='ListenP2QuestionForm' component={ListenP2QuestionForm} options={{ header: () => null }}/>
                 <Stack.Screen name='ListenP34QuestionForm' component={ListenP34QuestionForm} options={{ header: () => null }}/>
@@ -39,8 +41,8 @@ export default function HomeStack() {
                 <Stack.Screen name='WriteP1QuestionForm' component={WriteP1QuestionForm} options={{ header: () => null }}/>
                 <Stack.Screen name='WriteP23QuestionForm' component={WriteP23QuestionForm} options={{ header: () => null }}/>
                 <Stack.Screen name='CompleteCard' component={CompleteCard} options={{ header: () => null }}/>
-                <Stack.Screen name='ReadP12QuestionForm' component={ReadP1QuestionForm} options={{ header: () => null }}/>
-                <Stack.Screen name='ReadP3QuestionForm' component={ReadP23QuestionForm} options={{ header: () => null }}/>
+                <Stack.Screen name='ReadP1QuestionForm' component={ReadP1QuestionForm} options={{ header: () => null }}/>
+                <Stack.Screen name='ReadP23QuestionForm' component={ReadP23QuestionForm} options={{ header: () => null }}/>
             </Stack.Navigator>
     );
   };
