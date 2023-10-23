@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View, TextInput } from 'react-native'
 import React, { useContext, useState } from 'react'
 import FormButton from '../components/FormButton'
+import { AuthContext } from '../navigation/AuthProvider'
 
 const ForgotPassword = () => {
-    //const {forgotPassword} = useContext(AuthContext);
+    const {forgotPassword} = useContext(AuthContext);
     const [email, setEmail] = useState('');
   return (
     <View style={styles.container}>
@@ -20,7 +21,7 @@ const ForgotPassword = () => {
             />
       </View>
       <FormButton title={'Send'}
-        //onPress={() => forgotPassword(email)}
+        onPress={() => forgotPassword(email)}
         />
     </View>
   )

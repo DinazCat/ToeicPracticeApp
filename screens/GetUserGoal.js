@@ -6,8 +6,8 @@ import FormInput from '../components/FormInput';
 const GetUserGoal = ({navigation}) => {
     
   return (
+  <ScrollView>
     <View style={styles.container}>
-      <ScrollView>
       <Text style={styles.headerText}>Welcome to our app</Text>
       <Image source={require('../assets/penguin.png')} style={styles.img} />
       <View style={styles.cont3}>
@@ -58,8 +58,9 @@ const GetUserGoal = ({navigation}) => {
         </TouchableOpacity>
         </View>     
       </View>
-      </ScrollView>
     </View>
+  </ScrollView>
+
   )
 }
 

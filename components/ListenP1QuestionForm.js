@@ -240,7 +240,7 @@ const ListenP1QuestionForm = ({item,list}) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
-  flex:1
+    flex:1
   },
   TimeFont: {
     textAlign: 'left',

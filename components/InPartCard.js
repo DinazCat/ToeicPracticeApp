@@ -17,7 +17,7 @@ import QuestionScreen from '../screens/QuestionScreen';
 const InPartCard = ({route, navigation}) => {
   const [number, setnumber] = useState('5');
   const [isopen, setopen] = useState(false);
-  const [questionList, setquestionL] = useState(null);
+  const [questionList, setquestionL] = useState([]);
  // const [screen, setscreen] = useState('');
   const [partname, setpartname]= useState('');
   const [collection, setcollection]= useState('');
@@ -187,8 +187,179 @@ const InPartCard = ({route, navigation}) => {
           });
         })
         setquestionL(list);
-      })
-     
+      })   
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionS1 = async()=>{
+    try{
+     await firestore()
+      .collection('SpeakPart1')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain,Question} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Question: Question,
+          });
+        })
+        setquestionL(list);
+      })   
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionS2 = async()=>{
+    try{
+     await firestore()
+      .collection('SpeakPart2')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain, Picture} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Picture: Picture,
+          });
+        })
+        setquestionL(list);
+      })   
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionS3 = async()=>{
+    try{
+     await firestore()
+      .collection('SpeakPart3')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Context, Explain, Question} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Context: Context,
+            Explain: Explain,
+            Question: Question,
+          });
+        })
+        setquestionL(list);
+      })   
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionS4 = async()=>{
+    try{
+     await firestore()
+      .collection('SpeakPart4')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {AvailableInfo, Explain, Question} = doc.data();
+          list.push({          
+            QId: doc.id,
+            AvailableInfo: AvailableInfo,
+            Explain: Explain,
+            Question: Question,
+          });
+        })
+        setquestionL(list);
+      })   
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionS5 = async()=>{
+    try{
+     await firestore()
+      .collection('SpeakPart5')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain, Question} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Question: Question,
+          });
+        })
+        setquestionL(list);
+      })   
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionW1 = async()=>{
+    try{
+     await firestore()
+      .collection('WritePart1')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain, Picture, SugesstedWord} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Picture: Picture,
+            SugesstedWord: SugesstedWord,
+          });
+        })
+        setquestionL(list);
+      })   
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionW2 = async()=>{
+    try{
+     await firestore()
+      .collection('WritePart2')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain, Question, Direction} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Question: Question,
+            Direction: Direction,
+          });
+        })
+        setquestionL(list);
+      })   
+    } catch(e){
+      console.log(e);
+    }
+  }
+  const fetchQuestionW3 = async()=>{
+    try{
+     await firestore()
+      .collection('WritePart3')
+      .get()
+      .then((querySnapshot)=>{
+        const list = [];
+        querySnapshot.forEach(doc =>{
+          const {Explain, Question} = doc.data();
+          list.push({          
+            QId: doc.id,
+            Explain: Explain,
+            Question: Question,
+          });
+        })
+        setquestionL(list);
+      })   
     } catch(e){
       console.log(e);
     }
@@ -199,29 +370,61 @@ const InPartCard = ({route, navigation}) => {
       fetchQuestionL1();
     }
     else if(part=='L2'){
-       setpartname('Question & Response');
-       fetchQuestionL2();
-     }
-     else if(part=='L3'){
-       setpartname('Short Conversations');
-       fetchQuestionL3();
-     }
-     else if(part=='L4'){
-       setpartname('Short Talks');
-       fetchQuestionL4();
-     }
-     else if(part=='R1'){
-       setpartname('Incomplete Sentences');
-       fetchQuestionR1();
-     }
-     else if(part=='R2'){
-       setpartname('Text Completion');
-       fetchQuestionR2();
-     }
-     else if(part=='R3'){
-       setpartname('Reading Comprehension');
-       fetchQuestionR3();
-     }
+      setpartname('Question & Response');
+      fetchQuestionL2();
+    }
+    else if(part=='L3'){
+      setpartname('Short Conversations');
+      fetchQuestionL3();
+    }
+    else if(part=='L4'){
+      setpartname('Short Talks');
+      fetchQuestionL4();
+    }
+    else if(part=='R1'){
+      setpartname('Incomplete Sentences');
+      fetchQuestionR1();
+    }
+    else if(part=='R2'){
+      setpartname('Text Completion');
+      fetchQuestionR2();
+    }
+    else if(part=='R3'){
+      setpartname('Reading Comprehension');
+      fetchQuestionR3();
+    }
+    else if(part=='S1'){
+    setpartname('Read a text aloud');
+    fetchQuestionS1();
+    }
+    else if(part=='S2'){
+      setpartname('Describe a picture');
+      fetchQuestionS2();
+    }
+    else if(part=='S3'){
+      setpartname(' Respond to questions');
+      fetchQuestionS3();
+    }
+    else if(part=='S4'){
+      setpartname('Respond to questions using information provided');
+      fetchQuestionS4();
+    }
+    else if(part=='S5'){
+      setpartname('Express an opinion');
+      fetchQuestionS5();
+    }
+    else if(part=='W1'){
+      setpartname('Write a sentence based on a picture');
+      fetchQuestionW1();
+    }
+    else if(part=='W2'){
+      setpartname('Respond to a written request');
+      fetchQuestionW2();
+    }
+    else if(part=='W3'){
+      setpartname('Write an opinion essay');
+      fetchQuestionW3();
+    }
   }, []);
   return (
     <View style={styles.container}>
@@ -342,9 +545,11 @@ const InPartCard = ({route, navigation}) => {
             zIndex={1}
           />
         </View>
-        {questionList&&<TouchableOpacity style={[AppStyle.button.button2,{marginTop:70, zIndex:0}]} onPress={() => navigation.push('QuestionScreen',{questionList:questionList, part:part})}>
+        {/* {questionList&& */}
+        <TouchableOpacity style={[AppStyle.button.button2,{marginTop:70, zIndex:0}]} onPress={() => navigation.push('QuestionScreen',{questionList:questionList, part:part})}>
             <Text style={AppStyle.button.button2_Text}>Begin</Text>
-        </TouchableOpacity>}
+        </TouchableOpacity>
+        {/* } */}
       </ImageBackground>
     </View>
   );

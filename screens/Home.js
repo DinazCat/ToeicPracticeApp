@@ -30,7 +30,7 @@ import CustomHeader from '../components/CustomHeader'
             <Text style={AppStyle.textstyle.normaltext}>Reading</Text>
           </View>
           <View style={styles.buttonzone}>
-          <TouchableOpacity style={styles.buttonmain}>
+          <TouchableOpacity style={styles.buttonmain} onPress={() => navigation.push('PartFormat', {skill:'S'})}>
             <Image source={require("../assets/microphone.png")}
                 resizeMode="contain"></Image>
             </TouchableOpacity>
@@ -38,7 +38,7 @@ import CustomHeader from '../components/CustomHeader'
           </View>
             
           <View style={styles.buttonzone}>
-          <TouchableOpacity style={styles.buttonmain}>
+          <TouchableOpacity style={styles.buttonmain} onPress={() => navigation.push('PartFormat', {skill:'W'})}>
             <Image source={require("../assets/pen.png")}
                 resizeMode="contain"></Image>
             </TouchableOpacity>

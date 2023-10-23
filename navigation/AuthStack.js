@@ -1,75 +1,163 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, {useState, useEffect} from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import OnboardingScreen from '../screens/OnboardingScreen'
-import LoginScreen from '../screens/LoginScreen'
-import SignupScreen from '../screens/SignupScreen';
-import ForgotPassword from '../screens/ForgotPassword';
-import GetUserGoal from '../screens/GetUserGoal';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-
-const Stack = createNativeStackNavigator();
-
-const AuthStack = () => {
-    const [isFirstLaunch, setIsFirstLaunch] = useState(null);
-    let routeName;
-    // useEffect(() => {
-    //   AsyncStorage.getItem('alreadyLaunched').then((value) => {
-    //     if (value == null) {
-    //       AsyncStorage.setItem('alreadyLaunched', 'true'); // No need to wait for `setItem` to finish, although you might want to handle errors
-    //       setIsFirstLaunch(true);
-    //     } else {
-    //       setIsFirstLaunch(false);
-    //     }
-    //   });
-    // }, []);
-    // if (isFirstLaunch === null) {
-    //   return null; // This is the 'tricky' part: The query to AsyncStorage is not finished, but we have to present something to the user. Null will just render nothing, so you can also put a placeholder of some sort, but effectively the interval between the first mount and AsyncStorage retrieving your data won't be noticeable to the user. But if you want to display anything then you can use a LOADER here
-    // } else if (isFirstLaunch == true) {
-    //   routeName = 'Onboarding';
-    // } else {
-    //   routeName = 'Login';
-    // }
-    useEffect(() => {
-      GoogleSignin.configure({
-        webClientId: '235184996000-kim1tm7pcdqahbdlolgle0pha3fl021g.apps.googleusercontent.com',
-      });
-    }, []);
+import { View, Text,StyleSheet, TouchableOpacity, Image, ScrollView,SafeAreaView, StatusBar } from 'react-native'
+import React from 'react'
+import SmallHistoryCard from '../components/SmallHistoryCard'
+import AppStyle from '../theme'
+import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
+import { Header } from 'react-native/Libraries/NewAppScreen'
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import CustomHeader from '../components/CustomHeader'
+ const Home=({navigation})=> {
   return (
-    // <Stack.Navigator initialRouteName={routeName}>
-    <Stack.Navigator>
-        <Stack.Screen name="Onboarding" component={OnboardingScreen}
-        options={{ header: () => null }} />
-        <Stack.Screen name="Login" component={LoginScreen}
-        options={{ header: () => null }} />
-        <Stack.Screen name="Signup" component={SignupScreen}
-        options={{ header: () => null }} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPassword}
-        options={({navigation}) => ({
-            title: 'Reset',
-            headerTitleAlign: 'center',
-            headerStyle: {
-            backgroundColor: '#fff',
-            shadowColor: '#f9fafd',
-            elevation: 0,
-            },
-            headerLeft: () => (
-            <View style={{color: '#fff'}}>
-                <FontAwesome.Button 
-                name="long-arrow-left"
-                size={25}
-                backgroundColor="#fff"
-                color="#333"
-                onPress={() => navigation.goBack()}
-                />
-            </View>
-            ), 
-        })} />  
-        <Stack.Screen name="GetUserGoal" component={GetUserGoal}
-        options={{ header: () => null }} />  
-    </Stack.Navigator>
+    <ScrollView>
+    <SafeAreaView style={styles.container}>
+    <CustomHeader Title={'Toeic App'} navigation={navigation}/>
+      <View style={{marginTop:'10%'}}>
+        {/* Practice */}
+        <Text style={AppStyle.textstyle.parttext}>Practice</Text>
+        <View style={[AppStyle.viewstyle.row_evenly,{marginTop:'5%'}]}>
+          <View style={styles.buttonzone}>
+          <TouchableOpacity style={styles.buttonmain} onPress={() => navigation.push('PartFormat', {skill:'L'})}>
+            <Image source={require("../assets/headphones.png")}
+                resizeMode="contain"></Image>
+            </TouchableOpacity>
+            <Text style={AppStyle.textstyle.normaltext}>Listening</Text>
+          </View>
+          <View style={styles.buttonzone}>
+          <TouchableOpacity style={styles.buttonmain} onPress={() => navigation.push('PartFormat', {skill:'R'})}>
+            <Image source={require("../assets/book.png")}
+                resizeMode="contain"></Image>
+            </TouchableOpacity>
+            <Text style={AppStyle.textstyle.normaltext}>Reading</Text>
+          </View>
+          <View style={styles.buttonzone}>
+          <TouchableOpacity style={styles.buttonmain} onPress={() => navigation.push('PartFormat', {skill:'S'})}>
+            <Image source={require("../assets/microphone.png")}
+                resizeMode="contain"></Image>
+            </TouchableOpacity>
+            <Text style={AppStyle.textstyle.normaltext}>Speaking</Text>
+          </View>
+            
+          <View style={styles.buttonzone}>
+          <TouchableOpacity style={styles.buttonmain} onPress={() => navigation.push('PartFormat', {skill:'W'})}>
+            <Image source={require("../assets/pen.png")}
+                resizeMode="contain"></Image>
+            </TouchableOpacity>
+            <Text style={AppStyle.textstyle.normaltext}>Writting</Text>
+          </View>
+        </View>
+        {/* tests */}
+        <Text style={AppStyle.textstyle.parttext}>Tests</Text>
+        <View style={[AppStyle.viewstyle.column_view,{height:200,alignItems:'center',justifyContent:'center'}]}>
+        <View style={[styles.boxstyle2,{width:'90%', height:180}]}>
+        <Image style={{width:'45%', height:150,}} source={require("../assets/test1.png")}>
+        </Image>
+        <View style={{flexDirection:'column', width:'50%', justifyContent:'center', alignItems:'center'}}>
+          <Text style={[AppStyle.textstyle.normaltext,{fontSize:19, fontWeight:'500'}]}>Test 1</Text>
+          <Text style={AppStyle.textstyle.normaltext}>Time: 120 m</Text>
+          <Text style={AppStyle.textstyle.normaltext}>Question: 200</Text>
+          <TouchableOpacity style={[AppStyle.button.button1,{marginTop:5}]}>
+            <Text style={AppStyle.button.button1_Text}>Begin</Text>
+          </TouchableOpacity>
+        </View>
+        </View>
+        <TouchableOpacity style={{marginBottom:10}}>
+          <Text style={{color:'#0000FF', textDecorationLine: 'underline'}}>See more</Text>
+        </TouchableOpacity>
+        </View>
+{/* history */}
+        <Text style={AppStyle.textstyle.parttext}>History</Text>
+        <View style={[AppStyle.viewstyle.column_view,{ alignItems:'center'}]}>
+          <View style={{width:'90%', height:30, flexDirection:'row', justifyContent:'space-between'}}>
+          <TouchableOpacity style={styles.historyButton}>
+          <Text style={AppStyle.button.buttonText}>Practice</Text>
+        </TouchableOpacity>
+        <View style={{width: 1, height: 30,backgroundColor: 'black',}}/>
+        <TouchableOpacity style={styles.historyButton}>
+          <Text style={AppStyle.button.buttonText}>Test</Text>
+        </TouchableOpacity>
+          </View >
+
+          <SmallHistoryCard/>
+          <SmallHistoryCard/>
+          <SmallHistoryCard/>
+          
+          <View style={{flexDirection:'row', justifyContent:'flex-end', width:'90%', marginTop:10}}>
+          <TouchableOpacity>
+            <Text  style={AppStyle.button.buttonText}>See more</Text>
+          </TouchableOpacity>
+          </View>
+          
+        </View>
+{/* storage */}
+        <Text style={AppStyle.textstyle.parttext}>Storage</Text>
+        <View style={{flexDirection:'row', justifyContent:'space-between',alignSelf:'center', width:'90%',marginTop:10}}>
+          <View style={styles.boxStorage}>
+              <Text style={AppStyle.button.buttonText}>Vocab</Text>
+            <Text style={styles.StorageText}>0</Text>
+            <TouchableOpacity style={[AppStyle.button.button1,{marginTop:5, marginBottom:3}]}>
+              <Text style={AppStyle.button.button1_Text}>Review</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{width: 1, height: 100,backgroundColor: 'black',}}/>
+          <View style={styles.boxStorage}>
+              <Text style={AppStyle.button.buttonText}>Question</Text>
+            <Text style={styles.StorageText}>0</Text>
+            <TouchableOpacity style={[AppStyle.button.button1,{marginTop:5, marginBottom:3}]}>
+              <Text style={AppStyle.button.button1_Text}>Review</Text>
+            </TouchableOpacity>
+          </View>
+
+        </View>
+       
+      </View>
+      <StatusBar style="auto"/>
+    </SafeAreaView>
+    </ScrollView>
   )
 }
-
-export default AuthStack
+const styles = StyleSheet.create({
+    container: {
+      backgroundColor: "#FFFFFF", 
+      flex:1,
+      height:1000
+    },
+    buttonmain:{
+        height:100,
+        borderRadius:20,
+        backgroundColor:card_color,
+        alignItems:'center',
+        justifyContent:'center',
+        borderBottomColor:PRIMARY_COLOR,
+        borderBottomWidth:2
+    },
+    buttonzone:{
+      flexDirection:'column', width:'22%', height:150,
+    },
+    boxstyle:{
+      flexDirection:'column',width:'90%', backgroundColor:card_color, alignSelf:'center', marginTop:'5%'
+    },
+    boxstyle2:{
+      flexDirection:'row',justifyContent:'center', alignItems:'center'
+    },
+    historyButton:{
+      width:'43%',
+      height:30,
+      borderBottomColor:'#0000FF',
+      borderBottomWidth:1
+    },
+    StorageText:{
+      color:'black', fontWeight:'600', fontSize:28
+    },
+    boxStorage:{
+      flexDirection:'column',
+      width:'44%',   
+      backgroundColor:card_color,
+      height:110,
+      justifyContent:'center',
+      alignItems:'center'
+    },
+    BeginText:{
+      color:'white', fontSize:14, fontWeight:'400', textAlign:'center'
+    }
+})
+export default Home
