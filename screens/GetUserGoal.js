@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
     text:{
       textAlign: 'center',
       marginTop: 20,
-      fontSize: 15
+      fontSize: 15,
+      color: '#666'
     }
 })
