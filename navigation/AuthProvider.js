@@ -1,24 +1,25 @@
 import React, { createContext, useState } from 'react';
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-
+import messaging from '@react-native-firebase/messaging';
+import firestore from '@react-native-firebase/firestore';
 export const AuthContext = createContext({});
 
 export const AuthProvider = ({children}) => {
   const [user, setUser] = useState(null);
 
-  // const getFcmToken = async () => {
-  //   try {
-  //     const token = await messaging().getToken();
-  //     console.log('FCM token:', token);
-  //     firestore().collection('users').doc(auth().currentUser.uid).set({
-  //       token: token
-  //   }, { merge: true });
+  const getFcmToken = async () => {
+    try {
+      const token = await messaging().getToken();
+      console.log('FCM token:', token);
+      firestore().collection('Users').doc(auth().currentUser.uid).set({
+        token: token
+    }, { merge: true });
 
-  //   } catch (error) {
-  //     console.log('Error retrieving FCM token:', error);
-  //   }
-  // };
+    } catch (error) {
+      console.log('Error retrieving FCM token:', error);
+    }
+  };
   
   return (  
     <AuthContext.Provider
@@ -28,7 +29,7 @@ export const AuthProvider = ({children}) => {
           login: async (email, password) => {
             try {
               await auth().signInWithEmailAndPassword(email, password);
-              // getFcmToken();
+               getFcmToken();
             } catch (e) {
               alert(e);
             }
@@ -52,7 +53,7 @@ export const AuthProvider = ({children}) => {
              // getFcmToken();
               await auth().signInWithCredential(googleCredential)
               .then(() => {
-                // getFcmToken();
+                 getFcmToken();
                 // firestore().collection('users').doc(auth().currentUser.uid)
                 // .set({
                 //     id: auth().currentUser.uid,

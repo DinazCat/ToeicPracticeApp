@@ -29,6 +29,8 @@ import SpeakP5QuestionForm from '../components/SpeakP5QuestionForm';
 import SpeakP6QuestionForm from '../components/SpeakP6QuestionForm';
 import WriteP1QuestionForm from '../components/WriteP1QuestionForm';
 import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
+import dings from '../assets/Part1No1.mp3'
+import LottieView from 'lottie-react-native';
 
 Sound.setCategory('Playback');
 const {width} = Dimensions.get('window');
@@ -39,19 +41,32 @@ const QuestionScreen = ({navigation, route}) => {
   const [ItemIndex, setItemIndex] = useState(0);
   const [OpenModal, setOpenModal] = useState(false);
   const [ExplainButton, setExplainButton] = useState('1');
+  const [loading, setloading] = useState(false);
 
   const list = [];
   const createsound = () => {
     for (let i = 0; i < questionList.length; i++) {
+      //questionList[i].Audio, null
        // console.log(questionList[i].Audio)
-      const sound = new Sound(questionList[i].Audio, null, error => {
+      const sound = new Sound(dings, error => {
         if (error) {
           console.log('failed to load the sound', error);
           return;
         }
+        else{
+          // console.log(i);
+          // list.splice(i,0,sound);
+          // setsoundL(list);
+          // list1.splice(i,0, i);
+          // setdurationL(list1)
+          if(i==questionList.length-1) {setloading(true);}
+      
+        //   setv(true)
+        }
       });
       list.push(sound);
       setsoundL(list);
+      
     }
   };
 
@@ -238,7 +253,83 @@ const QuestionScreen = ({navigation, route}) => {
         </TouchableOpacity>
       </View>
       <View style={{flex: 1}}>
-        {soundL && (
+      {
+            (soundL=='-1')? <Animated.FlatList
+            data={questionList}
+            contentContainerStyle={styles.listContent}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={Animated.event(
+              [
+                {
+                  nativeEvent: {
+                    contentOffset: {x: scrollX},
+                  },
+                },
+              ],
+              {useNativeDriver: true},
+            )}
+            renderItem={({item, index}) => {
+              
+               if (part == 'R2' || part == 'R3' || part == 'R1') {
+                 return <ReadP23QuestionForm item={item} part={part} />;
+               } else if (part == 'S1') {
+                 return <SpeakP1QuestionForm item={item} part={part} />;
+               } else if (part == 'S2') {
+                 return <SpeakP2QuestionForm item={item} part={part} />;
+               } else if (part == 'S3') {
+                 return <SpeakP34QuestionForm item={item} part={part} />;
+               } else if (part == 'S4') {
+                 return <SpeakP5QuestionForm item={item} part={part} />;
+               } else if (part == 'S5') {
+                 return <SpeakP6QuestionForm item={item} part={part} />;
+               } else if (part == 'W1') {
+                 return <WriteP1QuestionForm item={item} part={part} />;
+               } else if (part == 'W2' || 'W3') {
+                 return <WriteP23QuestionForm item={item} part={part} />;
+               }        
+            }}
+          />:
+            (!loading)? <LottieView source={require('../assets/animation_lnu2onmv.json')} autoPlay loop style={{flex: 1, width:100, height:100, alignSelf:'center'}}/>:
+            <Animated.FlatList
+            data={questionList}
+            contentContainerStyle={styles.listContent}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={Animated.event(
+              [
+                {
+                  nativeEvent: {
+                    contentOffset: {x: scrollX},
+                  },
+                },
+              ],
+              {useNativeDriver: true},
+            )}
+            renderItem={({item, index}) => {
+              
+              if(part=='L1'){
+                return(
+              <ListenP1QuestionForm item={item} list={soundL[index]}/>
+                )}
+              else if(part=='L2'){
+              return(
+            <ListenP2QuestionForm item={item} list={soundL[index]} />
+              )}
+              else if(part=='L3'||part=='L4'){
+                return(
+              <ListenP34QuestionForm item={item} list={soundL[index]} />
+                )}
+                
+            }}
+          />
+                       
+          }
+        {/* {soundL && (
           <Animated.FlatList
             data={questionList}
             contentContainerStyle={styles.listContent}
@@ -307,61 +398,9 @@ const QuestionScreen = ({navigation, route}) => {
                 )}                      
             }}
           />
-        )}
+        )} */}
       </View>
-      {/* {part=="L2"&&<View style={{flex: 1}}>
-        {soundL && (
-          <Animated.FlatList
-            data={questionList}
-            contentContainerStyle={styles.listContent}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={16}
-            onScroll={Animated.event(
-              [
-                {
-                  nativeEvent: {
-                    contentOffset: {x: scrollX},
-                  },
-                },
-              ],
-              {useNativeDriver: true},
-            )}
-            renderItem={({item, index}) => {
-              if(part=='L2'){
-              return(
-            <ListenP2QuestionForm item={item} list={soundL[index]} />
-              )}
-            }}
-          />
-        )}
-      </View>}
-      {part=="L3"&&<View style={{flex: 1}}>
-        {soundL && (
-          <Animated.FlatList
-            data={questionList}
-            contentContainerStyle={styles.listContent}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={16}
-            onScroll={Animated.event(
-              [
-                {
-                  nativeEvent: {
-                    contentOffset: {x: scrollX},
-                  },
-                },
-              ],
-              {useNativeDriver: true},
-            )}
-            renderItem={({item, index}) => (
-              <ListenP34QuestionForm item={item} list={soundL[index]} />
-            )}
-          />
-        )}
-      </View>} */}
+     
       {RenderModal()}
     </View>
   );

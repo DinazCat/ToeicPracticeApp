@@ -1,23 +1,26 @@
 import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
-const VocabLessonCard = ({display}) => {
+const VocabLessonCard = ({display,onpress}) => {
+  // useEffect(() => {
+  //  console.log('LId'+display.Id)
+  //     }, []);
   return (
     <View>
-      <TouchableOpacity style={styles.boxstyle}>
+      <TouchableOpacity style={styles.boxstyle} onPress={onpress}>
         <Image
           source={{
-            uri: display.photo,
+            uri: display.Image,
           }}
           style={{width: 100, height: 100}}
         />
-        <View style={{flexDirection: 'column'}}>
+        <View style={{flexDirection: 'column', width:'65%'}}>
         <Text style={[styles.TextFont, {fontWeight: '500', color:PRIMARY_COLOR}]}>
-              {display.Name}
+             Topic: {display.Topic}
             </Text>
-            <Text style={[styles.TextFont, {fontWeight: '400'}]}>
-            Number of vocabulary: 12
+            <Text style={[styles.TextFont, {fontWeight: '300'}]}>
+            Quantity: {display.VocabQuantity}
             </Text>
         </View>
       </TouchableOpacity>
@@ -39,7 +42,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   TextFont: {
-    fontSize: 18,
+    fontSize: 20,
     marginLeft: 5,
     color: 'black',
   },

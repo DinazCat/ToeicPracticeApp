@@ -20,6 +20,9 @@ import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
 import ReadP1QuestionForm from '../components/ReadP1QuestionForm';
 import ReadP23QuestionForm from '../components/ReadP23QuestionForm';
 import QuestionScreen from '../screens/QuestionScreen';
+import SavedVocabScreen from '../screens/SavedVocabScreen';
+import Game from '../components/Game';
+import GameScreen from '../screens/GameScreen';
 const Stack = createNativeStackNavigator();
 export default function HomeStack() {
     return (
@@ -43,6 +46,9 @@ export default function HomeStack() {
                 <Stack.Screen name='CompleteCard' component={CompleteCard} options={{ header: () => null }}/>
                 <Stack.Screen name='ReadP1QuestionForm' component={ReadP1QuestionForm} options={{ header: () => null }}/>
                 <Stack.Screen name='ReadP23QuestionForm' component={ReadP23QuestionForm} options={{ header: () => null }}/>
+                <Stack.Screen name='SavedVocabScreen' component={SavedVocabScreen} options={{ header: () => null }}/>
+                <Stack.Screen name='Game' component={Game} options={{ header: () => null }}/>
+                <Stack.Screen name='GameScreen' component={GameScreen} options={{ header: () => null }}/>
             </Stack.Navigator>
     );
   };

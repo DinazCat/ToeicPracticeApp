@@ -14,7 +14,8 @@ import Slider from '@react-native-community/slider';
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import Sound from 'react-native-sound';
-
+import dings from '../assets/Part1No1.mp3'
+const {width} = Dimensions.get('window');
 const ListenP1QuestionForm = ({item,list}) => {
   const [sign, setsign] = useState('1');
   const [duration, setduration] = useState('00:00')
@@ -22,144 +23,95 @@ const ListenP1QuestionForm = ({item,list}) => {
   const [duration1, setduration1] = useState(0)
   const [position1, setPosition1] = useState(0);
   const [playState, setPlayState] = useState('paused')
-  const [load, setload] = useState(false);
+  const [isPlay, setisPlay] = useState(false);
+  // const [list, setlist] = useState(null)
   const [SliderEditing, setSliderEditing] = useState(false)
-
-//  const sound = new Sound(
-//   item.Audio,null,
-//     error => {
-//       if (error) {
-//         console.log('failed to load the sound', error);
-//         return;
-//       }   
-//       setload(true);
-//     },)
-   
-
-
-  // const onSliderEditStart = () => {
-  //     setSliderEditing(true);
-  // }
-  //  const onSliderEditEnd = () => {
-  //   setSliderEditing(false);
-  // }
-  //  const onSliderEditing = (value) => {
-  //     if(sound){
-  //       sound.setCurrentTime(value);
-  //       const P = getAudioTimeString(value)
-  //         setPosition(P);
-  //         setPosition1(value);
-  //     }
-  // }
-
-  // const play =  () => {
-  //     if(sound){
-  //       sound.play(playComplete);
-  //         setPlayState('playing')
-  //     }else{
-          
-  
-  //         sound = new Sound(dings, (error) => {
-  //             if (error) {
-  //                 console.log('failed to load the sound', error);
-                 
-  //                 setPlayState('paused')
-  //             }else{
-  //               setPlayState('playing');
-  //               const duration = getAudioTimeString(sound.getDuration())
-  //               setduration(duration)
-  //               setduration1(sound.getDuration())
-  //               sound.play(playComplete);
-  //             }
-  //         });    
-  //     }
-  // }
-  // const playComplete = (success) => {
-  //     if(sound){
-  //         if (success) {
-  //             console.log('successfully finished playing');
-  //             setPlayState('paused');
-  //         setPosition1(0);
-  //         setPosition('00:00')
-  //          sound.setCurrentTime(0);
-  //         } else {
-  //             console.log('playback failed due to audio decoding errors');
-  //            // Alert.alert('Notice', 'audio file error. (Error code : 2)');
-  //         }
-  //         setPlayState('paused');
-  //         setPosition1(0);
-  //         setPosition('00:00')
-  //         //this.setState({playState:'paused', playSeconds:0});
-  //         sound.setCurrentTime(0);
-  //     }
-  // }
-// useEffect(()=>{
-//   const duration = getAudioTimeString(sound.getDuration())
-//   setduration(duration)
-//   setduration1(sound.getDuration())
-// },[])
-  // const pause = () => {
-  //     if(sound){
-  //        sound.pause();
-  //        sound.setCurrentTime(position1)
-  //     }
-  //     setPlayState('paused')
-  //     //this.setState({playState:'paused'});
-  // }
-
-  // const jumpPrev15Seconds = () => {this.jumpSeconds(-5);}
-  // const jumpNext15Seconds = () => {this.jumpSeconds(5);}
-  // const jumpSeconds = (secsDelta) => {
-  //     if(this.sound){
-  //         this.sound.getCurrentTime((secs, isPlaying) => {
-  //             let nextSecs = secs + secsDelta;
-  //             if(nextSecs < 0) nextSecs = 0;
-  //             else if(nextSecs > duration) nextSecs = duration;
-  //             this.sound.setCurrentTime(nextSecs);
-  //            // this.setState({playSeconds:nextSecs});
-  //             setPosition(nextSecs);
-  //         })
-  //     }
-  // }
-
-  // const getAudioTimeString=(seconds)=>{
-  //     const h = parseInt(seconds/(60*60));
-  //     const m = parseInt(seconds%(60*60)/60);
-  //     const s = parseInt(seconds%60);
-
-  //     return ( (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s));
-  // }
-
-    // const getPosition = async () => {
-    //   try {
-    //   const currentPosition =  sound.getCurrentTime();
-    //   setPosition1(currentPosition);
-    //   setPosition(getAudioTimeString(currentPosition));
-    //   } catch (error) {
-    //   console.log('Error getting sound position:', error);
-    //   }
-    //   };
-    // useEffect(() => {
-     // console.log(item.Audio)
-      // const interval = setInterval(() => {
-      //   if (sound && duration1 <= 0) {
-      //     setduration1(sound.getDuration())
-      //   }
-      //   if (sound && playState=='playing') {
-      //     sound.getCurrentTime((seconds) => {
-      //       setPosition1(seconds)
-      //     })
-      //   }
-      // }, 100)
-      // return () => clearInterval(interval); 
-      // }, []);
-    const playPause = () => {
+  // const sound = new Sound(item.Audio, null, error => {
+  //   if (error) {
+  //     console.log('failed to load the sound', error);
+  //     return;
+  //   }
+  //   else{
+  //      console.log(sound)
+  //     // list.push(sound);
+  //     setlist(sound);
       
+  
+  //   //   setv(true)
+  //   }
+  // });
+
+ 
+   const onSliderEditing = (value) => {
+    if(list.isLoaded()){
+    const formattedNumber = value.toLocaleString("en-US", {
+      minimumFractionDigits: 3,
+      maximumFractionDigits: 3,
+      });      
+      console.log(formattedNumber);
+      const u =  parseFloat(formattedNumber);
+        list.setCurrentTime(u);
+        const P = getAudioTimeString(value)
+          setPosition(P);
+          //setPosition1(value);
+    }
+  }
+
+ 
+  const jumpPrev15Seconds = () => {jumpSeconds(-3);}
+  const jumpNext15Seconds = () => {jumpSeconds(3);}
+  const jumpSeconds = (secsDelta) => {
+      if(list.isLoaded()){
+         list.getCurrentTime((secs, isPlaying) => {
+              let nextSecs = secs + secsDelta;
+              if(nextSecs < 0) nextSecs = 0;
+              else if(nextSecs > duration1) nextSecs = 14;
+              const t = getAudioTimeString(nextSecs);
+              list.setCurrentTime(nextSecs);
+              setPosition(t);
+              setPosition1(nextSecs);
+          })
+      }
+  }
+
+  const getAudioTimeString=(seconds)=>{
+      const m = parseInt(seconds%(60*60)/60);
+      const s = parseInt(seconds%60);
+
+      return ( (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s));
+  }
+
+    useEffect(() => {
+      if(list!=null &&list.isLoaded()){
+      setduration(getAudioTimeString(list.getDuration()))
+      setduration1(list.getDuration())
+      }
+      if(list!=null &&list.isLoaded()){
+        const interval = setInterval(() => {
+
+          
+            // setPosition1(list._duration)
+            list.getCurrentTime((seconds) => {
+              
+              setPosition1(seconds)
+              
+              setPosition(getAudioTimeString(seconds))
+ 
+            })
+          
+        
+        }, 1000)
+        return () => clearInterval(interval); 
+      }
+
+      
+      
+      }, []);
+    const playPause = () => {
       if (playState=='playing') {
         list.pause(()=>{
           console.log('successfully pause');
         });
-        console.log('0')
        // sound.setCurrentTime(position1)
         setPlayState('paused')
       } else {
@@ -206,7 +158,7 @@ const ListenP1QuestionForm = ({item,list}) => {
           justifyContent: 'space-evenly',
           alignItems: 'center',
         }}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={jumpPrev15Seconds}>
           <FontAwesome name="backward" color="black" size={20} />
         </TouchableOpacity>
        <TouchableOpacity onPress={playPause}>
@@ -214,7 +166,7 @@ const ListenP1QuestionForm = ({item,list}) => {
        <FontAwesome name="play-circle" color="black" size={20} />
        }
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={jumpNext15Seconds}>
           <FontAwesome name="forward" color="black" size={20} />
         </TouchableOpacity>
         <Text style={styles.TimeFont}>{position}</Text>
@@ -222,15 +174,11 @@ const ListenP1QuestionForm = ({item,list}) => {
           style={{width: 100, height: 40}}
           minimumValue={0}
           maximumValue={duration1}
-          minimumTrackTintColor="#FFFFFF"
+          step={1}
+          minimumTrackTintColor="black"
           maximumTrackTintColor="#990000"
-          // onTouchStart={onSliderEditStart}
-          // // onTouchMove={() => console.log('onTouchMove')}
-          // onTouchEnd={onSliderEditEnd}
-          // // onTouchEndCapture={() => console.log('onTouchEndCapture')}
-          // // onTouchCancel={() => console.log('onTouchCancel')}
-          // onValueChange={onSliderEditing}
-          // value={position1}
+          onValueChange={onSliderEditing}
+          value={position1}
         />
        {duration&&<Text style={styles.TimeFont}>{ duration}</Text>}
       </View>
@@ -240,7 +188,8 @@ const ListenP1QuestionForm = ({item,list}) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
-    flex:1
+  flex:1,
+  width:width,
   },
   TimeFont: {
     textAlign: 'left',
