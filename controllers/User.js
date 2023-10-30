@@ -1,6 +1,6 @@
-const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
-const firebase1= require('../config')
-const firestore = getFirestore(firebase1);
+const { getFirestore, collection, getDocs, addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
+const firebase= require('../config')
+const firestore = getFirestore(firebase);
 const admin = require('firebase-admin');
 const serviceAccount = require('../asset/toeicpracticeapp-9dc19-firebase-adminsdk-eqpy0-2c7a132769.json');
 admin.initializeApp({
@@ -87,4 +87,61 @@ const sendNotification=async(token, message)=>{
     //     console.error('Error sending notification:', error);
     // });
   }
-  module.exports={retrieveUserToken, sendNotification}
+  const setUserInfo = async (req, res) => {
+    try {
+      const myCollection = collection(firestore, 'Users');
+      const docRef1 = doc(myCollection, req.params.userId);
+      await setDoc(docRef1, req.body);
+      console.log("Document successfully set!");
+      res.send({ message: 'User data set successfully' });
+    } catch (error) {
+      console.error("Error setting user document: ", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+  const updateUser = async (req, res) => {
+    try {
+      const myCollection = collection(firestore, 'Users');
+      const docRef1 = doc(myCollection, req.params.userId);
+
+      await updateDoc(docRef1, req.body);
+      console.log("Document successfully updated!");
+      res.send({ message: 'User data set successfully' });
+    } catch (error) {
+      console.error("Error updating user document: ", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+  const getUserData = async (req, res) => {
+    try {
+
+      const myCollection = collection(firestore, 'Users');
+      const docRef1 = doc(myCollection, req.params.userId);
+      const documentSnapshot = await getDoc(docRef1);
+
+      if (documentSnapshot.exists()) {
+        res.send({ success: true, userData: documentSnapshot.data() });
+      } else {
+        res.status(404).send({ success: false, message: 'User not found' });
+      }
+    } catch (error) {
+      console.error("Error get user document: ", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+  const getAllUsers = async (req, res) => {
+    const myCollection = collection(firestore, 'Users');
+    try{
+    const querySnapshot = await getDocs(myCollection);
+    const list = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return { ...data };
+    });
+    res.json({success:true, users:list});
+    }
+    catch(e){
+        res.json({success:false, message: error.message})
+        console.log(e)
+    }
+  };
+  module.exports={retrieveUserToken, sendNotification, setUserInfo, updateUser, getAllUsers, getUserData}

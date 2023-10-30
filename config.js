@@ -10,7 +10,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const firebase1= initializeApp(firebaseConfig);
+const firebase= initializeApp(firebaseConfig);
 //  const db = firebase.firestore()
 //  const user = db.collection("Users")
-module.exports = firebase1;
+module.exports = firebase;
