@@ -4,11 +4,11 @@ import TestCard from '../components/TestCard'
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import CustomHeader from '../components/CustomHeader'
-const Test=()=>{
+const Test=({navigation})=>{
   return (
     <View style={styles.container}>
        <ImageBackground source={require('../assets/bg8.png')} style={{ flex: 1, resizeMode: 'cover' }}>
-       <CustomHeader Title={'Test'}/>
+       <CustomHeader Title={'Test'} navigation={navigation}/>
       <TestCard/>
       <TestCard/>
       <TestCard/>

@@ -57,7 +57,7 @@ const Vocab=({navigation})=>{
   return (
     <View style={styles.container}>
        <ImageBackground source={require('../assets/bg8.png')} style={{ flex: 1, resizeMode: 'cover' }}>
-       <CustomHeader Title={'Vocabulary'}/>
+       <CustomHeader Title={'Vocabulary'} navigation={navigation}/>
       <FlatList
               data={vocabList}
               renderItem={({item, index}) => (

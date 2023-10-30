@@ -1,10 +1,79 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native'
-import React from 'react'
-
+import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import React, {useState, useContext} from 'react'
+import DateTimePicker from '@react-native-community/datetimepicker';
 import FormInput from '../components/FormInput';
+import { AuthContext } from '../navigation/AuthProvider';
+import Api from '../api/Api';
 
-const GetUserGoal = ({navigation}) => {
-    
+const GetUserGoal = ({navigation}) => { 
+  const {user} = useContext(AuthContext);
+  const [date, setDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState('');
+  const [target, setTarget] = useState('');
+  const [currentScore, setCurrentScore] = useState('');
+  const [shown, setShown] = useState(false);
+  
+  const onSave = async() => {
+    if(selectedDate == '' || target == ''|| currentScore == ''){
+      Alert.alert('Input cannot be blank!', 'Please enter some information to begin');
+      return;
+    }
+    if(parseInt(target) > 990){
+      Alert.alert('Score cannot be more than 990!', 'Please re-enter your target score');
+      setTarget('990');
+      return;
+    }
+    if(parseInt(currentScore) > 990){
+      Alert.alert('Score cannot be more than 990!', 'Please re-enter current score');
+      setTarget('990');
+      return;
+    }
+    const userData = {
+      expectedExamDate: selectedDate,
+      targetScore: target,
+      currentScore: currentScore,
+      id: user.uid,      
+    }
+    if(parseInt(currentScore) >= parseInt(target)){
+      Alert.alert(
+        'Invalid input',
+        'Are you sure that your current score is over your target score. It may cause some confusion in the learning curve',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {return;},
+            style: 'cancel',
+          },
+          { 
+            text: 'Ok',
+            onPress: async () => {
+              await Api.updateUser(userData)
+              .then(() => {
+                navigation.navigate('Homeinstack')
+              })
+              .catch(error => console.error(error)); 
+            }
+          },
+        ],
+        { cancelable: false }
+      )
+    }
+    else {
+      await Api.updateUser(userData)
+      .then(() => {
+        navigation.navigate('Homeinstack')
+      })
+      .catch(error => console.error(error));
+    }
+  }
+  const onDateChange = (event, selectedDate) => {  
+    setShown(false);
+    let value = selectedDate || date;
+    let currentDate = new Date();
+    if(value < currentDate) value = currentDate;    
+    setDate(value);
+    setSelectedDate(`${value.getDate()}/${value.getMonth() + 1}/${value.getFullYear()}`)
+  }
   return (
   <ScrollView>
     <View style={styles.container}>
@@ -12,19 +81,31 @@ const GetUserGoal = ({navigation}) => {
       <Image source={require('../assets/penguin.png')} style={styles.img} />
       <View style={styles.cont3}>
       <Text style={styles.text}>To achieve better training results, please let us know some information below.</Text>
+      {shown && (
+        <DateTimePicker
+          value={date}
+          mode={'date'}
+          display='default'
+          onChange={onDateChange}
+        />
+      )}
         <Text style={styles.title}>Enter Your Expected Exam Date</Text> 
-        <FormInput
-              //lbValue={email}
-              //onChangeText={(userEmail) => setEmail(userEmail)}
-              iconType="calendar"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={false}
-        /> 
+        <TouchableOpacity onPress={() => {setShown(true)}}>
+          <FormInput
+                value={selectedDate}
+                iconType="calendar"
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={false}
+          /> 
+        </TouchableOpacity>
         <Text style={styles.title}>Enter Your Target Score</Text>
         <FormInput
-              //lbValue={email}
-              //onChangeText={(userEmail) => setEmail(userEmail)}
+              lbValue={target}
+              onChangeText={input => {
+                if(parseInt(input) > 0 || input=='') 
+                  setTarget(input.replace(/[^0-9]/, '')
+              )}}
               iconType="bullseye"
               keyboardType="number-pad"
               autoCapitalize="none"
@@ -33,8 +114,11 @@ const GetUserGoal = ({navigation}) => {
     
         <Text style={styles.title}>Enter Your Current Score</Text>
         <FormInput
-              //lbValue={email}
-              //onChangeText={(userEmail) => setEmail(userEmail)}
+              lbValue={currentScore}
+              onChangeText={input => {
+                if(parseInt(input) > 0 || input=='') 
+                  setCurrentScore(input.replace(/[^0-9]/, '')
+              )}}
               iconType="clipboard"
               keyboardType="number-pad"
               autoCapitalize="none"
@@ -45,13 +129,13 @@ const GetUserGoal = ({navigation}) => {
         </Text>
         <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
         <TouchableOpacity 
-          onPress={() => navigation.navigate('Login')}>
+          onPress={() => navigation.navigate('Homeinstack')}>
           <Text style={[styles.text, {fontStyle: 'italic', textDecorationLine: 'underline'}]}>
             Later
           </Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          onPress={() => navigation.navigate('Login')}>
+          onPress={onSave}>
           <Text style={[styles.text, {fontStyle: 'italic', textDecorationLine: 'underline'}]}>
             Save
           </Text>
@@ -73,6 +157,7 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       backgroundColor: "#fff",
       padding: 20,
+      paddingBottom: 60
     },
     headerText:{
       fontSize: 24,

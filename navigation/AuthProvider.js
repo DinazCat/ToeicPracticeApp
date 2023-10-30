@@ -3,6 +3,7 @@ import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import messaging from '@react-native-firebase/messaging';
 import firestore from '@react-native-firebase/firestore';
+import Api from '../api/Api'
 export const AuthContext = createContext({});
 
 export const AuthProvider = ({children}) => {
@@ -15,11 +16,20 @@ export const AuthProvider = ({children}) => {
       firestore().collection('Users').doc(auth().currentUser.uid).set({
         token: token
     }, { merge: true });
-
     } catch (error) {
       console.log('Error retrieving FCM token:', error);
     }
   };
+  const FirstLogin = async (user) => {
+    const userData = await Api.getUserData(user.id)
+      .catch(error => console.error(error));
+    if(userData && userData.id) {
+      return;
+    } else {
+      Api.setUserInfo(user)
+      .catch(error => console.error(error));
+    } 
+  }
   
   return (  
     <AuthContext.Provider
@@ -29,7 +39,14 @@ export const AuthProvider = ({children}) => {
           login: async (email, password) => {
             try {
               await auth().signInWithEmailAndPassword(email, password);
-               getFcmToken();
+              getFcmToken();
+              const userData = {
+                id: auth().currentUser.uid,
+                name: auth().currentUser.displayName,
+                email: auth().currentUser.email,
+                userImg: auth().currentUser.photoURL,
+              }
+              await FirstLogin(userData);
             } catch (e) {
               alert(e);
             }
@@ -39,7 +56,7 @@ export const AuthProvider = ({children}) => {
             .then(() => {
               alert('Password reset email sent, please check your email!');
             }).catch((e) => {
-              alert(e);
+              console.log('error: ', e);
             })
           },
           googleLogin: async () => {
@@ -49,21 +66,18 @@ export const AuthProvider = ({children}) => {
               // Create a Google credential with the token
               const googleCredential = auth.GoogleAuthProvider.credential(idToken);
               // Sign-in the user with the credential
-             // await auth().signInWithCredential(googleCredential)
-             // getFcmToken();
               await auth().signInWithCredential(googleCredential)
               .then(() => {
-                 getFcmToken();
-                // firestore().collection('users').doc(auth().currentUser.uid)
-                // .set({
-                //     id: auth().currentUser.uid,
-                //     name: auth().currentUser.displayName,
-                //     email: auth().currentUser.email,
-                //     userImg: auth().currentUser.photoURL,
-                // })
-                // .catch(error => {
-                //     console.log('Something went wrong with added user to firestore: ', error);
-                // })
+                getFcmToken();
+
+                const userData = {
+                  id: auth().currentUser.uid,
+                  name: auth().currentUser.displayName,
+                  email: auth().currentUser.email,
+                  userImg: auth().currentUser.photoURL,
+                }
+                FirstLogin(userData);
+                
               })
               .catch(error => {
                 alert('Something went wrong! ' + error);
@@ -76,25 +90,24 @@ export const AuthProvider = ({children}) => {
             try {
               await auth().createUserWithEmailAndPassword(email, password)
               .then(() => {
-                // firestore().collection('users').doc(auth().currentUser.uid)
-                // .set({
-                //     id: auth().currentUser.uid,
-                //     name: name,
-                //     email: auth().currentUser.email,
-                //     userImg: auth().currentUser.photoURL,
-                //     about: '',
-                // })
-                // .catch(error => {
-                //     console.log('Something went wrong with added user to firestore: ', error);
-                // })
-              });
+                getFcmToken();
+                
+                const userData = {
+                  id: auth().currentUser.uid,
+                  name: name,
+                  email: auth().currentUser.email,
+                  userImg: auth().currentUser.photoURL,
+                }
+                Api.setUserInfo(userData)
+                .catch(error => console.error(error));
 
-            //   auth().currentUser.updateProfile({
-            //     displayName: name,
-            //   })
-            //   .catch((error) => {
-            //     console.log('Error updating displayName:', error);
-            //   });           
+                auth().currentUser.updateProfile({
+                  displayName: name,
+                })
+                .catch((error) => {
+                  console.log('Error updating displayName:', error);
+                });  
+              });                   
             
             } catch (e) {
               console.log(e);

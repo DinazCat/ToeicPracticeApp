@@ -10,7 +10,7 @@ const SignupScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const {register, googleSignin} = useContext(AuthContext);
+  const {register, googleLogin} = useContext(AuthContext);
 
   return (
     <ImageBackground source={require('../assets/bg1.jpg')} resizeMode="cover" style={{flex:1}}>

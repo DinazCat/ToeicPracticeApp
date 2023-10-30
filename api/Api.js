@@ -60,7 +60,7 @@ const setAlarmVocab = async(userId, vocabAlarms)=>{
     }
 }
 const getAlarmVocab = async()=>{
-    const endpoint = "/getAlarmVocab/"+auth().currentUser.uid
+    const endpoint = "/getAlarmVocab/" + auth().currentUser.uid
     try{
         const response = await client.get(endpoint)
         if(response.data.success){
@@ -77,15 +77,66 @@ const getAlarmVocab = async()=>{
     }
 }
 const updateAlarmVocab = async(vocabAlarms)=>{
-    const endpoint = "/updateAlarmVocab/"+auth().currentUser.uid
+    const endpoint = "/updateAlarmVocab/" + auth().currentUser.uid
     try{
         const response = await client.put(endpoint, vocabAlarms)
-       console.log(response.data)
+        console.log(response.data)
     }
     catch(error){
         console.log('error: ', error.message)
     }
 
+}
+const setUserInfo = async(userData) => {
+    const endpoint = '/setUserInfo/' + userData.id;
+    console.log(endpoint);
+    try {
+        const response = await client.put(endpoint, userData);
+        console.log(response.data)
+      } catch (error) {
+        console.error('error: ', error.message);
+    }
+}
+const updateUser = async(userData) => {
+    const endpoint = '/updateUser/' + userData.id;
+    console.log(endpoint);
+    try {
+        const response = await client.put(endpoint, userData);
+        console.log(response.data)
+      } catch (error) {
+        console.error('error: ', error.message);
+    }
+}
+const getAllUsers = async() => {
+    try{
+        const response = await client.get('/Users')
+        if(response.data.success){
+            return response.data.users           
+        }
+        else{
+            console.log("not get users")
+        }        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+const getUserData = async(userId)=>{
+    const endpoint = "/UserData/" + userId
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.userData
+        }
+        else{
+            console.log("not get user data")
+        }        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
 }
 export default {
     getVocabLesson,
@@ -93,5 +144,9 @@ export default {
     getVocabs,
     getAlarmVocab,
     setAlarmVocab,
-    updateAlarmVocab
+    updateAlarmVocab, 
+    setUserInfo,
+    updateUser,
+    getAllUsers,
+    getUserData,
 }

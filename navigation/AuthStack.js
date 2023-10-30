@@ -6,8 +6,9 @@ import OnboardingScreen from '../screens/OnboardingScreen'
 import LoginScreen from '../screens/LoginScreen'
 import SignupScreen from '../screens/SignupScreen';
 import ForgotPassword from '../screens/ForgotPassword';
-import GetUserGoal from '../screens/GetUserGoal';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -66,8 +67,6 @@ const AuthStack = () => {
             </View>
             ), 
         })} />  
-        <Stack.Screen name="GetUserGoal" component={GetUserGoal}
-        options={{ header: () => null }} />  
     </Stack.Navigator>
   )
 }
