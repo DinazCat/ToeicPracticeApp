@@ -8,9 +8,9 @@ import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 
 const {width} = Dimensions.get('window');
 
-const  WriteP23QuestionForm = ({item}) => {
+const  WriteP23QuestionForm = ({item, onAnswerChange}) => {
   return (
-    <View style={styles.container}>     
+    <Animated.View style={styles.container}>     
       <Text style={{color:'black', fontWeight:'500', fontSize:20,textAlign:'left',marginTop:'5%', marginLeft:"5%"}}>Response the email</Text>
       <View style={styles.boxstyle}>
           <ScrollView>
@@ -28,9 +28,10 @@ const  WriteP23QuestionForm = ({item}) => {
             style={{fontSize: 16, marginLeft: 3, color:'black',borderRadius:15}}
             placeholder="Write your answer here"
             placeholderTextColor={'rgba(0,0,0,0.8)'}
+            onChangeText={text => {onAnswerChange(text, item.QId)}}
           />
       </View>
-    </View>
+    </Animated.View>
   );
 };
 const styles = StyleSheet.create({

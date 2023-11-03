@@ -10,9 +10,8 @@ import {
   Animated,
   Modal,
 } from 'react-native';
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Slider from '@react-native-community/slider';
 import AppStyle from '../theme';
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -31,10 +30,15 @@ import WriteP1QuestionForm from '../components/WriteP1QuestionForm';
 import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
 import dings from '../assets/Part1No1.mp3'
 import LottieView from 'lottie-react-native';
+import RNFS from 'react-native-fs';
+import Api from '../api/Api';
+import { AuthContext } from '../navigation/AuthProvider';
 
 Sound.setCategory('Playback');
 const {width} = Dimensions.get('window');
+
 const QuestionScreen = ({navigation, route}) => {
+  const {user} = useContext(AuthContext);
   const scrollX = useRef(new Animated.Value(0)).current;
   const {questionList, part} = route.params;
   const [soundL, setsoundL] = useState(null);
@@ -42,13 +46,16 @@ const QuestionScreen = ({navigation, route}) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ExplainButton, setExplainButton] = useState('1');
   const [loading, setloading] = useState(false);
+  const [buttonTitle, setButtonTitle] = useState('Submit')
+  const [recordingsList, setRecordingsList] = useState([]);
+  const recordsRef = useRef([]);
+  const answersRef = useRef([]);
 
   const list = [];
   const createsound = () => {
     for (let i = 0; i < questionList.length; i++) {
-      //questionList[i].Audio, null
        // console.log(questionList[i].Audio)
-      const sound = new Sound(dings, error => {
+      const sound = new Sound(questionList[i].Audio, null, error => {
         if (error) {
           console.log('failed to load the sound', error);
           return;
@@ -70,6 +77,181 @@ const QuestionScreen = ({navigation, route}) => {
     }
   };
 
+  const handleRecordComplete = (index, record, questionId) => {  
+    // setRecordList((prevList) => {
+    //   const existingRecordIndex = prevList.findIndex(item => item.QId === QuestionId);
+
+    //   if (existingRecordIndex !== -1) {
+    //     const updatedList = [...prevList];
+    //     updatedList[existingRecordIndex] = { QId: QuestionId, record };
+    //     return updatedList;
+    //   } else {
+    //     return [...prevList, { QId: QuestionId, record }];
+    //   }
+    // });   
+    recordsRef.current[index] = {
+      QId: questionId,
+      record: record, 
+    };
+  };
+  const handleRecordComplete2 = (recordData, questionId) => {
+    setRecordingsList((prevList) => {
+
+      const existingRecordIndex = prevList.findIndex(item => item.QId === questionId);
+  
+      if (existingRecordIndex !== -1) {
+        return prevList.map(item =>
+          item.QId === questionId ? { 
+            // ...item,
+            QId: questionId , 
+            record0: recordData[0],
+            record1: recordData[1],
+            record2: recordData[2],
+          } : item
+        );
+      } else {       
+        return [...prevList, { 
+          QId: questionId,
+          record0: recordData[0],
+          record1: recordData[1],
+          record2: recordData[2],
+         }];
+      }
+    });  
+  };
+
+  const handleAnswerChange = (index, answer, questionId) => {
+    answersRef.current[index] = {
+      answer: answer, 
+      QId: questionId,
+    };
+    
+  };
+
+  const onSubmit = async() =>{
+    if(part == 'S1' || part == 'S2' || part == 'S5'){
+      try {    
+        // for(const recordItem of recordList) {
+        //   // upload audio to storage
+        //   const audioData = await RNFS.readFile(recordItem.record, 'base64');
+        //   const audioUrl = await Api.uploadAudio(audioData)
+        //   .catch(error => console.error(error));
+        //   console.log('url: ' + audioUrl);      
+        //   // upload data to firestore
+        //   const data = {
+        //     record: audioUrl,
+        //     QId: recordItem.QId,
+        //   }
+          for (let i = 0; i < questionList.length; i++) {
+            if (recordsRef.current[i] === undefined) {
+              recordsRef.current[i] = {
+                record: null, 
+                QId: questionList[i].QId,
+              };
+            }
+          }
+
+          const audioUploadPromises = recordsRef.current.map(async (recordItem) => {
+            // upload audio to storage
+            const audioData = recordItem.record !== null ? await RNFS.readFile(recordItem.record, 'base64') : null;
+            const audioUrl = audioData !== null ? await Api.uploadAudio(audioData) : null;
+            return {
+              QId: recordItem.QId,
+              record: audioUrl,
+            };
+          });
+    
+          const audioUploadResults = await Promise.all(audioUploadPromises);
+          //console.log(audioUploadResults);
+          
+          const practiceHistoryData = {
+            submitTime: new Date(), 
+            result: audioUploadResults,
+            userId: user.uid,
+            part: part,
+          }; 
+          //console.log(practiceHistoryData);
+          //console.log(practiceHistoryData.result)
+          await Api.uploadPracticeHistory(practiceHistoryData)
+          .catch(error => console.error(error));
+          navigation.goBack(); 
+      } catch (error) {
+        console.log('error at onSubmit: ', error);
+      }
+    }
+    else if (part == 'S3' || part == 'S4'){
+      const audioUploadPromises = recordingsList.map(async (recordItem) => {
+        // upload audio to storage
+        const audioData0 = recordItem.record0 !== null ? await RNFS.readFile(recordItem.record0, 'base64') : null;
+        const audioUrl0 = audioData0 ? await Api.uploadAudio(audioData0) : null;
+        const audioData1 = recordItem.record1 !== null ? await RNFS.readFile(recordItem.record1, 'base64') : null;
+        const audioUrl1 = audioData1 ? await Api.uploadAudio(audioData1) : null;
+        const audioData2 = recordItem.record2 !== null ? await RNFS.readFile(recordItem.record2, 'base64') : null;
+        const audioUrl2 = audioData2 ? await Api.uploadAudio(audioData2) : null;    
+
+        return {
+          QId: recordItem.QId,
+          record0: audioUrl0,
+          record1: audioUrl1,
+          record2: audioUrl2,
+        };
+      });
+
+      const audioUploadResults = await Promise.all(audioUploadPromises);
+      //console.log(audioUploadResults);
+
+      if (audioUploadResults.length !== questionList.length) {
+        const questionIds = questionList.map(question => question.QId)
+        const recordQIds = audioUploadResults.map(item => item.QId)
+        const missingQIds = questionIds.filter(id => !recordQIds.includes(id));
+        
+        const newItems = missingQIds.map(QId => ({
+          QId: QId,
+          record0: null,
+          record1: null,
+          record2: null,
+        }));
+             
+        audioUploadResults.push(...newItems);
+      }
+
+      const practiceHistoryData = {
+        submitTime: new Date(), 
+        result: audioUploadResults,
+        userId: user.uid,
+        part: part,
+      }; 
+      //console.log(practiceHistoryData);
+
+      await Api.uploadPracticeHistory(practiceHistoryData)
+      .catch(error => console.error(error));
+
+      navigation.goBack();  
+    }
+    else if(part == 'W1' || part == 'W1' || part == 'W3' ){
+      for (let i = 0; i < questionList.length; i++) {
+        if (answersRef.current[i] === undefined) {
+          answersRef.current[i] = {
+            answer: null, 
+            QId: questionList[i].QId,
+          };
+        }
+      }
+      const practiceHistoryData = {
+        submitTime: new Date(), 
+        result: answersRef.current,
+        userId: user.uid,
+        part: part,
+      }; 
+      //console.log(practiceHistoryData);
+
+      await Api.uploadPracticeHistory(practiceHistoryData)
+      .catch(error => console.error(error));
+      
+      navigation.goBack();
+    }
+  }
+
   useEffect(() => {
     if(part=='L1'||part=='L2'||part=='L3'||part=='L4')
     createsound();
@@ -79,7 +261,6 @@ const QuestionScreen = ({navigation, route}) => {
     scrollX.addListener(({value}) => {
       const index = Math.round(value / width);
       setItemIndex(index);
-      //console.log(width)
       if (soundL != null && (part=='L1'||part=='L2'||part=='L3'||part=='L4')){
         const updatedList = [...soundL];
         for (let i = 0; i < soundL.length; i++) {
@@ -239,6 +420,7 @@ const QuestionScreen = ({navigation, route}) => {
           style={{marginLeft: '3%'}}
         />
         <View style={{flex: 1}} />
+        { buttonTitle == 'Explain' ? (
         <TouchableOpacity onPress={() => setOpenModal(true)}>
           <Text
             style={{
@@ -251,10 +433,24 @@ const QuestionScreen = ({navigation, route}) => {
             Explain
           </Text>
         </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={onSubmit}>
+          <Text
+            style={{
+              textAlign: 'left',
+              color: 'white',
+              fontSize: 20,
+              marginRight: '5%',
+              textDecorationLine: 'underline',
+            }}>
+            Submit
+          </Text>
+        </TouchableOpacity>
+        )}
       </View>
       <View style={{flex: 1}}>
       {
-            (soundL=='-1')? <Animated.FlatList
+        (soundL=='-1') ? <Animated.FlatList
             data={questionList}
             contentContainerStyle={styles.listContent}
             horizontal
@@ -276,24 +472,32 @@ const QuestionScreen = ({navigation, route}) => {
                if (part == 'R2' || part == 'R3' || part == 'R1') {
                  return <ReadP23QuestionForm item={item} part={part} />;
                } else if (part == 'S1') {
-                 return <SpeakP1QuestionForm item={item} part={part} />;
+                 return <SpeakP1QuestionForm item={item} part={part} 
+                 onRecordComplete={(record, questionId) => handleRecordComplete(index, record, questionId)}/>;
                } else if (part == 'S2') {
-                 return <SpeakP2QuestionForm item={item} part={part} />;
+                 return <SpeakP2QuestionForm item={item} part={part} 
+                 onRecordComplete={(record, questionId) => handleRecordComplete(index, record, questionId)}/>;
                } else if (part == 'S3') {
-                 return <SpeakP34QuestionForm item={item} part={part} />;
+                 return <SpeakP34QuestionForm item={item} part={part} 
+                 onRecordComplete={handleRecordComplete2}/>;
                } else if (part == 'S4') {
-                 return <SpeakP5QuestionForm item={item} part={part} />;
+                 return <SpeakP5QuestionForm item={item} part={part} 
+                 onRecordComplete={handleRecordComplete2}/>;
                } else if (part == 'S5') {
-                 return <SpeakP6QuestionForm item={item} part={part} />;
+                 return <SpeakP6QuestionForm item={item} part={part} 
+                 onRecordComplete={(record, questionId) => handleRecordComplete(index, record, questionId)}/>;
                } else if (part == 'W1') {
-                 return <WriteP1QuestionForm item={item} part={part} />;
+                 return <WriteP1QuestionForm item={item} part={part} 
+                 onAnswerChange={(answer, questionId) => handleAnswerChange(index, answer, questionId)}/>;
                } else if (part == 'W2' || 'W3') {
-                 return <WriteP23QuestionForm item={item} part={part} />;
+                 return <WriteP23QuestionForm item={item} part={part} 
+                 onAnswerChange={(answer, questionId) => handleAnswerChange(index, answer, questionId)}/>;
                }        
             }}
           />:
-            (!loading)? <LottieView source={require('../assets/animation_lnu2onmv.json')} autoPlay loop style={{flex: 1, width:100, height:100, alignSelf:'center'}}/>:
-            <Animated.FlatList
+            (!loading) ? 
+            <LottieView source={require('../assets/animation_lnu2onmv.json')} autoPlay loop style={{flex: 1, width:100, height:100, alignSelf:'center'}}/>
+            : <Animated.FlatList
             data={questionList}
             contentContainerStyle={styles.listContent}
             horizontal
@@ -329,76 +533,6 @@ const QuestionScreen = ({navigation, route}) => {
           />
                        
           }
-        {/* {soundL && (
-          <Animated.FlatList
-            data={questionList}
-            contentContainerStyle={styles.listContent}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={16}
-            onScroll={Animated.event(
-              [
-                {
-                  nativeEvent: {
-                    contentOffset: {x: scrollX},
-                  },
-                },
-              ],
-              {useNativeDriver: true},
-            )}
-            renderItem={({item, index}) => {               
-              if(part=='L1'){
-                return(
-                  <ListenP1QuestionForm item={item} list={soundL[index]} />
-                )}
-              else if(part=='L2'){
-                return(
-                  <ListenP2QuestionForm item={item} list={soundL[index]} />
-                )}
-              else if(part=='L3'||part=='L4'){
-                return(
-                  <ListenP34QuestionForm item={item} list={soundL[index]} />
-                )}
-                // else if(part === 'R1'){
-                //   return(
-                // <ReadP1QuestionForm item={item} />
-                //   )}
-              else if(part == 'R2'||part=='R3'||part=='R1'){
-                return(
-                  <ReadP23QuestionForm  item={item} part={part}/>
-                )}
-              else if(part == 'S1'){
-                return(
-                  <SpeakP1QuestionForm  item={item} part={part}/>
-                )}
-              else if(part == 'S2'){
-                return(
-                  <SpeakP2QuestionForm  item={item} part={part}/>
-                )}
-              else if(part == 'S3'){
-                return(
-                  <SpeakP34QuestionForm  item={item} part={part}/>
-                )}
-              else if(part == 'S4'){
-                return(
-                  <SpeakP5QuestionForm  item={item} part={part}/>
-                )} 
-              else if(part == 'S5'){
-                return(
-                  <SpeakP6QuestionForm  item={item} part={part}/>
-                )}  
-              else if(part == 'W1'){
-                return(
-                  <WriteP1QuestionForm  item={item} part={part}/>
-                )}   
-              else if(part == 'W2' || 'W3'){
-                return(
-                  <WriteP23QuestionForm  item={item} part={part}/>
-                )}                      
-            }}
-          />
-        )} */}
       </View>
      
       {RenderModal()}

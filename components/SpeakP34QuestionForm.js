@@ -1,5 +1,5 @@
 import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Animated, Dimensions, PermissionsAndroid, Alert, Platform} from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -7,6 +7,7 @@ import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFetchBlob from 'rn-fetch-blob';
+import { AuthContext } from '../navigation/AuthProvider';
 
 const {width} = Dimensions.get('window');
 const audioRecorderPlayer = new AudioRecorderPlayer();
@@ -16,11 +17,16 @@ const permissions = [
   PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
 ];
 
-const SpeakP34QuestionForm = ({item}) => {
+const SpeakP34QuestionForm = ({item, onRecordComplete}) => {
+  const {user} = useContext(AuthContext);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [isRecording, setIsRecording] = useState([false, false, false]);
   const [isPlaying, setIsPlaying] = useState([false, false, false]);
   const [recordings, setRecordings] = useState([null, null, null]);
+  const [durations, setDurations] = useState(['00:00', '00:00', '00:00']);
+  const [positions, setPositions] = useState([0, 0, 0]);
+  const [audio, setAudio] = useState();
+
   const getPermissions = async () => {
     //const atLeastAndroid13 = Platform.OS === 'android' && Platform.Version >= 33;
     const granted = await PermissionsAndroid.requestMultiple(permissions);
@@ -47,57 +53,59 @@ const SpeakP34QuestionForm = ({item}) => {
       console.log('permission granted')
     }
   };
-  
+
   const QuestionForm = ({question, index}) => {
-    //const audioRecorderPlayer = new AudioRecorderPlayer();
+
+    function formatTime(miliseconds) {
+      const minutes = Math.floor(miliseconds/ 1000 / 60);
+      const remainingSeconds = Math.floor((miliseconds / 1000) % 60);
+      const formattedMinutes = String(minutes).padStart(2, '0');
+      const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+      return `${formattedMinutes}:${formattedSeconds}`;
+    }
     const onStartRecord = async () => {
       await getPermissions().then(() => {
         if(!permissionGranted) return;
       })
 
-      // if(isRecording) {
-      //   Toast.show({
-      //     type: 'error',
-      //     text1: 'You have not finished another record.',
-      //     text2: 'Please try again later.',
-      //   });
-      //   return;
-      // }
-
       const dirs = RNFetchBlob.fs.dirs;
-      // const path = Platform.select({
-      //   android: `${dirs.CacheDir}/record-${userId}-${new Date().getTime()}.mp3`,
-      // });
       const path = Platform.select({
-          android: `${dirs.CacheDir}/record${index}.mp3`,
-        });
+        android: `${dirs.CacheDir}/recordP3-${index}-${user.uid}-${new Date().getTime()}.mp3`,
+      });
+
       console.log('start recording');
+
       const result = await audioRecorderPlayer.startRecorder(path);
       audioRecorderPlayer.addRecordBackListener((e) => {
-        // setState({
-        //   recordSecs: e.currentPosition,
-        //   recordTime: this.audioRecorderPlayer.mmssss(
-        //     Math.floor(e.currentPosition),
-        //   ),
-        // });
-        //setRecordTime(e.currentPosition);
-        console.log(e.currentPosition)
+        const newDurations = [...durations];
+        newDurations[index] = formatTime(e.currentPosition);
+        setDurations(newDurations);
+        
       });
+      
       const newIsRecording = [...isRecording];
       newIsRecording[index] = true;
       setIsRecording(newIsRecording);
-      //setIsRecording(true);
+
       const newRecordings = [...recordings];
       newRecordings[index] = path;
       setRecordings(newRecordings);
-      console.log(result);
+
     };
   
     const onStopRecord = async () => {
       console.log('stop recording');
       try {
-        await audioRecorderPlayer.stopRecorder();
+
+        const result = await audioRecorderPlayer.stopRecorder();
         audioRecorderPlayer.removeRecordBackListener();
+        //console.log(result);
+
+        const newIsRecording = [...isRecording];
+        newIsRecording[index] = false;
+        setIsRecording(newIsRecording);
+
+        onRecordComplete(recordings, item.QId);
       } catch (err) {
         console.error(err);
         Toast.show({
@@ -106,50 +114,57 @@ const SpeakP34QuestionForm = ({item}) => {
           text2: 'Please try again.',
         });
       }
-      //setIsRecording(false);
-      const newIsRecording = [...isRecording];
-      newIsRecording[index] = false;
-      setIsRecording(newIsRecording);
     };
     const onStartPlay = async () => {
       try{
-        console.log('onStartPlay');
-        if(recordings[index] === null) return;
+        if(recordings[index] === null) {return;}
+        for (const value of isRecording) {
+          if (value) return;
+        }
+        for (const value of isPlaying) {
+          if (value) return;
+        }
+        // isPlaying.forEach((value, index) => {
+        //   if(value == 'true') return;
+        // });
+        if(index !== audio){
+          await audioRecorderPlayer.stopPlayer();
+        }
+        console.log('onStartPlay'); 
         const msg = await audioRecorderPlayer.startPlayer(recordings[index]);
+        
         console.log(msg);
         audioRecorderPlayer.addPlayBackListener((e) => {
-          // this.setState({
-          //   currentPositionSec: e.currentPosition,
-          //   currentDurationSec: e.duration,
-          //   playTime: this.audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
-          //   duration: this.audioRecorderPlayer.mmssss(Math.floor(e.duration)),
-          // });
-          console.log('currentPosition', e.currentPosition)
-          console.log('playTime', audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)))
-          console.log('duration', audioRecorderPlayer.mmssss(Math.floor(e.duration)))
+          let currentPosition = e.currentPosition / e.duration;
+
+          const newPositions = [...positions];
+          newPositions[index] = currentPosition;
+          setPositions(newPositions);
+
           if(e.currentPosition == e.duration){
             const newIsPlaying = [...isPlaying];
             newIsPlaying[index] = false;
             setIsPlaying(newIsPlaying);
           }
         });
+
         const newIsPlaying = [...isPlaying];
         newIsPlaying[index] = true;
         setIsPlaying(newIsPlaying);
-        //setIsPlaying(true);  
+
+        setAudio(index);
       } catch (error) {
         console.error('Error starting player:', error);
       }  
     };
     const onPausePlay = async () => {
       await audioRecorderPlayer.pausePlayer();
-      //setIsPlaying(false);
       const newIsPlaying = [...isPlaying];
       newIsPlaying[index] = false;
       setIsPlaying(newIsPlaying);
     };
     return(
-        <View style={{backgroundColor:card_color, width:'98%', alignSelf:'center', marginTop:'3%'}}>
+        <View style={{backgroundColor:card_color, width:'98%', alignSelf:'center', marginTop:'3%', paddingTop: 5}}>
           <View style={styles.questionzone}>
             <Text style={styles.questionstyle}>{question}</Text>
             {!isRecording[index] ? (
@@ -165,26 +180,39 @@ const SpeakP34QuestionForm = ({item}) => {
             )}
           </View>
           <View style={{ height: 50, flexDirection: 'row', marginTop:'1%', alignItems: 'center',}}>
-          <Text style={{fontSize:18, fontWeight:'400', color:'black',marginLeft:"5%"}}>Your voice:</Text>
+          <Text style={[styles.TimeFont, {marginLeft: '5%'}]}>Your answer:</Text>
           {!isPlaying[index] ? (
             <TouchableOpacity style={{marginLeft:"5%"}}
             onPress={onStartPlay}>
-              <FontAwesome name="play-circle" color="black" size={20} />
+              <FontAwesome name="play-circle" color="black" size={22} />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={{marginLeft:"5%"}}
           onPress={onPausePlay}>
-            <FontAwesome name="pause-circle" color="black" size={20} />
+            <FontAwesome name="pause-circle" color="black" size={22} />
           </TouchableOpacity>
           )}
-          <Slider
-            style={{width: 140, height: 40, marginLeft:"3%"}}
-            minimumValue={0}
-            maximumValue={1}
-            minimumTrackTintColor="#FFFFFF"
-            maximumTrackTintColor="#990000"
-          />
-          <Text style={styles.TimeFont}>00:00</Text>
+          <View style={{width: 140, marginLeft: '3%'}}>
+            <Slider
+              style={{ width: "100%", height: 40 }}
+              minimumValue={0}
+              maximumValue={1}
+              minimumTrackTintColor="#3EA200"
+              maximumTrackTintColor="#555"
+              value={positions[index]}
+              onValueChange={(newValue) => setPosition(newValue)}/>
+            {
+            <View
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: 40,
+                backgroundColor: "transparent",
+              }}
+            />
+            }
+          </View>
+          <Text style={styles.TimeFont}>{durations[index]}</Text>
         </View>
     </View>
   )}

@@ -1,5 +1,6 @@
 import client from "./client";
 import auth from '@react-native-firebase/auth';
+
 const getVocabLesson = async ()=>{
     try{
         const response = await client.get('/VocabLessons')
@@ -94,7 +95,7 @@ const setUserInfo = async(userData) => {
         const response = await client.put(endpoint, userData);
         console.log(response.data)
       } catch (error) {
-        console.error('error: ', error.message);
+        console.log('error: ', error.message);
     }
 }
 const updateUser = async(userData) => {
@@ -104,7 +105,7 @@ const updateUser = async(userData) => {
         const response = await client.put(endpoint, userData);
         console.log(response.data)
       } catch (error) {
-        console.error('error: ', error.message);
+        console.log('error: ', error.message);
     }
 }
 const getAllUsers = async() => {
@@ -138,6 +139,29 @@ const getUserData = async(userId)=>{
         return [];
     }
 }
+const uploadAudio = async (audioData) => {
+    const userId = auth().currentUser.uid;
+    try {
+        const response = await client.post('/uploadAudio', {userId, audioData})
+        if(response.data.success){
+            return response.data.downloadUrl;
+        }
+        else{
+            console.log("upload audio failed");
+        }
+    } catch (error) {
+        console.error('Error uploading audio:', error);
+        console.log('error: ', error.message);
+    }
+};
+const uploadPracticeHistory = async (data) => {
+    try {
+        const response = await client.post('/uploadPracticeHistory', data)
+        console.log(response.data)
+    } catch (error) {
+        console.log('error: ', error.message);
+    }
+};
 export default {
     getVocabLesson,
     getVocabinLesson,
@@ -149,4 +173,6 @@ export default {
     updateUser,
     getAllUsers,
     getUserData,
+    uploadAudio,
+    uploadPracticeHistory,
 }

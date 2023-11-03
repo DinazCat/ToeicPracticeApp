@@ -45,6 +45,8 @@ export default function HomeStack() {
         //         setLoading(false);
         //     }          
         // })
+        // setLoading(false);
+        // setInitialScreen('HomeinStack')  
         const userData = await Api.getUserData(user.uid)
         .catch(error => console.error(error));
         if (userData && userData.targetScore) {
@@ -53,7 +55,8 @@ export default function HomeStack() {
         } else {
             setInitialScreen('GetUserGoal');
             setLoading(false);
-        }      
+        } 
+   
     };
       
     useEffect(() => {

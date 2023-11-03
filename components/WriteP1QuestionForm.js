@@ -1,5 +1,5 @@
 import {View, Text, StyleSheet, TextInput, Image, ScrollView, Animated, Dimensions,} from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -8,7 +8,8 @@ import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 
 const {width} = Dimensions.get('window');
 
-const WriteP1QuestionForm = ({item}) => {
+const WriteP1QuestionForm = ({item, onAnswerChange}) => {
+
   return (
     <Animated.View style={styles.container}>    
       <Text style={{color:'black', fontWeight:'500', fontSize:20,textAlign:'left',marginTop:'5%', marginLeft:"5%"}}>Describe the picture:</Text>
@@ -17,6 +18,8 @@ const WriteP1QuestionForm = ({item}) => {
       <View style={{flex: 1, width:'90%', alignSelf:'center', backgroundColor:'white', borderColor:PRIMARY_COLOR, borderWidth:2, marginTop:'3%', marginBottom: '10%'}}>
         <TextInput
               multiline={true}
+              //value={answer}
+              onChangeText={text => {onAnswerChange(text, item.QId)}}
               style={{fontSize: 16, marginLeft: 3, color:'black'}}
               placeholder="Write your answer here"
               placeholderTextColor={'rgba(0,0,0,0.8)'}

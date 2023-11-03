@@ -1,44 +1,221 @@
-import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Animated, Dimensions,} from 'react-native';
-import React from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Animated, Dimensions, PermissionsAndroid, Alert, Platform} from 'react-native';
+import React, {useState, useContext} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 
-const {width} = Dimensions.get('window');
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import RNFetchBlob from 'rn-fetch-blob';
+import { AuthContext } from '../navigation/AuthProvider';
 
-const SpeakP5QuestionForm = ({item}) => {
+const {width} = Dimensions.get('window');
+const audioRecorderPlayer = new AudioRecorderPlayer();
+const permissions = [
+  PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+  PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+  PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+];
+
+const SpeakP5QuestionForm = ({item, onRecordComplete}) => {
+  const {user} = useContext(AuthContext);
+  const [permissionGranted, setPermissionGranted] = useState(false);
+  const [isRecording, setIsRecording] = useState([false, false, false]);
+  const [isPlaying, setIsPlaying] = useState([false, false, false]);
+  const [recordings, setRecordings] = useState([null, null, null]);
+  const [durations, setDurations] = useState(['00:00', '00:00', '00:00']);
+  const [positions, setPositions] = useState([0, 0, 0]);
+  const [audio, setAudio] = useState();
+
+  const getPermissions = async () => {
+    const granted = await PermissionsAndroid.requestMultiple(permissions);
+    const recordAudioGranted =
+      granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] === 'granted';
+
+    const externalStorageWriteGranted =
+      granted[PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE] ===
+      'granted';
+    const externalStorageReadGranted =
+      granted[PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE] ===
+      'granted';
+
+    if (
+      !(
+        recordAudioGranted ||
+        externalStorageWriteGranted ||
+        externalStorageReadGranted
+      )
+    ) {
+      Alert.alert('Permissions not granted');
+    } else {
+      setPermissionGranted(true);
+      console.log('permission granted')
+    }
+  };
+
   const QuestionForm = ({question, index}) => {
+
+    function formatTime(miliseconds) {
+      const minutes = Math.floor(miliseconds/ 1000 / 60);
+      const remainingSeconds = Math.floor((miliseconds / 1000) % 60);
+      const formattedMinutes = String(minutes).padStart(2, '0');
+      const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+      return `${formattedMinutes}:${formattedSeconds}`;
+    }
+    const onStartRecord = async () => {
+      await getPermissions().then(() => {
+        if(!permissionGranted) return;
+      })
+
+      const dirs = RNFetchBlob.fs.dirs;
+      const path = Platform.select({
+        android: `${dirs.CacheDir}/recordP3-${index}-${user.uid}-${new Date().getTime()}.mp3`,
+      });
+
+      console.log('start recording');
+
+      const result = await audioRecorderPlayer.startRecorder(path);
+      audioRecorderPlayer.addRecordBackListener((e) => {
+        const newDurations = [...durations];
+        newDurations[index] = formatTime(e.currentPosition);
+        setDurations(newDurations);
+        
+      });
+      
+      const newIsRecording = [...isRecording];
+      newIsRecording[index] = true;
+      setIsRecording(newIsRecording);
+
+      const newRecordings = [...recordings];
+      newRecordings[index] = path;
+      setRecordings(newRecordings);
+
+    };
+  
+    const onStopRecord = async () => {
+      console.log('stop recording');
+      try {
+
+        const result = await audioRecorderPlayer.stopRecorder();
+        audioRecorderPlayer.removeRecordBackListener();
+        //console.log(result);
+
+        const newIsRecording = [...isRecording];
+        newIsRecording[index] = false;
+        setIsRecording(newIsRecording);
+
+        onRecordComplete(recordings, item.QId);
+      } catch (err) {
+        console.error(err);
+        Toast.show({
+          type: 'error',
+          text1: 'Unxpected Error',
+          text2: 'Please try again.',
+        });
+      }
+    };
+    const onStartPlay = async () => {
+      try{
+        if(recordings[index] === null) {return;}
+        for (const value of isRecording) {
+          if (value) return;
+        }
+        for (const value of isPlaying) {
+          if (value) return;
+        }
+        // isPlaying.forEach((value, index) => {
+        //   if(value == 'true') return;
+        // });
+        if(index !== audio){
+          await audioRecorderPlayer.stopPlayer();
+        }
+        console.log('onStartPlay'); 
+        const msg = await audioRecorderPlayer.startPlayer(recordings[index]);
+        
+        console.log(msg);
+        audioRecorderPlayer.addPlayBackListener((e) => {
+          let currentPosition = e.currentPosition / e.duration;
+
+          const newPositions = [...positions];
+          newPositions[index] = currentPosition;
+          setPositions(newPositions);
+
+          if(e.currentPosition == e.duration){
+            const newIsPlaying = [...isPlaying];
+            newIsPlaying[index] = false;
+            setIsPlaying(newIsPlaying);
+          }
+        });
+
+        const newIsPlaying = [...isPlaying];
+        newIsPlaying[index] = true;
+        setIsPlaying(newIsPlaying);
+
+        setAudio(index);
+      } catch (error) {
+        console.error('Error starting player:', error);
+      }  
+    };
+    const onPausePlay = async () => {
+      await audioRecorderPlayer.pausePlayer();
+      const newIsPlaying = [...isPlaying];
+      newIsPlaying[index] = false;
+      setIsPlaying(newIsPlaying);
+    };
+    
     return(
-        <View style={{backgroundColor:card_color, width:'98%', alignSelf:'center', marginTop:'3%'}}>
-        <View style={styles.questionzone}>
+      <View style={{backgroundColor:card_color, width:'98%', alignSelf:'center', marginTop:'3%', paddingTop: 5}}>
+      <View style={styles.questionzone}>
         <Text style={styles.questionstyle}>{question}</Text>
-        <TouchableOpacity style={{ borderRadius:30, borderWidth:3, borderColor:PRIMARY_COLOR, height:30, width:30, alignItems:'center', justifyContent:'center',}}>
-        <Icon name={'microphone-alt'} style={{color: PRIMARY_COLOR, fontSize: 20}} />
+        {!isRecording[index] ? (
+          <TouchableOpacity style={{ borderRadius:30, borderWidth:3, borderColor:PRIMARY_COLOR, height:30, width:30, alignItems:'center', justifyContent:'center',}}
+          onPress={onStartRecord}>
+          <Icon name={'microphone-alt'} style={{color: PRIMARY_COLOR, fontSize: 20}} />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={{ borderRadius:30, borderWidth:3, borderColor:PRIMARY_COLOR, height:30, width:30, alignItems:'center', justifyContent:'center', backgroundColor: '#CFF393'}}
+          onPress={onStopRecord}>
+          <Icon name={'microphone-alt'} style={{color: PRIMARY_COLOR, fontSize: 20}} />
+          </TouchableOpacity>
+        )}
+      </View>
+      <View style={{ height: 50, flexDirection: 'row', marginTop:'1%', alignItems: 'center',}}>
+      <Text style={[styles.TimeFont, {marginLeft: '5%'}]}>Your answer:</Text>
+      {!isPlaying[index] ? (
+        <TouchableOpacity style={{marginLeft:"5%"}}
+        onPress={onStartPlay}>
+          <FontAwesome name="play-circle" color="black" size={22} />
         </TouchableOpacity>
-        </View>
-            <View
-        style={{
-          height: 50,
-          flexDirection: 'row',
-          marginTop:'1%',
-          alignItems: 'center',
-        }}>
-            <Text style={{fontSize:18, fontWeight:'400', color:'black',marginLeft:"5%"}}>Your voice:</Text>
-        <TouchableOpacity style={{marginLeft:"5%"}}>
-          <FontAwesome name="play-circle" color="black" size={20} />
-        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity style={{marginLeft:"5%"}}
+      onPress={onPausePlay}>
+        <FontAwesome name="pause-circle" color="black" size={22} />
+      </TouchableOpacity>
+      )}
+      <View style={{width: 140, marginLeft: '3%'}}>
         <Slider
-          style={{width: 140, height: 40, marginLeft:"3%"}}
+          style={{ width: "100%", height: 40 }}
           minimumValue={0}
           maximumValue={1}
-          minimumTrackTintColor="#FFFFFF"
-          maximumTrackTintColor="#990000"
+          minimumTrackTintColor="#3EA200"
+          maximumTrackTintColor="#555"
+          value={positions[index]}
+          onValueChange={(newValue) => setPosition(newValue)}/>
+        {
+        <View
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: 40,
+            backgroundColor: "transparent",
+          }}
         />
-        <Text style={styles.TimeFont}>00:00</Text>
+        }
+        </View>
+        <Text style={styles.TimeFont}>{durations[index]}</Text>
       </View>
-      </View>
+    </View>
     )}
   return (
     <Animated.View style={styles.container}>
@@ -46,8 +223,8 @@ const SpeakP5QuestionForm = ({item}) => {
         <Text style={{color:'black', fontWeight:'500',fontSize:20,textAlign:'left',marginTop:'5%', marginLeft:"5%"}}>Respond to Questions</Text>
         <Image source={{uri: item.AvailableInfo}} style={{height:200, width:"88%", alignSelf:'center', marginTop:'5%'}}></Image>
         <QuestionForm question={item.Question[0]} index={0}/>
-        <QuestionForm question={item.Question[1]} index={0}/>
-        <QuestionForm question={item.Question[2]} index={0}/>
+        <QuestionForm question={item.Question[1]} index={1}/>
+        <QuestionForm question={item.Question[2]} index={2}/>
         <View style={{height:50}}/>
       </ScrollView>
     </Animated.View>
@@ -57,7 +234,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
     flex: 1,
-    width: width
+    width: width,
   },
 
   TimeFont: {
