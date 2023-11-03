@@ -14,8 +14,9 @@ import * as Progress from 'react-native-progress';
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import QuestionScreen from '../screens/QuestionScreen';
+import Api from '../api/Api'
 const InPartCard = ({route, navigation}) => {
-  const [number, setnumber] = useState('5');
+  const [number, setnumber] = useState(2);
   const [isopen, setopen] = useState(false);
   const [questionList, setquestionL] = useState([]);
  // const [screen, setscreen] = useState('');
@@ -25,31 +26,35 @@ const InPartCard = ({route, navigation}) => {
   const { part } = route.params;
 
    const fetchQuestionL1 = async()=>{
-    try{
-     await firestore()
-      .collection('ListenPart1')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Answer, Audio, Image, Level, Key, Correct, Explain} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Answer: Answer,
-            Audio: Audio,
-            Image: Image,
-            Level: Level,
-            Key:Key,
-            Correct:Correct,
-            Explain: Explain,
-          });
-        })
-        setquestionL(list);
-      })
+    // try{
+    //  await firestore()
+    //   .collection('ListenPart1')
+    //   .get()
+    //   .then((querySnapshot)=>{
+    //     const list = [];
+    //     querySnapshot.forEach(doc =>{
+    //       const {Answer, Audio, Image, Level, Key, Correct, Explain} = doc.data();
+    //       list.push({          
+    //         QId: doc.id,
+    //         Answer: Answer,
+    //         Audio: Audio,
+    //         Image: Image,
+    //         Level: Level,
+    //         Key:Key,
+    //         Correct:Correct,
+    //         Explain: Explain,
+    //       });
+    //     })
+    //     setquestionL(list);
+    //   })
      
-    } catch(e){
-      console.log(e);
-    }
+    // } catch(e){
+    //   console.log(e);
+    // }
+    if(!isopen){
+      const list = await Api.getQuestion(number,'ListenPart1')
+      setquestionL(list);
+      }
   }
   const fetchQuestionL2 = async()=>{
     try{
@@ -369,30 +374,37 @@ const InPartCard = ({route, navigation}) => {
   useEffect(() => {
     if(part=='L1'){
       setpartname('Photographs');
+      setDirections('In this part, you will look at photographs. For each photograph you will hear four statements. You will have to choose which statement has the best description of the picture.')
       fetchQuestionL1();
     }
     else if(part=='L2'){
       setpartname('Question & Response');
+      setDirections('In this part, you will be tested on your ability to respond to a question. It is very important that you can understand and identify wh-questions. You will listen to three possible responses. Only one of the responses is correct.')
       fetchQuestionL2();
     }
     else if(part=='L3'){
       setpartname('Short Conversations');
+      setDirections('In this part, you will listen to a short conversation. After the conversation, you will answer three questions about the dialogue. There will be four possible answers for each question. Typical questions include, who, what, where, when, why, and how. You may also be asked to make an inference.')
       fetchQuestionL3();
     }
     else if(part=='L4'){
       setpartname('Short Talks');
+      setDirections('In this part, you will listen to a short talk. It might be an announcement, a radio advertisement, or a telephone recording. You will listen to the talk and read a few questions about it.')
       fetchQuestionL4();
     }
     else if(part=='R1'){
       setpartname('Incomplete Sentences');
+      setDirections('In this part, you will read a sentence that has one blank spot. There will be four choices of words or phrases to choose from. You will have to choose the one that you think completes the sentence.')
       fetchQuestionR1();
     }
     else if(part=='R2'){
       setpartname('Text Completion');
+      setDirections('In this part, you will read four passages of text, such as an article, a letter, a form and an e-mail. In each reading passage there will be three blanks to fill in. You will read four possible choices for each blank. You should read the entire passage to make sure you choose the correct choice in context.')
       fetchQuestionR2();
     }
     else if(part=='R3'){
       setpartname('Reading Comprehension');
+      setDirections('In this part, you will read passages in the form of letters, ads, memos, faxes, schedules, etc. The reading section has a number of single passages and 4 double passages. You will be asked 2-4 questions about each single passage, and 5 questions for each double passage. Sometimes you will be asked for specific details. Other times you will be asked about what the passage implies. In the paired passages you will also be asked to make connections between the two related texts. On the real test you will not have time to read every word. You need to practice scanning and reading quickly for details.')
       fetchQuestionR3();
     }
     else if(part=='S1'){
@@ -435,7 +447,7 @@ const InPartCard = ({route, navigation}) => {
       setDirections('Respond to the e-mail. Respond as if you have recently moved to a new city. \n\n In your e-mail to the committee, make at least TWO requests for information.')
       fetchQuestionW3();
     }
-  }, []);
+  }, [isopen]);
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -531,10 +543,11 @@ const InPartCard = ({route, navigation}) => {
           </Text>
           <DropDownPicker
             items={[
-              {label: '5', value: '5'},
-              {label: '10', value: '10'},
-              {label: '15', value: '15'},
-              {label: '20', value: '20'},
+              {label: '2', value: 2},
+              {label: '5', value: 5},
+              {label: '10', value: 10},
+              {label: '15', value: 15},
+              {label: '20', value: 20},
             ]}
             open={isopen}
             setOpen={() => setopen(!isopen)}
@@ -556,7 +569,7 @@ const InPartCard = ({route, navigation}) => {
           />
         </View>
         {/* {questionList&& */}
-        <TouchableOpacity style={[AppStyle.button.button2,{marginTop:70, zIndex:0}]} onPress={() => navigation.push('QuestionScreen',{questionList:questionList, part:part})}>
+        <TouchableOpacity style={[AppStyle.button.button2,{marginTop:70, zIndex:0}]} onPress={() => navigation.push('QuestionScreen',{questionList:questionList, part:part, partName: partname,sign:'Max'})}>
             <Text style={AppStyle.button.button2_Text}>Begin</Text>
         </TouchableOpacity>
         {/* } */}

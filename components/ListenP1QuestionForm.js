@@ -16,31 +16,16 @@ import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import Sound from 'react-native-sound';
 import dings from '../assets/Part1No1.mp3'
 const {width} = Dimensions.get('window');
-const ListenP1QuestionForm = ({item,list}) => {
+const ListenP1QuestionForm = ({item,list,click,flag, check}) => {
   const [sign, setsign] = useState('1');
   const [duration, setduration] = useState('00:00')
   const [position, setPosition] = useState('00:00');
   const [duration1, setduration1] = useState(0)
   const [position1, setPosition1] = useState(0);
-  const [playState, setPlayState] = useState('paused')
+  const [playState, setPlayState] = useState('playing')
   const [isPlay, setisPlay] = useState(false);
-  // const [list, setlist] = useState(null)
-  const [SliderEditing, setSliderEditing] = useState(false)
-  // const sound = new Sound(item.Audio, null, error => {
-  //   if (error) {
-  //     console.log('failed to load the sound', error);
-  //     return;
-  //   }
-  //   else{
-  //      console.log(sound)
-  //     // list.push(sound);
-  //     setlist(sound);
-      
-  
-  //   //   setv(true)
-  //   }
-  // });
 
+  const [SliderEditing, setSliderEditing] = useState(false)
  
    const onSliderEditing = (value) => {
     if(list.isLoaded()){
@@ -102,13 +87,18 @@ const ListenP1QuestionForm = ({item,list}) => {
         
         }, 1000)
         return () => clearInterval(interval); 
-      }
-
-      
-      
+      } 
       }, []);
+      useEffect(() => {
+        if(list.isPlaying()){
+          setPlayState('playing')
+        }
+        else{
+          setPlayState('paused')
+        }
+        }, [list.isPlaying()]);
     const playPause = () => {
-      if (playState=='playing') {
+      if (list.isPlaying()) {
         list.pause(()=>{
           console.log('successfully pause');
         });
@@ -134,20 +124,37 @@ const ListenP1QuestionForm = ({item,list}) => {
       <View style={styles.boxstyle}>
         <Text style={{color:PRIMARY_COLOR, fontSize:20,textAlign:'left', fontWeight:'600',marginTop:'5%', marginLeft:"5%"}}>Select the answer</Text>
         <Image  source={{uri: item.Image}} style={{height:200, width:"88%", alignSelf:'center', marginTop:'5%'}}></Image>
+        {flag=='QuestionScreen'?
         <View style={{flexDirection:'row', alignItems:'center', justifyContent:"space-evenly", marginTop:'7%'}}>
-        <TouchableOpacity style={[styles.answerboxStyle,sign=='A'&&(item.Answer[0].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>setsign('A')}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='A'&&(item.Answer[0]?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>{setsign('A'),click(0)}}>
                 <Text style={styles.answertext}>A</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='B'&&(item.Answer[1].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>setsign('B')}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='B'&&(item.Answer[1]?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>{setsign('B'),click(1)}}>
                 <Text style={styles.answertext}>B</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='C'&&(item.Answer[2].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>setsign('C')}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='C'&&(item.Answer[2]?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>{setsign('C'),click(2)}}>
                 <Text style={styles.answertext}>C</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='D'&&(item.Answer[3].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>setsign('D')}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='D'&&(item.Answer[3]?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>{setsign('D'),click(3)}}>
                 <Text style={styles.answertext}>D</Text>
             </TouchableOpacity>
         </View>
+        :
+        <View style={{flexDirection:'row', alignItems:'center', justifyContent:"space-evenly", marginTop:'7%'}}>
+        <TouchableOpacity style={[styles.answerboxStyle,{ backgroundColor:(check.Default==0)?PRIMARY_COLOR:(check.Select==0)?'red':'white'}]}>
+            <Text style={styles.answertext}>A</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.answerboxStyle,{ backgroundColor:(check.Default==1)?PRIMARY_COLOR:(check.Select==1)?'red':'white'}]}>
+            <Text style={styles.answertext}>B</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.answerboxStyle,{ backgroundColor:(check.Default==2)?PRIMARY_COLOR:(check.Select==2)?'red':'white'}]}>
+            <Text style={styles.answertext}>C</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.answerboxStyle,{ backgroundColor:(check.Default==3)?PRIMARY_COLOR:(check.Select==3)?'red':'white'}]}>
+            <Text style={styles.answertext}>D</Text>
+        </TouchableOpacity>
+        </View>
+        }
       </View>
       <View style={{flex:1}}/>
       <View

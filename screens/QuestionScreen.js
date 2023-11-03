@@ -7,6 +7,7 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  Alert,
   Animated,
   Modal,
 } from 'react-native';
@@ -34,13 +35,14 @@ import RNFS from 'react-native-fs';
 import Api from '../api/Api';
 import { AuthContext } from '../navigation/AuthProvider';
 
+
 Sound.setCategory('Playback');
 const {width} = Dimensions.get('window');
 
 const QuestionScreen = ({navigation, route}) => {
   const {user} = useContext(AuthContext);
   const scrollX = useRef(new Animated.Value(0)).current;
-  const {questionList, part} = route.params;
+  const {questionList, part, partName, sign} = route.params;
   const [soundL, setsoundL] = useState(null);
   const [ItemIndex, setItemIndex] = useState(0);
   const [OpenModal, setOpenModal] = useState(false);
@@ -48,6 +50,8 @@ const QuestionScreen = ({navigation, route}) => {
   const [loading, setloading] = useState(false);
   const [buttonTitle, setButtonTitle] = useState('Submit')
   const [recordingsList, setRecordingsList] = useState([]);
+  const [Score, setScore] = useState(0);
+  const [history, setHistory] = useState([]);
   const recordsRef = useRef([]);
   const answersRef = useRef([]);
 
@@ -61,14 +65,7 @@ const QuestionScreen = ({navigation, route}) => {
           return;
         }
         else{
-          // console.log(i);
-          // list.splice(i,0,sound);
-          // setsoundL(list);
-          // list1.splice(i,0, i);
-          // setdurationL(list1)
           if(i==questionList.length-1) {setloading(true);}
-      
-        //   setv(true)
         }
       });
       list.push(sound);
@@ -250,6 +247,27 @@ const QuestionScreen = ({navigation, route}) => {
       
       navigation.goBack();
     }
+    else if(part == 'L1'){
+      if (soundL!='-1'&&soundL[ItemIndex].isPlaying()) {
+        soundL[ItemIndex].stop();
+     }
+    const currentDate = new Date();
+    const currentDay = currentDate.getDate(); 
+    const currentMonth = currentDate.getMonth() + 1; 
+    const currentYear = currentDate.getFullYear(); 
+    const currentHours = currentDate.getHours(); 
+    const currentMinutes = currentDate.getMinutes();
+    const time = currentDay+'-'+currentMonth+'-'+currentYear+'-'+currentHours+'-'+currentMinutes
+    const data = {
+      PartName:partName,
+      Part:part,
+      Quantity:questionList.length,
+      Correct: Score,
+      History:history,
+      Time:time
+    }
+    Api.pushPracticeHistory(data, sign);
+    }
   }
 
   useEffect(() => {
@@ -261,24 +279,75 @@ const QuestionScreen = ({navigation, route}) => {
     scrollX.addListener(({value}) => {
       const index = Math.round(value / width);
       setItemIndex(index);
-      if (soundL != null && (part=='L1'||part=='L2'||part=='L3'||part=='L4')){
-        const updatedList = [...soundL];
-        for (let i = 0; i < soundL.length; i++) {
-          if (i == index) {           
-            updatedList[i]  = new Sound(questionList[i].Audio, null, error => {
-              if (error) {
-                console.log('failed to load the sound', error);
-                return;
-              }
-            });
-          } else {
-            updatedList[i].release();
+      if(loading && (part=='L1'||part=='L2'||part=='L3'||part=='L4')){
+      for(let i = 0; i < soundL.length; i++)
+          {
+            if(i != index &&soundL[i].isPlaying()){
+              soundL[i].stop();
+            }       
           }
-        }
-        setsoundL(updatedList);
+          soundL[index].play(success => {
+            if (success) {
+              console.log('successfully finished playing');
+              soundL[index].stop()
+            } else {
+              console.log('playback failed due to audio decoding errors');
+            }
+          });
+     
     }
     });
-  }, []);
+  }, [loading]);
+  useEffect(()=>{
+    const list = [];
+    if(part=="L1"){
+    for(let i = 0; i < questionList.length;i++){
+      list.push({
+        Qid:questionList[i].Id,
+        Select:-1,
+        Default:-2
+      })
+    }
+  }
+    setHistory(list)
+  },[])
+  const showAlert = () => {
+    Alert.alert(
+      'Hey!',
+      'If you leave, your training progress will not be saved.',
+      [
+        { text: 'OK', onPress: () => {
+          if(soundL!=-1)
+          for(let i = 0; i < soundL?.length; i++)
+          {
+            if(soundL[i].isPlaying()){
+              soundL[i].stop();
+            }
+            
+          }
+         navigation.goBack()
+         } },
+        { text: 'Cancel', onPress: () => console.log('Cancel pressed') },
+      ],
+      { cancelable: false }
+    );
+  }
+  const showAlert2 = () => {
+    Alert.alert(
+      'Hey!',
+      'Are you sure to submit?',
+      [
+        { text: 'Yes', onPress: () => {
+          navigation.navigate('CompleteCard',{score:Score,quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part})
+          onSubmit()
+         } },
+        { text: 'No', onPress: () => {
+          // navigation.dispatch(StackActions.replace('QuestionScreen',{questionList:questionList, part:part, partName:partName}));
+        }},
+      ],
+      { cancelable: false }
+    );
+  }
   function RenderModal() {
     return (
       <Modal visible={OpenModal} animationType="slide" transparent={true}>
@@ -401,7 +470,7 @@ const QuestionScreen = ({navigation, route}) => {
       <View style={AppStyle.viewstyle.component_upzone}>
         <TouchableOpacity
           style={{marginLeft: '2%'}}
-          onPress={() => navigation.goBack()}>
+          onPress={showAlert}>
           <FontAwesome name="chevron-left" color="white" size={20} />
         </TouchableOpacity>
         <Text
@@ -434,7 +503,7 @@ const QuestionScreen = ({navigation, route}) => {
           </Text>
         </TouchableOpacity>
         ) : (
-          <TouchableOpacity onPress={onSubmit}>
+          <TouchableOpacity onPress={showAlert2}>
           <Text
             style={{
               textAlign: 'left',
@@ -518,7 +587,24 @@ const QuestionScreen = ({navigation, route}) => {
               
               if(part=='L1'){
                 return(
-              <ListenP1QuestionForm item={item} list={soundL[index]}/>
+                  <ListenP1QuestionForm item={item} list={soundL[index]} flag={'QuestionScreen'}
+                  click={(i)=>{
+                    const History = [...history];
+                    let correct = 0;
+                    for(let j = 0;j < 4; j++){
+                      if(questionList[index].Answer[j]) correct=j
+                    }
+                    if(questionList[index].Answer[i]){
+                    const p = Score + 1;
+                    setScore(p);
+                    History[index].Select = i
+                    History[index].Default = i
+                  }
+                  else{
+                    History[index].Select = i
+                    History[index].Default = correct
+                  }
+                }}/>
                 )}
               else if(part=='L2'){
               return(

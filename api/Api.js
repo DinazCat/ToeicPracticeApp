@@ -162,6 +162,49 @@ const uploadPracticeHistory = async (data) => {
         console.log('error: ', error.message);
     }
 };
+const getQuestion = async(number, part)=>{
+    const endpoint = "/Question/"+part+"/"+auth().currentUser.uid+"/"+number
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.Questions
+        }
+        else{
+            console.log("not get")
+        }
+        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+const pushPracticeHistory = async(data,sign)=>{
+    try{
+        const response = await client.post('/PracticeHistory/'+auth().currentUser.uid+"/"+sign, data)   
+        console.log(response.data);
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const getOneQuestion = async(part,id)=>{
+    const endpoint = "/oneQuestion/"+part+"/"+id
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.question
+        }
+        else{
+            console.log("not get")
+        }
+        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return {};
+    }
+}
 export default {
     getVocabLesson,
     getVocabinLesson,
@@ -175,4 +218,7 @@ export default {
     getUserData,
     uploadAudio,
     uploadPracticeHistory,
+    getQuestion,
+    pushPracticeHistory,
+    getOneQuestion
 }

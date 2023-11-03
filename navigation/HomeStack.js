@@ -27,6 +27,9 @@ import GetUserGoal from '../screens/GetUserGoal';
 import { AuthContext } from '../navigation/AuthProvider';
 import firestore from '@react-native-firebase/firestore';
 import Api from '../api/Api';
+import ConsultTable from '../components/ConsultTable';
+import ReviewQuestion from '../screens/ReviewQuestion';
+import HistoryScreen from '../screens/HistoryScreen';
 
 const Stack = createNativeStackNavigator();
 export default function HomeStack() {
@@ -99,6 +102,9 @@ export default function HomeStack() {
             <Stack.Screen name='SavedVocabScreen' component={SavedVocabScreen} options={{ header: () => null }}/>
             <Stack.Screen name='Game' component={Game} options={{ header: () => null }}/>
             <Stack.Screen name='GameScreen' component={GameScreen} options={{ header: () => null }}/>
+            <Stack.Screen name='ConsultTable' component={ConsultTable} options={{ header: () => null }}/>
+            <Stack.Screen name='ReviewQuestion' component={ReviewQuestion} options={{ header: () => null }}/>
+            <Stack.Screen name='HistoryScreen' component={HistoryScreen} options={{ header: () => null }}/>
         </Stack.Navigator>
     );
   };

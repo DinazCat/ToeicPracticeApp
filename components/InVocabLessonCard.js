@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Modal,
+  Alert
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -106,7 +107,35 @@ const InVocabLessonCard = ({navigation,route}) => {
           </Modal>
       )
     }
-
+    const saveAlarm=async()=>{
+      let data= await Api.getAlarmVocab();
+      let flag = false;
+      if(data =='-1'){
+        await Api.setAlarmVocab(auth().currentUser.uid,{vocabAlarms:[{Id:vocabs[0].Id, Time:new Date().toLocaleTimeString()}]} )
+        flag = true;
+      }
+      const vocabAlarms = [...data];
+      for(let i = flag?1:0; i < vocabs.length; i++){
+        const foundItem = data.find(item => item.Id === vocabs[i].Id);
+        if(!foundItem){
+          vocabAlarms.push({Id:vocabs[i].Id, Time:new Date().toLocaleTimeString()});
+        }
+      }
+      await Api.updateAlarmVocab({vocabAlarms:vocabAlarms})
+    }
+    const showAlert = () => {
+      Alert.alert(
+        'Hey!',
+        'Do you want to save all the vocabulary in the reminder?',
+        [
+          { text: 'OK', onPress: () => {
+           saveAlarm()
+          } },
+          { text: 'Cancel', onPress: () => console.log('Cancel pressed') },
+        ],
+        { cancelable: false }
+      );
+    }
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -138,7 +167,7 @@ const InVocabLessonCard = ({navigation,route}) => {
             <FontAwesome name="gamepad" color="black" size={30} />
             <Text style={styles.TextFont}>Game</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonStyle}>
+          <TouchableOpacity style={styles.buttonStyle} onPress={showAlert}>
             <Icon name={'clock'} style={{color: 'black', fontSize: 30}} />
             <Text style={styles.TextFont}>Remind</Text>
           </TouchableOpacity>

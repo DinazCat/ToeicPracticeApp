@@ -1,4 +1,4 @@
-import { View, Text,StyleSheet, TouchableOpacity, Image, ScrollView,SafeAreaView, StatusBar } from 'react-native'
+import { View, Text,StyleSheet, TouchableOpacity, Image, ScrollView,SafeAreaView, StatusBar,FlatList } from 'react-native'
 import React, { useState, useEffect } from 'react';
 import SmallHistoryCard from '../components/SmallHistoryCard'
 import AppStyle from '../theme'
@@ -8,8 +8,19 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import CustomHeader from '../components/CustomHeader'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import socketServices from '../api/socketService';
  const Home=({navigation})=> {
   const [savedVocab, setsavedVocab] = useState(null)
+  const [pHistoryList, setPHistoryList] = useState(null);
+  useEffect(() => {
+    socketServices.initializeSocket()
+    socketServices.emit('UserId',auth().currentUser.uid)
+      }, []);
+  useEffect(() => {
+    socketServices.on(auth().currentUser.uid+'PHistorychange',(data) => {
+      setPHistoryList(data)
+    })
+      }, []);
   const getSavedVocab= async()=>{
     try{
       firestore()
@@ -139,9 +150,16 @@ import auth from '@react-native-firebase/auth';
               </TouchableOpacity>
             </View>
 
-            <SmallHistoryCard />
-            <SmallHistoryCard />
-            <SmallHistoryCard />
+            { (pHistoryList!=null)&&<FlatList
+              data={pHistoryList.slice(0, 3)}
+              renderItem={({item, index}) => (
+                <SmallHistoryCard display={item} 
+                click={()=>{
+                  navigation.push('CompleteCard',{score:item.Correct,quantity:item.Quantity,answer:item.History, sign:'Home',part:item.Part,questionL:item.History,partName:item.PartName})
+                }}
+                />
+              )}
+            />}
 
             <View
               style={{
@@ -150,7 +168,9 @@ import auth from '@react-native-firebase/auth';
                 width: '90%',
                 marginTop: 10,
               }}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={()=>{
+                navigation.push('HistoryScreen',{list:pHistoryList?pHistoryList:[]})
+              }}>
                 <Text style={AppStyle.button.buttonText}>See more</Text>
               </TouchableOpacity>
             </View>
