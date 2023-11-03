@@ -1,5 +1,7 @@
 
 const { initializeApp } = require('firebase/app')
+const admin = require('firebase-admin');
+const serviceAccount = require('./asset/toeicpracticeapp-9dc19-firebase-adminsdk-eqpy0-2c7a132769.json');
 const firebaseConfig = {
   apiKey: "AIzaSyBiVHrN1tvAs4GWulf3LWsnTktj9kvow4U",
   authDomain: "toeicpracticeapp-9dc19.firebaseapp.com",
@@ -11,6 +13,10 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const firebase= initializeApp(firebaseConfig);
-//  const db = firebase.firestore()
-//  const user = db.collection("Users")
-module.exports = firebase;
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: 'gs://toeicpracticeapp-9dc19.appspot.com'
+});
+
+module.exports = {firebase, admin};

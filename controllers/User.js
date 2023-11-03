@@ -1,11 +1,11 @@
 const { getFirestore, collection, getDocs, addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
-const firebase= require('../config')
+const {firebase, admin} = require('../config')
 const firestore = getFirestore(firebase);
-const admin = require('firebase-admin');
+//const admin = require('firebase-admin');
 const serviceAccount = require('../asset/toeicpracticeapp-9dc19-firebase-adminsdk-eqpy0-2c7a132769.json');
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount)
+//   });
   const messaging = admin.messaging();
 // const retrieveUserToken = async ()=>{
 //     const uid = '6uz50o2mYWORgoBVzmYsHZYyq622';

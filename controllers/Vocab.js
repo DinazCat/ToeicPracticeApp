@@ -1,5 +1,5 @@
 const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
-const firebase= require('../config')
+const {firebase}= require('../config')
 const firestore = getFirestore(firebase);
 // const myCollection = collection(firestore, 'VocabLesson');
 const getVocabLesson = async (req,res)=>{
