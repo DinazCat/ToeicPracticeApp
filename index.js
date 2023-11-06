@@ -91,7 +91,7 @@ app.use('/api',router)
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 })
-
+module.exports = app
 // app.on("close", () => {
 //     clearInterval(interval);
 //   });

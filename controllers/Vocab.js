@@ -1,10 +1,20 @@
 const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
-const {firebase}= require('../config')
+const {firebase,db}= require('../config')
 const firestore = getFirestore(firebase);
 // const myCollection = collection(firestore, 'VocabLesson');
 const getVocabLesson = async (req,res)=>{
     const myCollection = collection(firestore, 'VocabLesson');
     try{
+      // db.collection('VocabLesson')
+      // .doc()
+      // .get((doc)=>{
+      //   const list = doc.docs.map((doc) => {
+      //     const data = doc.data();
+      //     const docId = doc.id;
+      //     return { ...data, Id: docId };
+      //   });
+      // res.json({success:true, vocablesson:list});
+      // })
     const querySnapshot = await getDocs(myCollection);
     // const list = querySnapshot.docs.map((doc) => doc.data());
     const list = querySnapshot.docs.map((doc) => {
