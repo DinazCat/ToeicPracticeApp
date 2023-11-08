@@ -1,5 +1,5 @@
 const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
-const {firebase,db}= require('../config')
+const {firebase}= require('../config')
 const firestore = getFirestore(firebase);
 // const myCollection = collection(firestore, 'VocabLesson');
 const getVocabLesson = async (req,res)=>{
@@ -62,10 +62,7 @@ const getVocabLesson = async (req,res)=>{
  const getVocabinLesson = async (req,res)=>{
   const myCollection = collection(firestore, 'Vocabulary');
     try {
-     //   const list =  getVocabs();
-     //   const list1 =  list.filter(i=>i.TopicId == req.params.TopicId);
          const querySnapshot = await getDocs(myCollection);
-         // const list = querySnapshot.docs.map((doc) => doc.data());
          const list = querySnapshot.docs.map((doc) => {
           if(doc.data().TopicId == req.params.TopicId){
              const data = doc.data();
@@ -78,7 +75,7 @@ const getVocabLesson = async (req,res)=>{
       console.log(e);
       res.json({
         success: false,
-        message: "something went wrong when get data from getVocabinLesson"+e,
+        message: "something went wrong when get data from getVocabinLesson",
       });
       return [];
     }
@@ -113,7 +110,7 @@ const getVocabLesson = async (req,res)=>{
     catch(e){
         res.json({
             success:false,
-            message:'something went wrong when get data from vocablesson'
+            message:'something went wrong when get data from vocabAlarm'
         })
         console.log(e)
     }

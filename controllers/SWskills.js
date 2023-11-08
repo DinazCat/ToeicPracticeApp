@@ -1,11 +1,11 @@
 const { getFirestore, collection, getDocs, addDoc, updateDoc, doc, setDoc, getDoc} = require('firebase/firestore');
-const {firebase, admin} = require('../config')
+const {firebase,admin} = require('../config')
 const firestore = getFirestore(firebase);
 const { getStorage, ref, uploadString, getDownloadURL } = require('firebase/storage');
-const serviceAccount = require('../asset/toeicpracticeapp-9dc19-firebase-adminsdk-eqpy0-2c7a132769.json');
+
 
 const storage = admin.storage();
-const bucket = storage.bucket();
+// const bucket = storage.bucket();
 //const storage = getStorage(firebase);
 
 const uploadAudio = async (req, res) => {

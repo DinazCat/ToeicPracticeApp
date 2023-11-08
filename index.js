@@ -1,9 +1,11 @@
 const express = require('express');
 const {firebase,db}= require('./config')
+
+
 const cron = require('node-cron')
 const PORT = 3000
 
-const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
+const { getFirestore, collection, getDocs,addDoc, fupdateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
 const firestore = getFirestore(firebase);
 const {retrieveUserToken, sendNotification} = require('./controllers/User')
 const {get1PHistory} = require('./controllers/Question')
