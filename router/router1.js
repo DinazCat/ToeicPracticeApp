@@ -4,6 +4,7 @@ const {getVocabLesson, getVocabinLesson, getVocabs, setAlarmVocab, getAlarmVocab
 const {setUserInfo, updateUser, getAllUsers, getUserData} = require ('../controllers/User')
 const {uploadAudio, uploadPracticeHistory} = require ('../controllers/SWskills')
 const {getQuestion, pushPracticeHistory, getOneQuestion} = require('../controllers/Question')
+const {uploadPracticePlan, getPracticePlan, updatePracticePlan} = require('../controllers/PracticePlan')
 
 router.get('/VocabLessons',getVocabLesson)
 router.get('/VocabinLesson/:TopicId',getVocabinLesson)
@@ -21,4 +22,8 @@ router.post('/uploadPracticeHistory', uploadPracticeHistory)
 router.get('/Question/:Part/:userId/:number',getQuestion)
 router.post('/PracticeHistory/:userId/:sign',pushPracticeHistory)
 router.get('/oneQuestion/:Part/:Qid',getOneQuestion)
+//PracticePlan
+router.post('/PracticePlan/:userId/add', uploadPracticePlan)
+router.get('/PracticePlan/:userId', getPracticePlan)
+router.get('/PracticePlan/:userId/update', updatePracticePlan)
 module.exports = router

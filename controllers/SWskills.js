@@ -4,9 +4,9 @@ const firestore = getFirestore(firebase);
 const { getStorage, ref, uploadString, getDownloadURL } = require('firebase/storage');
 
 
-const storage = admin.storage();
+// const storage = admin.storage();
 // const bucket = storage.bucket();
-//const storage = getStorage(firebase);
+const storage = getStorage(firebase);
 
 const uploadAudio = async (req, res) => {
     const { userId, audioData } = req.body;
@@ -43,7 +43,7 @@ const uploadPracticeHistory = async (req, res) => {
         res.send({ message: 'Practice History post successfully' });
       } catch (error) {
         console.error("Error post history document: ", error);
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: 'something went wrong when upload practice history' });
       }
 }
 

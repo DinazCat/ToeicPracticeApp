@@ -97,7 +97,7 @@ const sendNotification=async(token, message)=>{
       res.send({ message: 'User data set successfully' });
     } catch (error) {
       console.error("Error setting user document: ", error);
-      res.status(500).json({ success: false, message: error.message });
+      res.status(500).json({ success: false, message: 'something went wrong when set user data'});
     }
   };
   const updateUser = async (req, res) => {
@@ -107,10 +107,10 @@ const sendNotification=async(token, message)=>{
 
       await updateDoc(docRef1, req.body);
       console.log("Document successfully updated!");
-      res.send({ message: 'User data set successfully' });
+      res.send({ message: 'Document successfully updated!' });
     } catch (error) {
       console.error("Error updating user document: ", error);
-      res.status(500).json({ success: false, message: error.message });
+      res.status(500).json({ success: false, message: 'something went wrong when update user data' });
     }
   };
   const getUserData = async (req, res) => {
@@ -127,7 +127,7 @@ const sendNotification=async(token, message)=>{
       }
     } catch (error) {
       console.error("Error get user document: ", error);
-      res.status(500).json({ success: false, message: error.message });
+      res.status(500).json({ success: false, message: 'something went wrong when get data from users' });
     }
   };
   const getAllUsers = async (req, res) => {
@@ -140,9 +140,10 @@ const sendNotification=async(token, message)=>{
     });
     res.json({success:true, users:list});
     }
-    catch(e){
-        res.json({success:false, message: error.message})
-        console.log(e)
+    catch(error){
+        res.json({success:false, message: 'something went wrong when get data from Users'})
+        console.log(error);
+        return [];
     }
   };
   module.exports={retrieveUserToken, sendNotification, setUserInfo, updateUser, getAllUsers, getUserData}
