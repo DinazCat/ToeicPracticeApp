@@ -1,10 +1,12 @@
-const {setUserInfo, updateUser} = require ('../controllers/User')
+const {setUserInfo, updateUser,createNotiBody,sendNotification} = require ('../controllers/User')
 const { getFirestore, collection, getDocs, addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
 
 const app = require('../index')
 const request = require('supertest');
+const {admin}=require('../config')
 const {error} = console
 console.error = jest.fn();
+console.log = jest.fn();
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn(),
   getDocs: jest.fn(),
@@ -14,7 +16,25 @@ jest.mock('firebase/firestore', () => ({
   setDoc:jest.fn(),
   updateDoc:jest.fn(),
 }));
-
+jest.mock('../config.js', () => ({
+  credential: {
+    cert: jest.fn(),
+  },
+  initializeApp: jest.fn(),
+  admin:{
+    storage:jest.fn(),
+    messaging:jest.fn().mockReturnValue({
+        sendToDevice: jest.fn(),
+      })
+  }
+  
+}));
+jest.mock('firebase-admin/firestore',()=>({
+  getFirestore:jest.fn(),
+}))
+jest.mock('firebase/storage',()=>({
+  getStorage:jest.fn(),
+}))
 describe('getAllUsers', () => {
     test('should return the list of users if Firestore query is successful', async () => {
       const mockQuerySnapshot = {
@@ -209,5 +229,86 @@ describe('updateUser', () => {
       doc.mockClear(); // or mockFunction.mockRestore();
       updateDoc.mockClear()
       console.error.mockClear();
+    });
+  });
+
+  describe('createNotiBody', () => {
+    it('should return the notification body when the document exists', async () => {
+      const mockDocSnapshot = {
+        exists: jest.fn(() => true),
+        data: jest.fn(() => ({
+          Vocab: 'test-vocab',
+          Spelling: 'test-spelling',
+          Type: 'test-type',
+          Translate: 'test-translate'
+        })),
+      };
+      const mockDocRef1 = { doc: jest.fn().mockReturnValue(mockDocSnapshot) };
+      collection.mockReturnValueOnce('mockCollection');
+      doc.mockReturnValueOnce(mockDocRef1);
+      getDoc.mockResolvedValueOnce(mockDocSnapshot);
+
+      const result = await createNotiBody('mockid');
+      expect(result).toBe('test-vocab test-spelling (test-type) test-translate');
+    });
+  
+    it('should log an error message when the document does not exist', async () => {
+      const mockDocSnapshot = {
+        exists: jest.fn(() => false),
+        data: jest.fn(() => ({
+          Vocab: 'test-vocab',
+          Spelling: 'test-spelling',
+          Type: 'test-type',
+          Translate: 'test-translate'
+        })),
+      };
+      const mockDocRef1 = { doc: jest.fn().mockReturnValue(mockDocSnapshot) };
+      collection.mockReturnValueOnce('mockCollection');
+      doc.mockReturnValueOnce(mockDocRef1);
+      getDoc.mockResolvedValueOnce(mockDocSnapshot);
+      const result =await createNotiBody('non-existent-doc-id');
+
+      expect(console.log).toHaveBeenCalledWith('Document does not exist.');
+      expect(result).toBe('');
+    });
+    afterEach(() => {
+      collection.mockRestore();
+      doc.mockRestore(); 
+      getDoc.mockRestore();
+      console.log.mockRestore();
+    });
+  });
+  describe('sendNotification function', () => {
+
+    test('should send notification successfully', async () => {
+        const mockDocSnapshot = {
+            exists: jest.fn(() => true),
+            data: jest.fn(() => ({
+              Vocab: 'test-vocab',
+              Spelling: 'test-spelling',
+              Type: 'test-type',
+              Translate: 'test-translate'
+            })),
+          };
+          const mockDocRef1 = { doc: jest.fn().mockReturnValue(mockDocSnapshot) };
+          collection.mockReturnValueOnce('mockCollection');
+          doc.mockReturnValueOnce(mockDocRef1);
+          getDoc.mockResolvedValueOnce(mockDocSnapshot);
+     admin.messaging().sendToDevice.mockResolvedValue({ results: [] });
+      const token = 'test-token';
+      const message = '6CHD8VJEoz';
+      await sendNotification(token, message);
+      expect(admin.messaging().sendToDevice).toHaveBeenCalledWith(token, {
+        notification: {
+          title: 'Alarm Vocab',
+          body: 'test-vocab test-spelling (test-type) test-translate',
+        },
+      });
+      expect(console.log).toHaveBeenCalledWith('Notification sent successfully:', []);
+    });
+    afterEach(() => {
+      console.error.mockClear();
+      console.log.mockClear();
+      admin.messaging().sendToDevice.mockClear()
     });
   });

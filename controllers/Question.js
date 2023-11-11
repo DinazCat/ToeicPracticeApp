@@ -18,7 +18,8 @@ const getMaxquestion = async (userId, Part)=>{
   }
     }
     catch(e){
-        console.log("getMaxquestion "+e)
+      console.error('Error get document: ', e);
+      return 0;
     }
 }
 const getQuestion = async (req,res)=>{
@@ -29,14 +30,12 @@ const getQuestion = async (req,res)=>{
         max = item;
       })
       const num = parseInt(req.params.number)+parseInt(max)
-      console.log(num)
       const queryConstraints = [where("Order", ">", max),where("Order", "<=", num)];
       const q = query(
         myCollection,
         ...queryConstraints
       );
       const querySnapshot = await getDocs(q);
-      // const list = querySnapshot.docs.map((doc) => doc.data());
       const list = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         const docId = doc.id;
@@ -48,7 +47,6 @@ const getQuestion = async (req,res)=>{
         success: false,
         message: "something went wrong when get data from getQuestion",
       });
-      console.log(e);
     }
  }
  const pushHistoryUser1 = async (userId, id, part, quantity, sign) => {
@@ -61,18 +59,17 @@ const getQuestion = async (req,res)=>{
        const data = userData.HistoryPractice || [];
        data.unshift(id);
        await updateDoc(docRef, { HistoryPractice: data });
-       if(sign!='noMax')
-       {
-        let max = 0;
-       await getMaxquestion(userId, part).then((item) => {
-         max = item;
-       });
-       const num = parseInt(quantity) + parseInt(max);
-       if (part == "L1") {
-         const data2 = documentSnapshot.data().MaxQuestion || { L1: num };
-         data2.L1 = num;
-         await updateDoc(docRef, { MaxQuestion: data2 });
-       }
+       if (sign != "noMax") {
+         let max = 0;
+         await getMaxquestion(userId, part).then((item) => {
+           max = item;
+         });
+         const num = parseInt(quantity) + parseInt(max);
+         if (part == "L1") {
+           const data2 = documentSnapshot.data().MaxQuestion || { L1: num };
+           data2.L1 = num;
+           await updateDoc(docRef, { MaxQuestion: data2 });
+         }
        }
      } 
      else {
@@ -81,13 +78,12 @@ const getQuestion = async (req,res)=>{
        };
        await setDoc(docRef, data);
      }
-   } catch (e) {
-     console.log(e);
+   } catch (error) {
+    console.error('Error pushHistoryUser1: ', error);
    }
  };
  const pushPracticeHistory = async(req,res)=>{
-  const myCollection = collection(firestore, 'PracticeHistory');
-  try{
+    const myCollection = collection(firestore, 'PracticeHistory');
     const data = req.body;
     await addDoc(myCollection, data)
     .then((docRef) => {
@@ -97,11 +93,6 @@ const getQuestion = async (req,res)=>{
     .catch((error) => {
       console.error('Error adding document pushHistory: ', error);
     });
-  }
-  catch (e) {
-    res.send({ message: 'Data not saved successfully' });
-    console.log(e);
-  }
  }
  const getOneQuestion = async(req,res)=>{
   const myCollection = collection(firestore, req.params.Part);
@@ -110,15 +101,14 @@ const getQuestion = async (req,res)=>{
     const documentSnapshot = await getDoc(docRef);
   
   if (documentSnapshot.exists()) {
-    const data = {...documentSnapshot.data(),Id: documentSnapshot.id} || {};
+    const data = {...documentSnapshot.data(),Id: documentSnapshot.id}
     res.json({success:true, question:data});
   } else {
-    console.log('Document does not exist.');
     res.json({success:true, question:{}});
   }
     }
     catch(e){
-        console.log(e)
+      console.error('Error get document: ', e);
     }
  }
 const get1PHistory = async(list)=>{
@@ -130,14 +120,14 @@ const get1PHistory = async(list)=>{
     const documentSnapshot = await getDoc(docRef);
   
   if (documentSnapshot.exists()) {
-    const data = {...documentSnapshot.data(), Id: documentSnapshot.id} || {};
+    const data = {...documentSnapshot.data(), Id: documentSnapshot.id};
     dataList.push(data)
   } 
     }
     catch(e){
-        console.log(e)
+      console.error('Error get document: ', e);
     }
   }
   return dataList;
  }
- module.exports={getQuestion, pushPracticeHistory, getOneQuestion, get1PHistory}
+ module.exports={getQuestion, pushPracticeHistory, getOneQuestion, get1PHistory,getMaxquestion,pushHistoryUser1}
