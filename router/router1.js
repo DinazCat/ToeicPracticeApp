@@ -5,7 +5,7 @@ const {setUserInfo, updateUser, getAllUsers, getUserData} = require ('../control
 const {uploadAudio, uploadPracticeHistory} = require ('../controllers/SWskills')
 const {getQuestion, pushPracticeHistory, getOneQuestion} = require('../controllers/Question')
 const {uploadPracticePlan, getPracticePlan, updatePracticePlan} = require('../controllers/PracticePlan')
-const {updatePost, addComment, getOneComment}=require('../controllers/Post')
+const {addPost, updatePost, addComment, getOneComment, addNotification, deleteNotification, updateNotification}=require('../controllers/Post')
 
 router.get('/VocabLessons',getVocabLesson)
 router.get('/VocabinLesson/:TopicId',getVocabinLesson)
@@ -28,7 +28,11 @@ router.post('/PracticePlan/:userId/add', uploadPracticePlan)
 router.get('/PracticePlan/:userId', getPracticePlan)
 router.put('/PracticePlan/:userId/update', updatePracticePlan)
 //post
+router.post('/addPost', addPost)
 router.put('/updatePost/:postId', updatePost)
 router.post('/addComment/:sign/:momId', addComment)
+router.post('/addNotification', addNotification)
 router.get('/getoneComment/:commentId',getOneComment)
+router.delete('/deleteNoti/:notiId',deleteNotification)
+router.put('/updateNoti/:notiId', updateNotification)
 module.exports = router

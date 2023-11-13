@@ -5,7 +5,7 @@ const PORT = 3000;
 
 const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
 const firestore = getFirestore(firebase);
-const {retrieveUserToken, sendNotification} = require('./controllers/User')
+const { sendNotification} = require('./controllers/User')
 const {get1PHistory} = require('./controllers/Question')
 
 const SendNoti= async()=>{
@@ -88,6 +88,53 @@ io.on('connection', (socket) => {
             io.emit(name, list);
         }
       } 
+    })
+     //realtime cho posts in forum
+  db.collection('Posts')
+  .orderBy('postTime', 'desc')
+  .onSnapshot((querySnapshot)=>{
+    const list = [];
+    const list2 = [];
+    querySnapshot.forEach(doc =>{
+      list.push(doc.data())
+      if(doc.data().userId == userId){
+        list2.push(doc.data())
+      }
+      //realtime cho list comment trong post
+      io.emit(doc.data().postId,doc.data().comments)
+      //realtime cho detailpost
+      io.emit(doc.data().postId+'detailpost',doc.data())
+    })
+    io.emit('mainPosts', list)
+    //realtime cho posts in profile
+    const name = userId+'userPosts'
+    io.emit(name, list2)
+  })
+    //realtime cho 1 comments in posts
+    db.collection('Comments')
+    .onSnapshot((querySnapshot)=>{
+      querySnapshot.forEach(doc =>{
+        io.emit(doc.data().commentId, doc.data())
+      })
+    })
+    //realtime cho notification
+    db.collection('Notification')
+    .orderBy('time', 'desc')
+    .onSnapshot((querySnapshot)=>{
+      querySnapshot.forEach(doc =>{
+        if(doc.data().classify=='reply'){
+          io.emit(doc.data().CommentownerId+'noti', doc.data())
+          if(doc.data().Read=='no'){
+            io.emit(doc.data().CommentownerId+'sign', '1')
+          }
+        }
+        else{
+          io.emit(doc.data().PostownerId+'noti', doc.data())
+          if(doc.data().Read=='no'){
+            io.emit(doc.data().PostownerId+'sign', '1')
+          }
+        }
+      })
     })
   // Xử lý khi client gửi yêu cầu
   socket.on('connect', (data) => {
