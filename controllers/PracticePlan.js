@@ -10,7 +10,7 @@ const phasesTime1 = ['1', '2 - 4', '5' ,'6 - 8', '9 - 13', '14', '15 - 18', '19 
 const phasesTime2 = ['1 - 2', '3 - 7', '8', '9 - 14', '15 - 23', '24', '25 - 32', '33 - 40', '41', '42 - 59', '60'];
 const phasesTime3 = ['1 - 3', '4 - 14', '15', '16 - 26', '27 - 43', '44', '45 - 57', '58 - 65', '66', '67 - 89', '90'];
 const phasesTime4 = ['1 - 4', '5 - 19', '20', '21 - 34', '35 - 55', '56', '57 - 73', '74 - 87', '88', '89 - 119', '120'];
-const practiceContent = ['Photograph Describes', 'Question & Response', 'Test 1', 'Incomplete Sentences', 'Short Conversations', 'Test 2', 'Short Talks', 'Text Completion', 'Test 3','Reading Comprehension', 'Test 4']
+const practiceContent = ['Photographs', 'Question & Response', 'Test 1', 'Incomplete Sentences', 'Short Conversations', 'Test 2', 'Short Talks', 'Text Completion', 'Test 3','Reading Comprehension', 'Test 4']
 
 const buildPracticePlan = async (currentLevel, targetLevel, practiceDays, userId) =>{ 
     const PracticePhases = [];
@@ -66,6 +66,7 @@ const buildPracticePlan = async (currentLevel, targetLevel, practiceDays, userId
                     Target: TargetPerPart[0],
                     Content: practiceContent[0],
                     Days: Days,
+                    // Assessment: 'numberofquestioninrealtest',
                 }
             }
             else{

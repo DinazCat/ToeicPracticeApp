@@ -26,7 +26,7 @@ router.get('/oneQuestion/:Part/:Qid',getOneQuestion)
 //PracticePlan
 router.post('/PracticePlan/:userId/add', uploadPracticePlan)
 router.get('/PracticePlan/:userId', getPracticePlan)
-router.get('/PracticePlan/:userId/update', updatePracticePlan)
+router.put('/PracticePlan/:userId/update', updatePracticePlan)
 //post
 router.put('/updatePost/:postId', updatePost)
 router.post('/addComment/:sign/:momId', addComment)

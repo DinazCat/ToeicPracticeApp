@@ -27,14 +27,12 @@ const practiceContent = ['Photograph Describes', 'Question & Response', 'Test 1'
 
 describe('uploadPracticePlan', () => {
     beforeEach(() => {
-        jest.restoreAllMocks(); // Restore all mocked functions after each test
+        jest.restoreAllMocks();
       });
     test('should upload practice plan successfully', async () => {
-  
-      // Mocking console.log
+
       const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
   
-      // Mocking req and res objects
       const mockReq = {
         body: {
           currentLevel: 'mockCurrentLevel',
@@ -100,14 +98,11 @@ describe('uploadPracticePlan', () => {
         json: jest.fn()
       };
   
-      // Mocking buildPracticePlan function
-      const mockBuildPracticePlan = jest.fn().mockReturnValue('mockPracticePlan');
-      jest.mock('../controllers/PracticePlan', () => ({
-        buildPracticePlan: mockBuildPracticePlan
-      }));
-    // jest.mock('../controllers/PracticePlan', () => ({
-    //     buildPracticePlan: jest.fn(),
-    //   }));
+      // // Mocking buildPracticePlan function
+      // const mockBuildPracticePlan = jest.fn().mockReturnValue('mockPracticePlan');
+      // jest.mock('../controllers/PracticePlan', () => ({
+      //   buildPracticePlan: mockBuildPracticePlan
+      // }));
   
       setDoc.mockRejectedValueOnce(new Error('Test error'));
       //buildPracticePlan.mockReturnValueOnce('mockPracticePlan');
