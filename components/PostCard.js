@@ -2,6 +2,11 @@ import { StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native'
 import React, { useEffect, useRef, useState, useContext } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import VideoPlayer from 'react-native-video-player'
+import Api from '../api/Api'
+import auth from '@react-native-firebase/auth';
+import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
+import { useNavigation } from '@react-navigation/native';
 
 const PopupMenu = () =>{
     const[visible,setvisible] = useState(false);
@@ -38,71 +43,198 @@ const PopupMenu = () =>{
     )
   }
 const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress}) => {  
+  const navigation = useNavigation();
+  const [levelsource, setLevelSource] = useState(require('../assets/Lv0.png'))
+  const [isLike, setIsLike] = useState(false);
+  const [countCm, setCountCm] = useState(0);
+  const getLevel = async () => {
+    const data = await Api.getUserData(item.userId)
+    if(data.currentScore){
+      if(data.currentScore>=0 && data.currentScore <= 250){
+        setLevelSource(require('../assets/Lv0.png'))
+      }
+      else if(data.currentScore <= 400){
+        setLevelSource(require('../assets/Lv1.png'))
+      }
+      else if(data.currentScore <= 600){
+        setLevelSource(require('../assets/Lv2.png'))
+      }
+      else if( data.currentScore <= 780){
+        setLevelSource(require('../assets/Lv3.png'))
+      }
+      else if(data.currentScore <= 900){
+        setLevelSource(require('../assets/Lv4.png'))
+      }
+      else if(data.currentScore <= 990){
+        setLevelSource(require('../assets/Lv5.png'))
+      }
+    }
+  };
+
+  const onLike=async()=>{
+    const foundItem = item.likes.find(i => i === auth().currentUser.uid);
+    if(foundItem){
+      setIsLike(false)
+      const newList = item.likes.filter(item => item !== auth().currentUser.uid);
+      await Api.updatePost(item.postId,{likes:newList})
+    }
+    else{
+      setIsLike(true)
+      const list = item.likes
+      list.push(auth().currentUser.uid)
+      await Api.updatePost(item.postId,{likes:list})
+      const currentDate = new Date()
+      const currentDay = currentDate.getDate(); 
+      const currentMonth = currentDate.getMonth() + 1; 
+      const currentYear = currentDate.getFullYear(); 
+      const currentHours = currentDate.getHours(); 
+      const currentMinutes = currentDate.getMinutes();
+      const time = currentDay+'/'+currentMonth+'/'+currentYear+' at '+currentHours+':'+currentMinutes
+      const data = {
+        PostownerId: item.userId,
+        guestId: auth().currentUser.uid,
+        classify: 'Like',
+        time: time,
+        text:'liked your post about topic: ' + item.topic,
+        postid: item.postId,
+        Read: 'no',
+      };
+      await Api.addNotification(data)
+    }
+  }
+  const checkLike=()=>{
+    const foundItem = item.likes.find(i => i === auth().currentUser.uid);
+    if(foundItem) setIsLike(true)
+    else setIsLike(false)
+  }
+  // const countComment=async(cmId)=>{
+  //   const data = await Api.getOneComment(cmId)
+  //   console.log(data)
+  //   if(data!='-1'){
+  //   let tong = data.replies?.length||0
+  //   if(tong==0) return 0;
+  //   for(let i = 0; i < tong; i++){
+  //     tong=  parseInt(countComment(data.replies[i])) + parseInt(tong)
+  //   }
+  // }else return 0
+  //   }
+  // const countComment1=()=>{
+  //   let tong = 0;
+  //     for(let i = 0; i < item.comments.length;i++){
+  //       tong = parseInt(countComment(item.comments[i])) + 1 + parseInt(tong)
+  //     }
+  //     setCountCm(tong)
+  //     console.log("tong"+tong)
+  //   }
+  useEffect(() => {
+    getLevel();
+    checkLike();
+  }, [item]);
   return (
     <View style={styles.Container}>
-        <View style={styles.UserInfoContainer}>
-            <TouchableOpacity onPress={onUserPress}>
-                <Image style={styles.UserImage} source={{uri: 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png'}}/>
-            </TouchableOpacity>            
-            <View style={styles.UserInfoTextContainer}>
-                <TouchableOpacity>
-                    <Text style={styles.UsernameText}>{item.userName}</Text>
-                </TouchableOpacity>                
-                <Text style={styles.PostTime}>{item.postTime}</Text>
-            </View>
-            <View style={{flex:1}}/> 
-            <PopupMenu/>        
+      <View style={styles.UserInfoContainer}>
+        <TouchableOpacity onPress={onUserPress}>
+        <Image
+            style={styles.UserImage}
+            source={{
+              uri: item.userImg
+                ? item.userImg
+                  ? item.userImg
+                  : 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png'
+                : 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png',
+            }}
+          />
+          <Image
+            source={levelsource}
+            resizeMode="contain"
+            style={{
+              position: 'absolute',
+              marginLeft: 28,
+              marginTop: 30,
+              width: 15,
+              height: 15,
+            }}></Image>
+        </TouchableOpacity>
+        <View style={styles.UserInfoTextContainer}>
+          <TouchableOpacity>
+            <Text style={styles.UsernameText}>{item.userName}</Text>
+          </TouchableOpacity>
+          <Text style={styles.PostTime}>{item.postTime}</Text>
         </View>
+        <View style={{flex: 1}} />
+        <PopupMenu />
+      </View>
 
-        <Text style={styles.PostTitle}>Topic: {item.topic}</Text>
+      <Text style={styles.PostTitle}>Topic: {item.topic}</Text>
 
-        <Text style={styles.PostText}>in <Text style={{fontStyle: 'italic', fontWeight: 'bold'}}>{item.cate}</Text></Text>
+      <Text style={styles.PostText}>
+        {item.text}
+      </Text>
+      <Text style={{fontStyle: 'italic', fontWeight: 'bold'}}>
+          {"#"+item.hashtag}
+        </Text>
 
-        <TouchableOpacity onPress={onGotoPostPress}>
-          <Text style={[styles.PostText,{textDecorationLine:'underline', color:'#226EE8'}]}>
-            Go to post
-          </Text>
+      <TouchableOpacity onPress={onGotoPostPress}>
+        <Text
+          style={[
+            styles.PostText,
+            {textDecorationLine: 'underline', color: '#226EE8'},
+          ]}>
+          Go to post
+        </Text>
+      </TouchableOpacity>
+
+      <View>
+        {item.postImg?item.postImg[0].type == 'img' ? (
+          <Image source={{uri: item.postImg[0].uri}} style={styles.PostImage} />
+        ) : (
+          <VideoPlayer
+            video={{uri:item.postImg[0].uri}}
+            videoWidth={400}
+            videoHeight={200}
+            disableControlsAutoHide={true}
+            disableSeek={true}
+            endThumbnail={{uri:'https://tse1.mm.bing.net/th?id=OIP.pENsrXZ3F7yXMHHRIHS22QHaEK&pid=Api&rs=1&c=1&qlt=95&w=192&h=108'}}
+          />
+        ):null}
+      </View>
+
+      <View style={styles.devider} />
+
+      <View style={styles.InteractionContainer}>
+        <TouchableOpacity onPress={onLike}>
+          <View style={styles.Interaction}>
+          <Ionicons name={isLike ? 'heart' : 'heart-outline'} size={25} color={isLike? PRIMARY_COLOR : '#666'} />
+            <Text style={styles.InteractionText}>
+              { item.likes.length === 1 ? '1 Like' :
+                      item.likes.length > 1 ? item.likes.length + ' Likes' :
+                      'Like'}
+            </Text>
+          </View>
         </TouchableOpacity>
 
-        <View>
-            <Image source={{uri: item.postImg}} style={styles.PostImage}/>
-        </View>
-
-        <View style={styles.devider}/>       
-
-        <View style={styles.InteractionContainer}>
-            <TouchableOpacity>
-                <View style={styles.Interaction}>
-                <Image style={styles.iconWrapper} source={require('../assets/heart.png')}/>
-                    <Text style={styles.InteractionText}>
-                      {/* { item.likes.length === 1 ? '1 Like' :
-                      item.likes.length > 1 ? item.likes.length + ' Likes' :
-                      'Like'} */}
-                      2 Likes
-                    </Text>
-                </View>
-            </TouchableOpacity>
-            
-            <TouchableOpacity onPress={onCommentPress}>
-                <View style={styles.Interaction}>
-                <Image style={styles.iconWrapper} source={require('../assets/comment.png')}/>
-                    <Text style={[styles.InteractionText]}>
-                      {/* {item.comments.length === 1 ? '1 Comment' :
-                      item.comments.length > 1 ? item.comments.length + ' Comments' :
-                      'Comment'} */}
-                      1 Comment
-                    </Text>
-                </View>
-            </TouchableOpacity>
-            {/* <TouchableOpacity>
+        <TouchableOpacity onPress={onCommentPress}>
+          <View style={styles.Interaction}>
+            <Image
+              style={styles.iconWrapper}
+              source={require('../assets/comment.png')}
+            />
+            <Text style={[styles.InteractionText]}>
+              {countCm === 1 ? '1 Comment' :
+                      countCm > 1 ? countCm + ' Comments' :
+                      'Comment'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        {/* <TouchableOpacity>
                 <View style={styles.Interaction}>
                     <Ionicons name="arrow-redo-outline"size={25} color={'#666'}/>
                     <Text style={[styles.InteractionText, , {color: '#666'}]}>{language === 'vn' ? 'Chia sẻ' : 'Share'}</Text>
                 </View>
             </TouchableOpacity> */}
-        </View>
+      </View>
     </View>
-  )
+  );
 }
 
 export default PostCard

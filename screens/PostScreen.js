@@ -1,34 +1,140 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, } from 'react-native'
-import React from 'react'
+import React, { useEffect, useRef, useState, useContext } from 'react'
+import auth from '@react-native-firebase/auth';
+import Api from '../api/Api'
+import VideoPlayer from 'react-native-video-player'
+import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import socketServices from '../api/socketService';
 
-const PostScreen = () => {
+const PostScreen = ({navigation, route}) => {
+const {postId,sign} = route.params
+const [postData, setPostData] = useState(null);
+const [isLike, setIsLike] = useState(false);
+const [countCm, setCountCm] = useState(0);
+const [levelsource, setLevelSource] = useState(require('../assets/Lv0.png'))
+onUserPress=() => navigation.navigate('profileScreen', {userId: postData.userId})
+onCommentPress=() => navigation.navigate('CommentScreen',{postId:postData.postId,topic:postData.topic, user:postData.userId})
+  const getLevel = async () => {
+    const data = await Api.getUserData(postData?.userId)
+    if(data?.currentScore){
+      if(data.currentScore>=0 && data.currentScore <= 250){
+        setLevelSource(require('../assets/Lv0.png'))
+      }
+      else if(data.currentScore <= 400){
+        setLevelSource(require('../assets/Lv1.png'))
+      }
+      else if(data.currentScore <= 600){
+        setLevelSource(require('../assets/Lv2.png'))
+      }
+      else if( data.currentScore <= 780){
+        setLevelSource(require('../assets/Lv3.png'))
+      }
+      else if(data.currentScore <= 900){
+        setLevelSource(require('../assets/Lv4.png'))
+      }
+      else if(data.currentScore <= 990){
+        setLevelSource(require('../assets/Lv5.png'))
+      }
+    }
+  };
+  useEffect(() => {
+    socketServices.initializeSocket()
+    getPost()
+  }, []);
+  const getPost = async()=>{
+    console.log('id'+postId)
+    socketServices.on(postId+'detailpost',(data) => {
+      setPostData(data)
+    })
+  }
+
+  useEffect(() => {
+    checkLike();
+    getLevel();
+    if(sign=='cmt'&&postData!=null){
+      navigation.navigate('CommentScreen',{postId:postData.postId,topic:postData.topic, user:postData.userId})
+    }
+  }, [postData]);
+ 
+  const onLike=async()=>{
+    const foundItem = postData?.likes.find(i => i === auth().currentUser.uid);
+    if(foundItem){
+      setIsLike(false)
+      const newList = postData.likes.filter(item => item !== auth().currentUser.uid);
+      await Api.updatePost(postData.postId,{likes:newList})
+    }
+    else{
+      setIsLike(true)
+      const list = postData.likes
+      list.push(auth().currentUser.uid)
+      await Api.updatePost(postData.postId,{likes:list})
+      const currentDate = new Date()
+      const currentDay = currentDate.getDate(); 
+      const currentMonth = currentDate.getMonth() + 1; 
+      const currentYear = currentDate.getFullYear(); 
+      const currentHours = currentDate.getHours(); 
+      const currentMinutes = currentDate.getMinutes();
+      const time = currentDay+'/'+currentMonth+'/'+currentYear+' at '+currentHours+':'+currentMinutes
+      const data = {
+        PostownerId: postData.userId,
+        guestId: auth().currentUser.uid,
+        classify: 'Like',
+        time: time,
+        text:'liked your post about topic: ' + postData.topic,
+        postid: postData.postId,
+        Read: 'no',
+      };
+      await Api.addNotification(data)
+    }
+  }
+  const checkLike=()=>{
+    const foundItem = postData?.likes.find(i => i === auth().currentUser.uid);
+    if(foundItem) setIsLike(true)
+    else setIsLike(false)
+  }
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-          <View style={styles.UserInfoContainer}>
+        <View style={styles.UserInfoContainer}>
+          <TouchableOpacity onPress={onUserPress}>
+            <Image
+              style={styles.UserImage}
+              source={{
+                uri: postData?.userImg
+                  ? postData.userImg
+                    ? postData.userImg
+                    : 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png'
+                  : 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png',
+              }}
+            />
+            <Image
+              source={levelsource}
+              resizeMode="contain"
+              style={{
+                position: 'absolute',
+                marginLeft: 30,
+                marginTop: 32,
+                width: 15,
+                height: 15,
+              }}></Image>
+          </TouchableOpacity>
+          <View style={styles.UserInfoTextContainer}>
             <TouchableOpacity>
-              <Image
-                style={styles.UserImage}
-                source={{
-                  uri:'https://cdn-icons-png.flaticon.com/512/1946/1946429.png',
-                }}
-              />
+              <Text style={[styles.UsernameText]}>{postData?.userName}</Text>
             </TouchableOpacity>
-            <View style={styles.UserInfoTextContainer}>
-              <TouchableOpacity>
-                <Text
-                  style={[
-                    styles.UsernameText,
-                  ]}>
-                  Cát Tường
-                </Text>
-              </TouchableOpacity>
-              <Text style={styles.PostTime}>Wed October 28 2023 at 5.14.50 PM</Text>
-              <Text style={styles.PostTime}>in <Text style={{fontStyle: 'italic', fontWeight: 'bold'}}>Study Resources</Text></Text>
-            </View>
+            <Text style={styles.PostTime}>{postData?.postTime}</Text>
+            <Text style={styles.PostTime}>
+              in{' '}
+              <Text style={{fontStyle: 'italic', fontWeight: 'bold'}}>
+                {postData?.topic}
+              </Text>
+            </Text>
           </View>
         </View>
-        <View style={styles.TextContainer}>
+      </View>
+      {/* <View style={styles.TextContainer}>
             <Text
                 style={[
                 styles.TopicText,
@@ -51,29 +157,71 @@ const PostScreen = () => {
                   uri:'https://cdn4.iconfinder.com/data/icons/file-extensions-1/64/pdfs-512.png',
                 }}/>
             <Text>600-Essential-Words-For-The-TOEIC-PDF.pdf</Text>
-        </View>
-        <View style={styles.devider}/>
-        <View style={styles.InteractionContainer}>
-            <TouchableOpacity>
-                <View style={styles.Interaction}>
-                <Image style={styles.iconWrapper} source={require('../assets/heart.png')}/>
-                    <Text style={styles.InteractionText}>
-                      2 Likes
-                    </Text>
-                </View>
-            </TouchableOpacity>
-            
-            <TouchableOpacity>
-                <View style={styles.Interaction}>
-                <Image style={styles.iconWrapper} source={require('../assets/comment.png')}/>
-                    <Text style={[styles.InteractionText]}>
-                      1 Comment
-                    </Text>
-                </View>
-            </TouchableOpacity>
-        </View>
+        </View> */}
+      <View style={styles.TextContainer}>
+        <Text style={styles.PostText}>{postData?.text}</Text>
+        <Text style={{fontStyle: 'italic', fontWeight: 'bold'}}>
+          {'#' + postData?.hashtag}
+        </Text>
+
+        {postData?.postImg?.map((item, key) => {
+          return (
+            <View key={key}>
+              {item.type == 'img' ? (
+                <Image source={{uri: item.uri}} style={styles.PostImage} />
+              ) : (
+                <VideoPlayer
+                  video={{uri: item.uri}}
+                  videoWidth={400}
+                  videoHeight={200}
+                  disableControlsAutoHide={true}
+                  disableSeek={true}
+                  endThumbnail={{
+                    uri: 'https://tse1.mm.bing.net/th?id=OIP.pENsrXZ3F7yXMHHRIHS22QHaEK&pid=Api&rs=1&c=1&qlt=95&w=192&h=108',
+                  }}
+                />
+              )}
+            </View>
+          );
+        })}
+      </View>
+      <View style={styles.devider} />
+      <View style={styles.InteractionContainer}>
+        <TouchableOpacity onPress={onLike}>
+          <View style={styles.Interaction}>
+            <Ionicons
+              name={isLike ? 'heart' : 'heart-outline'}
+              size={25}
+              color={isLike ? PRIMARY_COLOR : '#666'}
+            />
+            <Text style={styles.InteractionText}>
+              {postData?.likes.length === 1
+                ? '1 Like'
+                : postData?.likes.length > 1
+                ? postData?.likes.length + ' Likes'
+                : 'Like'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={onCommentPress}>
+          <View style={styles.Interaction}>
+            <Image
+              style={styles.iconWrapper}
+              source={require('../assets/comment.png')}
+            />
+            <Text style={[styles.InteractionText]}>
+              {countCm === 1
+                ? '1 Comment'
+                : countCm > 1
+                ? countCm + ' Comments'
+                : 'Comment'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
-  )
+  );
 }
 
 export default PostScreen
@@ -183,4 +331,11 @@ const styles = StyleSheet.create({
     height: 25,
     resizeMode: 'contain',
   },
+  PostImage:{
+    margin: 5,
+    marginTop:5,
+    resizeMode: 'cover',
+    borderRadius: 5,
+    height: 200
+},
 })

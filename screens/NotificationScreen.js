@@ -1,18 +1,47 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, ScrollView, } from 'react-native'
-import React from 'react'
+import React, { useState,useEffect} from 'react'
 import Notification from '../components/Notification'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import auth from '@react-native-firebase/auth';
+import Api from '../api/Api'
+import socketServices from '../api/socketService';
 const NotificationScreen = ({navigation}) => {
-  const notifications = [
-    {
-      Mess: 'ahudbs replied your comment in topic Share ...',
-      Time: 'Mon June 12 2023 at 14:02 PM'
-    },
-    {
-      Mess: 'ahudbs commented on your post in topic Share ...',
-      Time: 'Mon June 12 2023 at 14:02 PM'
-    },
-  ]
+  const [notiL, setNotiL] = useState(null)
+
+  useEffect(() => {
+    socketServices.initializeSocket()
+    getNotis()
+  }, []);
+  const getNotis = async()=>{
+    const list = []
+    socketServices.on(auth().currentUser.uid+'noti',(data) => {
+      if(list.length>0){
+        const foundItem = list.find(i => i.Id === data.Id);
+        if(!foundItem){
+          list.push(data)
+          setNotiL(list)
+        }
+      }
+      else{
+        list.push(data)
+        setNotiL(list)
+      }
+    })
+  }
+  const removeNoti=async(id) => {
+    const filteredData = notiL.filter(
+      i => i.Id !== id,
+    );
+    setNotiL(filteredData);
+    await Api.deleteNotification(id)
+  }
+  const Action = (item) => {
+    if (item.classify == 'Like') {
+      navigation.push('PostScreen',{postId: item.postid,sign:'nocmt'})
+    } else {
+      navigation.push('PostScreen',{postId: item.postid, sign:'cmt'})}
+    }
+  
   return (
     <View
       style={[styles.container,]}>
@@ -27,15 +56,23 @@ const NotificationScreen = ({navigation}) => {
         </Text>
       </View>
       <View style={{height: 1, backgroundColor: '#DDD'}} />
-      <FlatList
-        data={notifications}
+      {(notiL)?<FlatList
+        data={notiL}
         renderItem={({item, index}) => (
           <Notification
             key={index}
             item={item}
+            Remove={()=>{
+              removeNoti(item.Id)
+            }}
+            action={() => {
+              Action(item);
+            }}
           />
         )}
-      />
+       />:
+      <Text style={{textAlign:'center'}}>There are no announcements</Text>
+      } 
     </View>
   )
 }

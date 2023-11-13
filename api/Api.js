@@ -248,6 +248,73 @@ const updatePracticePlan = async(data) => {
         console.log('error: ', error.message);
     }
 }
+const addPost = async(data)=>{
+    try{
+        const response = await client.post('/addPost',data)
+            return response.data     
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const updatePost = async(id, data) => {
+    const endpoint = '/updatePost/' + id;
+    try {
+        const response = await client.put(endpoint, data);
+      } catch (error) {
+        console.error('error: ', error.message);
+    }
+}
+const addComment = async(data,sign, momId)=>{
+    try{
+        const response = await client.post('/addComment/'+sign+'/'+momId,data)
+            return response.data     
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const getOneComment = async(commentId)=>{
+    const endpoint = '/getoneComment/'+ commentId
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.comment
+        }
+        else{
+            console.log("not get comment")
+        }        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return {};
+    }
+}
+const addNotification = async(data)=>{
+    try{
+        const response = await client.post('/addNotification',data)
+            return response.data     
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const deleteNotification = async(id)=>{
+    try{
+        await client.delete('/deleteNoti/'+id)    
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const updateNotification = async(id, data) => {
+    const endpoint = '/updateNoti/' + id;
+    try {
+         await client.put(endpoint, data);
+      } catch (error) {
+        console.error('error: ', error.message);
+    }
+}
 export default {
     getVocabLesson,
     getVocabinLesson,
@@ -267,4 +334,11 @@ export default {
     addPracticePlan,
     getPracticePlan,
     updatePracticePlan,
+    addPost,
+    updatePost,
+    addComment,
+    getOneComment,
+    addNotification,
+    deleteNotification,
+    updateNotification,
 }
