@@ -9,11 +9,10 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 export default function CustomHeader({Title, navigation}) {
   return (
     <View>
-       {/* <StatusBar
-        backgroundColor={PRIMARY_COLOR} /> */}
+       {/* <StatusBar backgroundColor={PRIMARY_COLOR} /> */}
       <View style={AppStyle.viewstyle.upzone}>   
-      <Icon name={'bars'} style={{color: 'white', fontSize: 25, marginLeft:10,}} onPress={() => navigation.openDrawer()}/>
-        <Text style={{ color:'white', fontSize:20, marginLeft:'29%' }}>{Title}</Text>
+        <Icon name={'bars'} style={{color: 'white', fontSize: 25, marginLeft:10,}} onPress={() => navigation.openDrawer()}/>
+        <Text style={{ color:'white', fontSize:20, fontWeight: '500', flex: 1, textAlign: 'center' }}>{Title}</Text>
       </View>
     </View>
   )

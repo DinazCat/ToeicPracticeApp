@@ -569,7 +569,7 @@ const InPartCard = ({route, navigation}) => {
           />
         </View>
         {/* {questionList&& */}
-        <TouchableOpacity style={[AppStyle.button.button2,{marginTop:70, zIndex:0}]} onPress={() => navigation.push('QuestionScreen',{questionList:questionList, part:part, partName: partname,sign:'Max'})}>
+        <TouchableOpacity style={[AppStyle.button.button2,{marginTop:70, zIndex:0}]} onPress={() => navigation.push('QuestionScreen',{questionList:questionList, part:part, partName: partname,sign:'Max', numberofQuestion: number, isFromPL: route.params.isFromPL})}>
             <Text style={AppStyle.button.button2_Text}>Begin</Text>
         </TouchableOpacity>
         {/* } */}

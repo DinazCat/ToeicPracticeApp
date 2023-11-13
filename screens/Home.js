@@ -45,7 +45,7 @@ import socketServices from '../api/socketService';
     <ScrollView>
       <SafeAreaView style={styles.container}>
         <CustomHeader Title={'Toeic App'} navigation={navigation} />
-        <View style={{marginTop: '10%'}}>
+        <View style={{marginTop: '7%'}}>
           {/* Practice */}
           <Text style={AppStyle.textstyle.parttext}>Practice</Text>
           <View style={[AppStyle.viewstyle.row_evenly, {marginTop: '5%'}]}>

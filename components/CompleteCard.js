@@ -5,11 +5,12 @@ import * as Progress from 'react-native-progress';
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import Api from '../api/Api';
+
 const CompleteCard=({navigation,route})=> {
-  const {score,quantity,answer, sign, part, questionL, partName} = route.params
+  const {score,quantity,answer, sign, part, questionL, partName, isFromPL} = route.params
   const [questionList, setQuestionList] = useState(null)
   const [reviewList, setReviewList] = useState(null)
-  const [skill, setSkill] = useState('')
+  const [skill, setSkill] = useState()
   const setReview= async()=>{
     const list=[]
     for(let i = 0; i < questionL.length; i++)
@@ -47,12 +48,15 @@ const CompleteCard=({navigation,route})=> {
         <TouchableOpacity
           style={{marginLeft: '2%', marginTop: 10}}
           onPress={() => {
-            if (skill != '') navigation.navigate('PartFormat', {skill: skill});
+            if(isFromPL){
+              navigation.navigate('PartPracticePlan');
+            }
+            else if (skill != null) navigation.navigate('PartFormat', {skill: skill});          
             else {
               navigation.goBack();
             }
           }}>
-          <FontAwesome name="chevron-left" color={PRIMARY_COLOR} size={20} />
+          <FontAwesome name="chevron-left" color={PRIMARY_COLOR} size={27} />
         </TouchableOpacity>
         <View
           style={{

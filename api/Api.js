@@ -136,7 +136,7 @@ const getUserData = async(userId)=>{
     }
     catch(error){
         console.log('error: ', error.message)
-        return [];
+        return 0;
     }
 }
 const uploadAudio = async (audioData) => {
@@ -205,6 +205,49 @@ const getOneQuestion = async(part,id)=>{
         return {};
     }
 }
+
+const addPracticePlan = async (currentLevel, targetLevel, practiceDays) => {
+    try{
+        const endpoint = '/PracticePlan/' + auth().currentUser.uid + '/add'
+        const response = await client.post(endpoint, {currentLevel, targetLevel, practiceDays})
+        if(response.data.success){
+            return "Success";
+        }
+        else return "Failed";
+    }
+    catch(error){
+        console.log('error: ', error.message);
+        return "Error";
+    }
+}
+
+const getPracticePlan = async(userId)=>{
+    const endpoint = "/PracticePlan/" + userId
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.PracticePlan;
+        }
+        else{
+            console.log(response.data.message);
+            return null;
+        }        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return null;
+    }
+}
+
+const updatePracticePlan = async(data) => {
+    const endpoint = '/PracticePlan/' + auth().currentUser.uid + '/update';
+    try {
+        const response = await client.put(endpoint, data);
+        console.log(response.data)
+    } catch (error) {
+        console.log('error: ', error.message);
+    }
+}
 export default {
     getVocabLesson,
     getVocabinLesson,
@@ -220,5 +263,8 @@ export default {
     uploadPracticeHistory,
     getQuestion,
     pushPracticeHistory,
-    getOneQuestion
+    getOneQuestion,
+    addPracticePlan,
+    getPracticePlan,
+    updatePracticePlan,
 }

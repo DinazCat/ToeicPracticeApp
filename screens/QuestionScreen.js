@@ -29,7 +29,6 @@ import SpeakP5QuestionForm from '../components/SpeakP5QuestionForm';
 import SpeakP6QuestionForm from '../components/SpeakP6QuestionForm';
 import WriteP1QuestionForm from '../components/WriteP1QuestionForm';
 import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
-import dings from '../assets/Part1No1.mp3'
 import LottieView from 'lottie-react-native';
 import RNFS from 'react-native-fs';
 import Api from '../api/Api';
@@ -42,7 +41,7 @@ const {width} = Dimensions.get('window');
 const QuestionScreen = ({navigation, route}) => {
   const {user} = useContext(AuthContext);
   const scrollX = useRef(new Animated.Value(0)).current;
-  const {questionList, part, partName, sign} = route.params;
+  const {questionList, part, partName, sign, numberofQuestion, isFromPL} = route.params;
   const [soundL, setsoundL] = useState(null);
   const [ItemIndex, setItemIndex] = useState(0);
   const [OpenModal, setOpenModal] = useState(false);
@@ -147,7 +146,7 @@ const QuestionScreen = ({navigation, route}) => {
               };
             }
           }
-
+          console.log(recordsRef.current)
           const audioUploadPromises = recordsRef.current.map(async (recordItem) => {
             // upload audio to storage
             const audioData = recordItem.record !== null ? await RNFS.readFile(recordItem.record, 'base64') : null;
@@ -250,24 +249,72 @@ const QuestionScreen = ({navigation, route}) => {
     else if(part == 'L1'){
       if (soundL!='-1'&&soundL[ItemIndex].isPlaying()) {
         soundL[ItemIndex].stop();
-     }
-    const currentDate = new Date();
-    const currentDay = currentDate.getDate(); 
-    const currentMonth = currentDate.getMonth() + 1; 
-    const currentYear = currentDate.getFullYear(); 
-    const currentHours = currentDate.getHours(); 
-    const currentMinutes = currentDate.getMinutes();
-    const time = currentDay+'-'+currentMonth+'-'+currentYear+'-'+currentHours+'-'+currentMinutes
-    const data = {
-      PartName:partName,
-      Part:part,
-      Quantity:questionList.length,
-      Correct: Score,
-      History:history,
-      Time:time
+      }
+      const currentDate = new Date();
+      const currentDay = currentDate.getDate(); 
+      const currentMonth = currentDate.getMonth() + 1; 
+      const currentYear = currentDate.getFullYear(); 
+      const currentHours = currentDate.getHours(); 
+      const currentMinutes = currentDate.getMinutes();
+      const time = currentDay+'-'+currentMonth+'-'+currentYear+'-'+currentHours+'-'+currentMinutes
+      const data = {
+        PartName:partName,
+        Part:part,
+        Quantity:questionList.length,
+        Correct: Score,
+        History:history,
+        Time:time
+      }
+      Api.pushPracticeHistory(data, sign);
+      navigation.navigate('CompleteCard',{score:Score,quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL})
     }
-    Api.pushPracticeHistory(data, sign);
-    }
+
+    //Update Practice Plan
+    const result = await Api.getPracticePlan(user.uid);
+    if(result != null){          
+      const practicephases = result.PracticePhases;
+      const currentphase = practicephases[result.CurrentPhase.PhaseIndex];
+      if(currentphase.Content == partName) {
+        const days = currentphase.Days
+        const index = days.findIndex(item => item.Day == result.CurrentPhase.CurrentDay)
+        if(numberofQuestion + days[index].CompletedQuestion < days[index].NumberofQuestions){
+          days[index].CompletedQuestion = numberofQuestion + days[index].CompletedQuestion;
+          practicephases[result.CurrentPhase.PhaseIndex].Days = days;
+          const data = {
+            PracticePhases: practicephases,
+          }
+
+          await Api.updatePracticePlan(data)
+          .catch(error => console.error(error));
+        }
+        // If completed all questions of the day
+        else {
+          days[index].CompletedQuestion = days[index].NumberofQuestions;
+          practicephases[result.CurrentPhase.PhaseIndex].Days = days;
+          let data;
+          if(index !== (days.length - 1)){
+            data = {
+              PracticePhases: practicephases,
+              CurrentPhase: {
+                CurrentDay: days[index].Day + 1,
+                PhaseIndex: result.CurrentPhase.PhaseIndex,
+              }
+            }
+          }
+          else{
+            data = {
+              PracticePhases: practicephases,
+              CurrentPhase: {
+                CurrentDay: days[index].Day + 1,
+                PhaseIndex: result.CurrentPhase.PhaseIndex + 1,
+              }
+            }
+          }
+          await Api.updatePracticePlan(data)
+          .catch(error => console.error(error));
+        }
+      }
+    }    
   }
 
   useEffect(() => {
@@ -338,7 +385,6 @@ const QuestionScreen = ({navigation, route}) => {
       'Are you sure to submit?',
       [
         { text: 'Yes', onPress: () => {
-          navigation.navigate('CompleteCard',{score:Score,quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part})
           onSubmit()
          } },
         { text: 'No', onPress: () => {

@@ -1,12 +1,15 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
 import React, {useContext} from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import CustomHeader from '../components/CustomHeader'
 import { AuthContext } from '../navigation/AuthProvider';
 
 const SettingScreen = ({navigation}) => {
   const {logout} = useContext(AuthContext);
-  return (
-      <View style={styles.container} >
+  return (  
+      <View style={styles.container}>
+        <CustomHeader Title={'Toeic App'} navigation={navigation} />
+        <View style={styles.btnsContainer} >
         <TouchableOpacity style={styles.btnContainer}
           onPress={() => navigation.navigate('ChangeProfile')}>
           <Ionicons name='person-outline' size={27} color={'#222'}/>
@@ -21,10 +24,6 @@ const SettingScreen = ({navigation}) => {
           <Ionicons name='language-outline' size={27} color={'#222'}/>
           <Text style={[styles.btnText, {color: '#222'}]}>{'Language'}</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.btnContainer}>
-          <Ionicons name='contrast-outline' size={27} color={theme === 'light'? '#000000' : '#FFFFFF'}/>
-          <Text style={[styles.btnText, {color: theme === 'light'? '#000000' : '#FFFFFF'}]}>{language === 'vn' ? 'Sáng tối' : 'Theme'}</Text>
-        </TouchableOpacity> */}
         <TouchableOpacity style={styles.btnContainer} 
           onPress={() => navigation.navigate('settingNoti')}>
           <Ionicons name="notifications-circle-outline" size={27} color={'#222'}/>
@@ -34,7 +33,7 @@ const SettingScreen = ({navigation}) => {
           <Ionicons name='log-out-outline' size={27} color={'#222'}/>
           <Text style={[styles.btnText, {color: '#222'}]}>{'Log Out'}</Text>
         </TouchableOpacity>
-        
+        </View>        
       </View>
   )
 }
@@ -44,9 +43,7 @@ export default SettingScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     backgroundColor: '#fff',
-    padding: 10,
   },
   text: {
     fontWeight: "bold",
@@ -56,7 +53,7 @@ const styles = StyleSheet.create({
   btnContainer: {
     flexDirection: 'row',
     width: '100%',
-    borderColor: '#AAA',
+    borderColor: '#DDD',
     borderBottomWidth: 1.5,
     paddingVertical: 10,  
     paddingHorizontal: 12,
@@ -68,4 +65,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#222'
   },
+  btnsContainer:{
+    padding: 10,
+    
+  }
 })

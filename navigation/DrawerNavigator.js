@@ -3,11 +3,11 @@ import React, {useState, useEffect} from 'react';
 import {DrawerItemList, createDrawerNavigator} from '@react-navigation/drawer';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SettingScreen from '../screens/SettingScreen';
-import Route from '../screens/Route';
 import Test from '../screens/Test';
 import VocabStack from './VocabStack';
 import HomeStack from './HomeStack';
 import ForumStack from './ForumStack';
+import PracticePlanStack from './PracticePlanStack';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 
@@ -63,9 +63,9 @@ function DrawerNavigator() {
         ),
         headerShown:false
       }}  />
-      <Drawer.Screen name="Route" component={Route} 
+      <Drawer.Screen name="PracticePlanStack" component={PracticePlanStack} 
       options={{
-        drawerLabel: 'Route', 
+        drawerLabel: 'Practice Plan', 
         drawerIcon: () => (
           <Image source={require("../assets/route.png")}/>
         ),

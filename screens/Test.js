@@ -1,10 +1,16 @@
 import { View, Text, StyleSheet, ImageBackground } from 'react-native'
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import TestCard from '../components/TestCard'
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import CustomHeader from '../components/CustomHeader'
+import Api from '../api/Api'
 const Test=({navigation})=>{
+  
+  useEffect(()=>{
+    
+  },[])
+
   return (
     <View style={styles.container}>
        <ImageBackground source={require('../assets/bg8.png')} style={{ flex: 1, resizeMode: 'cover' }}>
