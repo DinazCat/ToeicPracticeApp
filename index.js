@@ -2,6 +2,8 @@ const express = require('express');
 const {firebase,db}= require('./config')
 const cron = require('node-cron')
 const PORT = 3000;
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
 const firestore = getFirestore(firebase);
@@ -47,6 +49,7 @@ const http = require('http');
 const server = http.createServer(app)
 const {Server}= require("socket.io")
 const io = new Server(server);
+const moment = require('moment');
 let userId = '6uz50o2mYWORgoBVzmYsHZYyq622';
 io.on('connection', (socket) => {
 //   console.log('New Client connected');
@@ -91,19 +94,21 @@ io.on('connection', (socket) => {
     })
      //realtime cho posts in forum
   db.collection('Posts')
-  .orderBy('postTime', 'desc')
+  .orderBy('postTime.seconds', 'desc')
   .onSnapshot((querySnapshot)=>{
     const list = [];
     const list2 = [];
     querySnapshot.forEach(doc =>{
-      list.push(doc.data())
+      const dateSeconds = moment.unix(doc.data().postTime.seconds);
+      const data = {...doc.data(),postTime:dateSeconds.format('DD-MM-YYYY HH:mm')}
+      list.push(data)
       if(doc.data().userId == userId){
-        list2.push(doc.data())
+        list2.push(data)
       }
       //realtime cho list comment trong post
       io.emit(doc.data().postId,doc.data().comments)
       //realtime cho detailpost
-      io.emit(doc.data().postId+'detailpost',doc.data())
+      io.emit(doc.data().postId+'detailpost',data)
     })
     io.emit('mainPosts', list)
     //realtime cho posts in profile
@@ -147,6 +152,25 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true, parameterLimit:50000}));
 app.use(cors())
 app.use('/api',router)
+app.post('/upload', upload.single('image'), (req, res) => {
+  // Do something with the uploaded image
+  const file = req.file;
+  console.log(file);
+  
+  res.json({ message: 'Image uploaded successfully',photo:file.path });
+});
+app.post('/uploadvideo', upload.single('video'), (req, res) => {
+  // Do something with the uploaded image
+  const file = req.file;
+  console.log(file);   
+  res.json({ message: 'Image uploaded successfully',video:file.path });
+});
+app.post('/uploadpdf', upload.single('pdf'), (req, res) => {
+  // Do something with the uploaded image
+  const file = req.file;
+  console.log(file);   
+  res.json({ message: 'Image uploaded successfully',filepdf:file.path });
+});
 
 // server.listen(PORT, () => {
 //     console.log(`Server is running on http://localhost:${PORT}`);

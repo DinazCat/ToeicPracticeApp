@@ -46,12 +46,55 @@ const setUserInfo = async (req, res) => {
     res.status(500).json({ success: false, message: 'something went wrong when set user data'});
   }
 };
+const uploadImage = async(img)=>{
+  try{
+    if( img == null ) return null;
+  const bucket = admin.storage().bucket();
+  const timestamp = new Date().getTime().toString();
+
+  // Đường dẫn trong Firebase Storage, ví dụ: 'Photos/photo123.jpg'
+  const filePath = `Photos/photo${timestamp}.jpg`;
+
+  // Upload file
+  await bucket.upload(img, {
+    destination: filePath,
+    metadata: {
+      contentType: 'image/jpeg'
+    }
+  });
+
+  // Lấy URL của file đã upload
+  const fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media`;
+
+  return fileUrl;
+  }
+  catch(error){
+    console.error("Error upload img: ", error);
+    return null
+  }
+}
+const updateUserPrivate = async (req, res) => {
+  try {
+    const myCollection = collection(firestore, 'Users');
+    const docRef1 = doc(myCollection, req.params.userId);
+    let data = req.body
+    await uploadImage(req.body.userImg).then((x)=>{
+      data.userImg = x      
+    })
+    await updateDoc(docRef1, data);
+    console.log("Document successfully updated!");
+    res.send({ message: 'Document successfully updated!' });
+  } catch (error) {
+    console.error("Error updating user document: ", error);
+    res.status(500).json({ success: false, message: 'something went wrong when update user data' });
+  }
+};
 const updateUser = async (req, res) => {
   try {
     const myCollection = collection(firestore, 'Users');
     const docRef1 = doc(myCollection, req.params.userId);
-
-    await updateDoc(docRef1, req.body);
+    let data = req.body
+    await updateDoc(docRef1, data);
     console.log("Document successfully updated!");
     res.send({ message: 'Document successfully updated!' });
   } catch (error) {
@@ -92,4 +135,4 @@ const getAllUsers = async (req, res) => {
       return [];
   }
 };
-module.exports={sendNotification, setUserInfo, updateUser, getAllUsers, getUserData,createNotiBody}
+module.exports={sendNotification, setUserInfo, updateUser, getAllUsers, getUserData,createNotiBody, uploadImage,updateUserPrivate}

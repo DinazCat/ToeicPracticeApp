@@ -2,8 +2,31 @@ const { getFirestore, collection, getDocs, addDoc, updateDoc, doc, setDoc,getDoc
 const {storage} = require('firebase/storage')
 const {firebase,admin,db}= require('../config')
 const firestore = getFirestore(firebase);
-
+const moment = require('moment');
   const {uploadImage} = require('./User')
+  const uploadPdf=async(localFilePath)=>{
+    const bucket = admin.storage().bucket();
+    const destinationFileName = 'PDF/'+localFilePath+'.pdf';
+ 
+    bucket.upload(localFilePath, {
+      destination: destinationFileName,
+      metadata: {
+        contentType: 'application/pdf', // Set the content type of the file
+      },
+    })
+    .then((file) => {
+      console.log('File uploaded successfully.');
+    })
+    .catch((error) => {
+      console.error('Error uploading file:', error);
+      return null
+    });
+    const [url] = await bucket.file(destinationFileName).getSignedUrl({
+      action: 'read',
+      expires: '03-01-3000' // Set an expiration date for the URL if required
+    });
+    return url;
+  }
   const uploadVideo = async(video)=>{
     const bucket = admin.storage().bucket();
     return new Promise((resolve, reject) => {
@@ -52,8 +75,14 @@ const addPost = async(req,res)=>{
             data.postImg[i].uri = x      
           })
         }
-        else{
+        else if(data.postImg[i].type=='video'){
           await uploadVideo(data.postImg[i].uri).then((x)=>{
+            data.postImg[i].uri = x  
+            console.log('x:'+x)    
+          })
+        }
+        else if(data.postImg[i].type=='pdf'){
+          await uploadPdf(data.postImg[i].uri).then((x)=>{
             data.postImg[i].uri = x  
             console.log('x:'+x)    
           })
@@ -213,4 +242,217 @@ const sendNotification=async(id)=>{
       console.error('Error sending notification:', error);
     });
 }
-module.exports={addPost, uploadVideo, updatePost, addComment, getOneComment, addNotification, deleteNotification,updateNotification}
+const filterOnlyhashtag = async(req,res)=>{
+  try{
+    const Collection = collection(firestore, 'Posts');
+  const querySnapshot = await getDocs(Collection);
+  const list = querySnapshot.docs.map((doc) => {
+    const data = doc.data();
+    return { ...data };
+  });
+  const filteredPosts = list.filter(function(post) {
+   return post.hashtag===req.params.hashtag
+  })
+  res.json({success:true, posts:filteredPosts});
+  }
+  catch(e){
+    console.error('Error filterOnlyhastag:', e);
+  }
+  
+}
+const checkUserComment = async(id,userId)=>{
+  const Collection = collection(firestore, 'Comments');
+  const docRef = doc(Collection, id);
+  const rep = await getDoc(docRef);
+  if(rep.data().userId == userId) return true
+  return false
+}
+const filterOnlyPost = async(req,res)=>{
+  try{
+  //   const Collection = collection(firestore, 'Posts');
+  // const querySnapshot = await getDocs(Collection);
+
+  db.collection('Posts')
+  .orderBy('postTime.seconds', 'desc')
+  .get()
+  .then((querySnapshot)=>{
+    const list = querySnapshot.docs.map((doc) => {
+      const dateSeconds = moment.unix(doc.data().postTime.seconds);
+      const data = doc.data();
+      return { ...data,postTime:dateSeconds.format('DD-MM-YYYY HH:mm') };})
+    let filteredPosts = list;
+    if(req.params.type == 'Hottest')
+    {
+      const likesCountArray = list.map((post) => ({
+        postId: post.postId,
+        likesCount: post.likes.length,
+      }));
+      
+      // Sắp xếp mảng tạm thời theo số lượng likes giảm dần
+      likesCountArray.sort((a, b) => b.likesCount - a.likesCount);
+      filteredPosts = likesCountArray.map((item) => list.find((post) => post.postId === item.postId));
+    }
+    else if(req.params.type == 'Liked')
+    {
+      filteredPosts = list.filter(post => post.likes.includes(req.params.userId));
+    }
+    else if(req.params.type == 'Newest')
+    {
+      filteredPosts = list;
+    }
+    else if(req.params.type == 'Commented')
+    {
+      filteredPosts = list.filter(post => {
+        const comments = post.comments || [];
+        for(let i = 0; i < comments;i++){
+          if(checkUserComment(comments[i],req.params.userId)) return 
+        }
+        return comments.some(async comment => await checkUserComment(comment,req.params.userId) === true);
+      });
+    }
+    res.json({success:true, posts:filteredPosts});
+  });
+  }
+  catch(e){
+    console.error('Error filterOnlyPost:', e);
+  }
+  
+}
+const filterBoth = async(req,res)=>{
+  try{
+    db.collection('Posts')
+    .orderBy('postTime.seconds', 'desc')
+    .get()
+    .then((querySnapshot)=>{
+      const list = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      const dateSeconds = moment.unix(doc.data().postTime.seconds);
+      return { ...data,postTime:dateSeconds.format('DD-MM-YYYY HH:mm') };})
+      let filteredPosts = list;
+      if(req.params.type == 'Hottest')
+      {
+        const filter1 = list.filter(function(post) {
+          return post.hashtag===req.params.hashtag
+         })
+        const likesCountArray = filter1.map((post) => ({
+          postId: post.postId,
+          likesCount: post.likes.length,
+        }));
+        
+        // Sắp xếp mảng tạm thời theo số lượng likes giảm dần
+        likesCountArray.sort((a, b) => b.likesCount - a.likesCount);
+
+        filteredPosts = likesCountArray.map((item) => list.find((post) => post.postId === item.postId));
+        console.log(filteredPosts)
+      }
+      else if(req.params.type == 'Liked')
+      {
+        const filter1 = list.filter(post => post.likes.includes(req.params.userId));
+        filteredPosts = filter1.filter(function(post) {
+          return post.hashtag===req.params.hashtag
+         })
+      }
+      else if(req.params.type == 'Newest')
+      {
+        filteredPosts  = list.filter(function(post) {
+          return post.hashtag===req.params.hashtag
+         })
+      }
+      else if(req.params.type == 'Commented')
+      {
+        const filter1 = list.filter(post => {
+          const comments = post.comments || [];
+          for(let i = 0; i < comments;i++){
+            if(checkUserComment(comments[i],req.params.userId)) return 
+          }
+          return comments.some(async comment => await checkUserComment(comment,req.params.userId) === true);
+        });
+        filteredPosts = filter1.filter(function(post) {
+          return post.hashtag===req.params.hashtag
+         })
+      }
+      res.json({success:true, posts:filteredPosts});
+    });
+    }
+  catch(e){
+    console.error('Error filterOnlyPost:', e);
+  }
+  
+}
+const pushSavedPost = async (req, res) => {
+  const myCollection = collection(firestore, "Users");
+  const docRef = doc(myCollection, req.params.userId);
+  try {
+    const documentSnapshot = await getDoc(docRef);
+    if (documentSnapshot.exists()) {
+      const userData = documentSnapshot.data();
+      const data = userData.SavedPost || [];
+      data.unshift(req.params.postId);
+      await updateDoc(docRef, {SavedPost: data });
+      // res.send({ message: 'Document successfully updated!' });
+    } 
+    else {
+      const data = {
+        SavedPost: [req.params.postId],
+      };
+      await setDoc(docRef, data);
+    }
+  } catch (error) {
+   console.error('Error pushHistoryUser1: ', error);
+  }
+};
+const getSavedPost = async (req,res)=>{
+  const myCollection = collection(firestore, 'Users');
+  const docRef = doc(myCollection, req.params.userId);
+  try{
+  const documentSnapshot = await getDoc(docRef);
+
+if (documentSnapshot.exists()) {
+  const data = [];
+  for(let i = 0; i < documentSnapshot.data().SavedPost.length;i++){
+    const Collection = collection(firestore, 'Posts');
+    const docRef1 = doc(Collection, documentSnapshot.data().SavedPost[i]);
+    const documentSnapshot1 = await getDoc(docRef1);
+    if(documentSnapshot1.exists){
+      const data1 = documentSnapshot1.data();
+      const dateSeconds = moment.unix(documentSnapshot1.data().postTime.seconds);
+      data.push({ ...data1,postTime:dateSeconds.format('DD-MM-YYYY HH:mm') })
+    }
+  }
+  res.json({success:true, SavedPost:data});
+} else {
+  console.log('Document does not exist.');
+  res.json({success:true, SavedPost:[]});
+}
+  }
+  catch(e){
+      res.json({
+          success:false,
+          message:'something went wrong when get data from savepost'
+      })
+      console.log(e)
+  }
+}
+// const updateSavedPost = async(req,res)=>{
+//   const myCollection = collection(firestore, 'Users');
+//   const docRef = doc(myCollection, req.params.userId);
+//   try{
+//     await updateDoc(docRef,req.body);
+//     res.send({ message: 'Document successfully updated!' });
+//   }
+//   catch(e){
+//     console.error('Error updating document: ', error);
+// }
+// }
+const deletePost = async (req, res) => {
+  try {
+    const documentRef = db.collection('Posts').doc(req.params.postId);
+    await documentRef.delete();
+    console.log('Document deleted successfully.');
+  } catch (error) {
+    console.log('Error deleting document:', error);
+  }
+}
+module.exports={addPost, uploadVideo, updatePost, addComment, getOneComment, addNotification,
+   deleteNotification,updateNotification,filterBoth,filterOnlyPost,filterOnlyhashtag, pushSavedPost, getSavedPost,
+ deletePost}
