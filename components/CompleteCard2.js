@@ -6,113 +6,103 @@ import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import Api from '../api/Api';
 
-const CompleteCard=({navigation,route})=> {
-  const {quantity,answer, sign, part, questionL, partName, isFromPL,DetailQty} = route.params
+const CompleteCard2=({navigation,route})=> {
+  const {quantity, sign, part, questionL, partName, isFromPL} = route.params
   const [questionList, setQuestionList] = useState(null)
   const [reviewList, setReviewList] = useState(null)
   const [skill, setSkill] = useState()
   const [skillText, setSkillText] = useState('')
-  const [score, setScore] = useState(0)
-  const [quantity1, setQuantity1] = useState(route.params.quantity)
-  const SetScore = ()=>{
-    if(part=='L1'||part=='L2'||part=='R1'){
-    for(let i = 0 ; i < questionL.length; i++){
-      if(answer[i].Select==answer[i].Default){
-        const p = score + 1;
-        setScore(p);
-      }
-    }
-  }
-  else{
-    for(let i = 0 ; i < questionL.length; i++){
-      for(let j = 0; j < answer[i].Default.length; j++){
-        if(answer[i].Select[j]==answer[i].Default[j]){
-          const p = score + 1;
-          setScore(p);
-        }
-      }
-    }
-  }
-  }
+//   const [quantity1, setQuantity1] = useState(route.params.quantity)
   const setReview= async()=>{
     const list=[]
-    console.log(questionL.length)
     for(let i = 0; i < questionL.length; i++)
     {
-      if(part=='L1'){
-        const data = await Api.getOneQuestion('ListenPart1',questionL[i].Qid)
+      if(part=='W1'){
+        const data = await Api.getOneQuestion('WritePart1',questionL[i].Qid)
         list.push(data)
-        setSkillText('Listening')
+        setSkillText('Writting')
       }
-      else if(part=='L2'){
-        const data = await Api.getOneQuestion('ListenPart2',questionL[i].Qid)
+      else if(part=='W2'){
+        const data = await Api.getOneQuestion('WritePart2',questionL[i].Qid)
         list.push(data)
-        setSkillText('Listening')
+        setSkillText('Writting')
       }
-      else if(part=='L3'){
-        const data = await Api.getOneQuestion('ListenPart3',questionL[i].Qid)
+      else if(part=='W3'){
+        const data = await Api.getOneQuestion('WritePart3',questionL[i].Qid)
         list.push(data)
-        setSkillText('Listening')
+        setSkillText('Writting')
       }
-      else if(part=='L4'){
-        const data = await Api.getOneQuestion('ListenPart4',questionL[i].Qid)
+      else if(part=='S1'){
+        const data = await Api.getOneQuestion('SpeakPart1',questionL[i].Qid)
         list.push(data)
-        setSkillText('Listening')
+        setSkillText('Speaking')
       }
-      else if(part=='R1'){
-        const data = await Api.getOneQuestion('ReadPart1',questionL[i].Qid)
+      else if(part=='S2'){
+        const data = await Api.getOneQuestion('SpeakPart2',questionL[i].Qid)
         list.push(data)
-        setSkillText('Reading')
+        setSkillText('Speaking')
       }
-      else if(part=='R2'){
-        const data = await Api.getOneQuestion('ReadPart2',questionL[i].Qid)
+      else if(part=='S3'){
+        const data = await Api.getOneQuestion('SpeakPart3',questionL[i].Qid)
         list.push(data)
-        setSkillText('Reading')
+        setSkillText('Speaking')
       }
-      else if(part=='R3'){
-        const data = await Api.getOneQuestion('ReadPart3',questionL[i].Qid)
+      else if(part=='S4'){
+        const data = await Api.getOneQuestion('SpeakPart4',questionL[i].Qid)
         list.push(data)
-        setSkillText('Reading')
+        setSkillText('Speaking')
+      }
+      else if(part=='S5'){
+        const data = await Api.getOneQuestion('SpeakPart5',questionL[i].Qid)
+        list.push(data)
+        setSkillText('Speaking')
       }
     }
     setReviewList(list) 
   }
   const continuePractice = async()=>{
-    if(part=='L1'){
-      const list = await Api.getQuestion(quantity,'ListenPart1')
+    if(part=='W1'){
+      const list = await Api.getQuestion(quantity,'WritePart1')
       setQuestionList(list) 
-      setSkill('L1')
+      setSkill('W1')
       }
-      else if(part=='L2'){
-        const list = await Api.getQuestion(quantity,'ListenPart2')
+      else if(part=='W2'){
+        const list = await Api.getQuestion(quantity,'WritePart2')
         setQuestionList(list) 
-        setSkill('L2')
+        setSkill('W2')
         }
-        else if(part=='L3'){
-          const list = await Api.getQuestion(quantity,'ListenPart3')
+        else if(part=='W3'){
+          const list = await Api.getQuestion(quantity,'WritePart3')
           setQuestionList(list) 
-          setSkill('L3')
+          setSkill('W3')
           }
-          else if(part=='L4'){
-            const list = await Api.getQuestion(quantity,'ListenPart4')
+          else if(part=='S1'){
+            const list = await Api.getQuestion(quantity,'SpeakPart1')
             setQuestionList(list) 
-            setSkill('L4')
+            setSkill('S1')
             }
-            else if(part=='R1'){
-              const list = await Api.getQuestion(quantity,'ReadPart1')
+            else if(part=='S2'){
+              const list = await Api.getQuestion(quantity,'SpeakPart2')
               setQuestionList(list) 
-              setSkill('R1')
+              setSkill('S2')
               }
-              else if(part=='R2'){
-                const list = await Api.getQuestion(quantity,'ReadPart2')
+              else if(part=='S3'){
+                const list = await Api.getQuestion(quantity,'SpeakPart3')
                 setQuestionList(list) 
-                setSkill('R2')
+                setSkill('S3')
                 }
-                else if(part=='R3'){
-                  const list = await Api.getQuestion(quantity,'ReadPart3')
+                else if(part=='S4'){
+                  const list = await Api.getQuestion(quantity,'SpeakPart4')
                   setQuestionList(list) 
-                  setSkill('R3')
+                  setSkill('S4')
                   }
+                  else if(part=='S5'){
+                    const list = await Api.getQuestion(quantity,'SpeakPart5')
+                    setQuestionList(list) 
+                    setSkill('S5')
+                    }
+
+         
     }
   
   useEffect(()=>{
@@ -120,18 +110,10 @@ const CompleteCard=({navigation,route})=> {
       continuePractice()
     }
       setReview()
-      SetScore()
     
 
   },[])
-  useEffect(()=>{
-    if(part=='L3'||part=='L4'){
-      setQuantity1(quantity*3)
-    }
-    if(part=='R2'||part=='R3'){
-      setQuantity1(DetailQty)
-    }
-  },[])
+
  
   return (
     <View style={styles.container}>
@@ -178,51 +160,23 @@ const CompleteCard=({navigation,route})=> {
             </Text>
           </Text>
         </View>
-        <Text
-          style={{
-            marginLeft: '4%',
-            marginTop: '10%',
-            fontSize: 25,
-            fontWeight: '500',
-            color: 'black',
-          }}>
-          Consult: {score}/{quantity1}
-        </Text>
-        <View style={styles.boxstyle}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={[styles.TextFont, {fontWeight: '400'}]}>
-              Correct rate:
-            </Text>
-            <Text style={[styles.TextFont, {fontWeight: '400'}]}>
-              {parseInt((score * 100) / quantity1)}%
-            </Text>
-          </View>
-          <Progress.Bar
-            progress={score / quantity1}
-            width={250}
-            height={10}
-            style={{height: 10}}
-            color={PRIMARY_COLOR}
-          />
-        </View>
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-evenly',
-            marginTop: '10%',
+            marginTop: '30%',
           }}>
           <TouchableOpacity
             style={[AppStyle.button.button2]}
             onPress={() =>
-              navigation.push('ResultTable', {
-                History: answer,
-                questionList: reviewList,
-                part: part,
-                score:score,
-                quantity:quantity1
-              })
+                navigation.push('ReviewQuestion', {
+                    questionList: reviewList,
+                    indication: 0,
+                    History: questionL,
+                    part: part,
+                  })
             }>
-            <Text style={AppStyle.button.button2_Text}>Show answer</Text>
+            <Text style={AppStyle.button.button2_Text}>Review</Text>
           </TouchableOpacity>
           {sign == 'Home' ? (
             <TouchableOpacity
@@ -269,4 +223,4 @@ const styles = StyleSheet.create({
         flexDirection:'column',width:'90%', backgroundColor:card_color, alignSelf:'center', marginTop:5, height:120, justifyContent:'space-evenly',borderWidth: 1,
         borderColor: '#CFCFCF', borderRadius:15, alignItems:'center', 
       },})
-export default CompleteCard
+export default CompleteCard2

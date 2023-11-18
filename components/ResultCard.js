@@ -14,11 +14,11 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation } from '@react-navigation/native';
 
-const ConsultCard=({ defaultanswer, useranswer, question, id, click})=> {
+const ResultCard=({ defaultanswer, useranswer, question, id, click})=> {
 // const navigation = useNavigation();
 return (
   <TouchableOpacity onPress={click} >
-    <View style={{height:50, width:'98%', flexDirection:'row', borderColor:'black', borderWidth:1, alignSelf:'center', alignItems:'center', backgroundColor:'white'}}>
+    <View style={styles.AnswersWrapper}>
    {defaultanswer==useranswer? <Icon
           name={'check'}
           style={{color: PRIMARY_COLOR, fontSize: 20,  marginLeft:10, width:'10%'}}
@@ -54,6 +54,15 @@ answerboxStyle:{
 },
 answertext:{
   color:'black',fontWeight:'500', fontSize:20
-}
+},
+AnswersWrapper: {
+  flexDirection: 'row',
+  width: '100%',
+  borderColor: '#DDD',
+  borderBottomWidth: 1,
+  paddingVertical: 10,  
+  paddingHorizontal: 12,
+  alignItems: 'center'
+},
 });
-export default ConsultCard
+export default ResultCard

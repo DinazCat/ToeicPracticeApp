@@ -1,5 +1,5 @@
 import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Animated, Dimensions, PermissionsAndroid, Alert, Platform, Toast} from 'react-native';
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext,useEffect} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -18,7 +18,7 @@ const permissions = [
   PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
 ];
 
-const SpeakP2QuestionForm = ({item, onRecordComplete}) => {
+const SpeakP2QuestionForm = ({item, onRecordComplete,flag, check}) => {
   const {user} = useContext(AuthContext);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -94,7 +94,7 @@ const SpeakP2QuestionForm = ({item, onRecordComplete}) => {
       setDuration(recordTime);
       setRecordTime('');
 
-      onRecordComplete(result, item.QId);
+      onRecordComplete(result, item.Id);
     } catch (err) {
       console.error(err);
       Toast.show({
@@ -104,7 +104,12 @@ const SpeakP2QuestionForm = ({item, onRecordComplete}) => {
       });
     }
   };
-
+  useEffect(()=>{
+    if(flag != 'QuestionScreen'){
+      setUri(check.record)
+    }
+    
+  },[])
   const onStartPlay = async () => {
     try {
       console.log('onStartPlay');
@@ -176,7 +181,9 @@ const SpeakP2QuestionForm = ({item, onRecordComplete}) => {
       </View>
       <Text style={styles.TimeFont}>{duration}</Text>
     </View>
-    {!isRecording ? (
+    {flag == 'QuestionScreen' ? (
+      <>
+      {!isRecording ? (
       <TouchableOpacity style={{marginTop:'45%', alignSelf:'center', borderRadius:30, borderWidth:3, borderColor:PRIMARY_COLOR, height:60, width:60, alignItems:'center', justifyContent:'center'}}
       onPress={onStartRecord}>
       <Icon name={'microphone-alt'} style={{color: PRIMARY_COLOR, fontSize: 30}} />
@@ -188,6 +195,9 @@ const SpeakP2QuestionForm = ({item, onRecordComplete}) => {
       </TouchableOpacity>
     )}
       <Text style={[styles.TimeFont, {fontSize: 20, marginTop: 5}]}>{recordTime}</Text>
+      </>):null
+    }
+    
     </Animated.View>
   );
 };

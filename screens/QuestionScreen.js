@@ -86,20 +86,20 @@ const QuestionScreen = ({navigation, route}) => {
     //   }
     // });   
     recordsRef.current[index] = {
-      QId: questionId,
+      Qid: questionId,
       record: record, 
     };
   };
   const handleRecordComplete2 = (recordData, questionId) => {
     setRecordingsList((prevList) => {
 
-      const existingRecordIndex = prevList.findIndex(item => item.QId === questionId);
+      const existingRecordIndex = prevList.findIndex(item => item.Qid === questionId);
   
       if (existingRecordIndex !== -1) {
         return prevList.map(item =>
-          item.QId === questionId ? { 
+          item.Qid === questionId ? { 
             // ...item,
-            QId: questionId , 
+            Qid: questionId , 
             record0: recordData[0],
             record1: recordData[1],
             record2: recordData[2],
@@ -107,7 +107,7 @@ const QuestionScreen = ({navigation, route}) => {
         );
       } else {       
         return [...prevList, { 
-          QId: questionId,
+          Qid: questionId,
           record0: recordData[0],
           record1: recordData[1],
           record2: recordData[2],
@@ -119,11 +119,20 @@ const QuestionScreen = ({navigation, route}) => {
   const handleAnswerChange = (index, answer, questionId) => {
     answersRef.current[index] = {
       answer: answer, 
-      QId: questionId,
+      Qid: questionId,
     };
     
   };
-
+const gettime = ()=>{
+  const currentDate = new Date();
+  const currentDay = currentDate.getDate(); 
+  const currentMonth = currentDate.getMonth() + 1; 
+  const currentYear = currentDate.getFullYear(); 
+  const currentHours = currentDate.getHours(); 
+  const currentMinutes = currentDate.getMinutes();
+  const time = currentDay+'-'+currentMonth+'-'+currentYear+'-'+currentHours+'-'+currentMinutes
+  return time
+}
   const onSubmit = async() =>{
     if(part == 'S1' || part == 'S2' || part == 'S5'){
       try {    
@@ -142,7 +151,7 @@ const QuestionScreen = ({navigation, route}) => {
             if (recordsRef.current[i] === undefined) {
               recordsRef.current[i] = {
                 record: null, 
-                QId: questionList[i].QId,
+                Qid: questionList[i].Id,
               };
             }
           }
@@ -152,25 +161,27 @@ const QuestionScreen = ({navigation, route}) => {
             const audioData = recordItem.record !== null ? await RNFS.readFile(recordItem.record, 'base64') : null;
             const audioUrl = audioData !== null ? await Api.uploadAudio(audioData) : null;
             return {
-              QId: recordItem.QId,
+              Qid: recordItem.Qid,
               record: audioUrl,
             };
           });
     
           const audioUploadResults = await Promise.all(audioUploadPromises);
           //console.log(audioUploadResults);
-          
-          const practiceHistoryData = {
-            submitTime: new Date(), 
+          const time = gettime()
+          const data = {
+            Time: time, 
             result: audioUploadResults,
             userId: user.uid,
-            part: part,
+            Part: part,
+            PartName:partName,
+            Quantity:questionList.length,
           }; 
           //console.log(practiceHistoryData);
           //console.log(practiceHistoryData.result)
-          await Api.uploadPracticeHistory(practiceHistoryData)
-          .catch(error => console.error(error));
-          navigation.goBack(); 
+          Api.pushPracticeHistory(data, sign);
+      
+          navigation.navigate('CompleteCard2',{quantity:questionList.length,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:audioUploadResults}) 
       } catch (error) {
         console.log('error at onSubmit: ', error);
       }
@@ -186,7 +197,7 @@ const QuestionScreen = ({navigation, route}) => {
         const audioUrl2 = audioData2 ? await Api.uploadAudio(audioData2) : null;    
 
         return {
-          QId: recordItem.QId,
+          Qid: recordItem.Qid,
           record0: audioUrl0,
           record1: audioUrl1,
           record2: audioUrl2,
@@ -197,12 +208,12 @@ const QuestionScreen = ({navigation, route}) => {
       //console.log(audioUploadResults);
 
       if (audioUploadResults.length !== questionList.length) {
-        const questionIds = questionList.map(question => question.QId)
-        const recordQIds = audioUploadResults.map(item => item.QId)
+        const questionIds = questionList.map(question => question.Id)
+        const recordQIds = audioUploadResults.map(item => item.Qid)
         const missingQIds = questionIds.filter(id => !recordQIds.includes(id));
         
         const newItems = missingQIds.map(QId => ({
-          QId: QId,
+          Qid: QId,
           record0: null,
           record1: null,
           record2: null,
@@ -210,65 +221,109 @@ const QuestionScreen = ({navigation, route}) => {
              
         audioUploadResults.push(...newItems);
       }
-
-      const practiceHistoryData = {
-        submitTime: new Date(), 
+      const time = gettime()
+      const data = {
+        Time: time, 
         result: audioUploadResults,
         userId: user.uid,
-        part: part,
+        Part: part,
+        PartName:partName,
+        Quantity:questionList.length,
       }; 
       //console.log(practiceHistoryData);
 
-      await Api.uploadPracticeHistory(practiceHistoryData)
-      .catch(error => console.error(error));
-
-      navigation.goBack();  
+      Api.pushPracticeHistory(data, sign);
+      
+      navigation.navigate('CompleteCard2',{quantity:questionList.length,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:audioUploadResults})
     }
-    else if(part == 'W1' || part == 'W1' || part == 'W3' ){
+    else if(part == 'W1' || part == 'W2' || part == 'W3' ){
       for (let i = 0; i < questionList.length; i++) {
         if (answersRef.current[i] === undefined) {
           answersRef.current[i] = {
             answer: null, 
-            QId: questionList[i].QId,
+            Qid: questionList[i].Id,
           };
         }
       }
-      const practiceHistoryData = {
-        submitTime: new Date(), 
+      const time = gettime()
+      const data = {
+        Time: time, 
         result: answersRef.current,
         userId: user.uid,
-        part: part,
+        Part: part,
+        PartName:partName,
+        Quantity:questionList.length,
       }; 
       //console.log(practiceHistoryData);
 
-      await Api.uploadPracticeHistory(practiceHistoryData)
-      .catch(error => console.error(error));
+      Api.pushPracticeHistory(data, sign);
       
-      navigation.goBack();
+      navigation.navigate('CompleteCard2',{quantity:questionList.length,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:answersRef.current})
     }
-    else if(part == 'L1'){
+    else if(part == 'L1'||part == 'L2'){
       if (soundL!='-1'&&soundL[ItemIndex].isPlaying()) {
         soundL[ItemIndex].stop();
       }
-      const currentDate = new Date();
-      const currentDay = currentDate.getDate(); 
-      const currentMonth = currentDate.getMonth() + 1; 
-      const currentYear = currentDate.getFullYear(); 
-      const currentHours = currentDate.getHours(); 
-      const currentMinutes = currentDate.getMinutes();
-      const time = currentDay+'-'+currentMonth+'-'+currentYear+'-'+currentHours+'-'+currentMinutes
+            const time = gettime()
       const data = {
         PartName:partName,
         Part:part,
         Quantity:questionList.length,
-        Correct: Score,
         History:history,
         Time:time
       }
       Api.pushPracticeHistory(data, sign);
-      navigation.navigate('CompleteCard',{score:Score,quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL})
+      navigation.navigate('CompleteCard',{quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:history})
+          
+        
+      }
+    else if(part == 'L3'||part == 'L4')
+    {
+      if (soundL!='-1'&&soundL[ItemIndex].isPlaying()) {
+        soundL[ItemIndex].stop();
+      }
+      const time = gettime()
+      const data = {
+        PartName:partName,
+        Part:part,
+        Quantity:questionList.length,
+        History:history,
+        Time:time
+      }
+      Api.pushPracticeHistory(data, sign);
+      navigation.navigate('CompleteCard',{quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:history})
     }
-
+    else if(part == 'R1')
+    {
+      const time = gettime()
+      const data = {
+        PartName:partName,
+        Part:part,
+        Quantity:questionList.length,
+        History:history,
+        Time:time
+      }
+      Api.pushPracticeHistory(data, sign);
+      navigation.navigate('CompleteCard',{quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:history})
+    }
+    else if(part == 'R2'||part == 'R3')
+    {
+      const time = gettime()
+      let sum = 0;
+      for(let i = 0; i < questionList.length;i++){
+        sum = sum + questionList[i].Question.length
+      }
+      const data = {
+        PartName:partName,
+        Part:part,
+        Quantity:questionList.length,
+        DetailQty:sum,
+        History:history,
+        Time:time
+      }
+      Api.pushPracticeHistory(data, sign);
+      navigation.navigate('CompleteCard',{quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:history,DetailQty:sum})
+    }
     //Update Practice Plan
     const result = await Api.getPracticePlan(user.uid);
     if(result != null){          
@@ -347,7 +402,7 @@ const QuestionScreen = ({navigation, route}) => {
   }, [loading]);
   useEffect(()=>{
     const list = [];
-    if(part=="L1"){
+    if(part=="L1"||part=="L2"||part=="R1"){
     for(let i = 0; i < questionList.length;i++){
       list.push({
         Qid:questionList[i].Id,
@@ -356,6 +411,16 @@ const QuestionScreen = ({navigation, route}) => {
       })
     }
   }
+  else if(part=="L3"||part=="L4"||part=="R2"||part=="R3"){
+    for(let i = 0; i < questionList.length;i++){
+      list.push({
+        Qid:questionList[i].Id,
+        Select:Array(questionList[i].Question.length).fill(-1),
+        Default:questionList[i].Correct
+      })
+    }
+  }
+
     setHistory(list)
   },[])
   const showAlert = () => {
@@ -584,28 +649,48 @@ const QuestionScreen = ({navigation, route}) => {
             )}
             renderItem={({item, index}) => {
               
-               if (part == 'R2' || part == 'R3' || part == 'R1') {
-                 return <ReadP23QuestionForm item={item} part={part} />;
-               } else if (part == 'S1') {
-                 return <SpeakP1QuestionForm item={item} part={part} 
+               if (part == 'R1') {
+                 return <ReadP23QuestionForm item={item} part={part} flag={'QuestionScreen'} 
+                 click={(i)=>{
+                  const History = [...history];
+                  let correct = 0;
+                  for(let j = 0;j < 3; j++){
+                    if(questionList[index].Answer[j].status) correct=j
+                  }
+                  History[index].Select = i
+                  History[index].Default = correct
+                
+              }}
+                  />;
+               } 
+               if (part == 'R2' || part == 'R3') {
+                return <ReadP23QuestionForm item={item} part={part} flag={'QuestionScreen'} 
+                click={(i,j)=>{
+                  const History = [...history];
+                  History[index].Select[j] = i
+              }}
+                 />;
+              }
+               else if (part == 'S1') {
+                 return <SpeakP1QuestionForm item={item} part={part}  flag={'QuestionScreen'} 
                  onRecordComplete={(record, questionId) => handleRecordComplete(index, record, questionId)}/>;
                } else if (part == 'S2') {
-                 return <SpeakP2QuestionForm item={item} part={part} 
+                 return <SpeakP2QuestionForm item={item} part={part}  flag={'QuestionScreen'} 
                  onRecordComplete={(record, questionId) => handleRecordComplete(index, record, questionId)}/>;
                } else if (part == 'S3') {
-                 return <SpeakP34QuestionForm item={item} part={part} 
+                 return <SpeakP34QuestionForm item={item} part={part}  flag={'QuestionScreen'} 
                  onRecordComplete={handleRecordComplete2}/>;
                } else if (part == 'S4') {
-                 return <SpeakP5QuestionForm item={item} part={part} 
+                 return <SpeakP5QuestionForm item={item} part={part}  flag={'QuestionScreen'} 
                  onRecordComplete={handleRecordComplete2}/>;
                } else if (part == 'S5') {
-                 return <SpeakP6QuestionForm item={item} part={part} 
+                 return <SpeakP6QuestionForm item={item} part={part} flag={'QuestionScreen'} 
                  onRecordComplete={(record, questionId) => handleRecordComplete(index, record, questionId)}/>;
                } else if (part == 'W1') {
-                 return <WriteP1QuestionForm item={item} part={part} 
+                 return <WriteP1QuestionForm item={item} part={part} flag={'QuestionScreen'} 
                  onAnswerChange={(answer, questionId) => handleAnswerChange(index, answer, questionId)}/>;
                } else if (part == 'W2' || 'W3') {
-                 return <WriteP23QuestionForm item={item} part={part} 
+                 return <WriteP23QuestionForm item={item} part={part} flag={'QuestionScreen'} 
                  onAnswerChange={(answer, questionId) => handleAnswerChange(index, answer, questionId)}/>;
                }        
             }}
@@ -640,25 +725,34 @@ const QuestionScreen = ({navigation, route}) => {
                     for(let j = 0;j < 4; j++){
                       if(questionList[index].Answer[j]) correct=j
                     }
-                    if(questionList[index].Answer[i]){
-                    const p = Score + 1;
-                    setScore(p);
-                    History[index].Select = i
-                    History[index].Default = i
-                  }
-                  else{
                     History[index].Select = i
                     History[index].Default = correct
-                  }
+                  
                 }}/>
                 )}
               else if(part=='L2'){
               return(
-            <ListenP2QuestionForm item={item} list={soundL[index]} />
+            <ListenP2QuestionForm item={item} list={soundL[index]} flag={'QuestionScreen'} 
+            click={(i)=>{
+              const History = [...history];
+              let correct = 0;
+              for(let j = 0;j < 3; j++){
+                if(questionList[index].Answer[j]) correct=j
+              }
+              History[index].Select = i
+              History[index].Default = correct
+            
+          }}
+            />
               )}
               else if(part=='L3'||part=='L4'){
                 return(
-              <ListenP34QuestionForm item={item} list={soundL[index]} />
+              <ListenP34QuestionForm item={item} list={soundL[index]} flag={'QuestionScreen'} 
+              click={(i,j)=>{
+                const History = [...history];
+                History[index].Select[j] = i
+            }}
+              />
                 )}
                 
             }}

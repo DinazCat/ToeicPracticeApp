@@ -25,427 +25,89 @@ const InPartCard = ({route, navigation}) => {
   const [collection, setcollection]= useState('');
   const { part } = route.params;
 
-   const fetchQuestionL1 = async()=>{
-    // try{
-    //  await firestore()
-    //   .collection('ListenPart1')
-    //   .get()
-    //   .then((querySnapshot)=>{
-    //     const list = [];
-    //     querySnapshot.forEach(doc =>{
-    //       const {Answer, Audio, Image, Level, Key, Correct, Explain} = doc.data();
-    //       list.push({          
-    //         QId: doc.id,
-    //         Answer: Answer,
-    //         Audio: Audio,
-    //         Image: Image,
-    //         Level: Level,
-    //         Key:Key,
-    //         Correct:Correct,
-    //         Explain: Explain,
-    //       });
-    //     })
-    //     setquestionL(list);
-    //   })
-     
-    // } catch(e){
-    //   console.log(e);
-    // }
-    if(!isopen){
-      const list = await Api.getQuestion(number,'ListenPart1')
-      setquestionL(list);
-      }
-  }
-  const fetchQuestionL2 = async()=>{
-    try{
-     await firestore()
-      .collection('ListenPart2')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Answer, Audio, Explain, Level, Correct} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Answer: Answer,
-            Audio: Audio,
-            Explain: Explain,
-            Level: Level,
-            Correct:Correct,
-          });
-        })
-        setquestionL(list);
-      })
-     
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionL3 = async()=>{
-    try{
-     await firestore()
-      .collection('ListenPart3')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain, Audio, Question, Level, Key, Correct} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Audio: Audio,
-            Question: Question,
-            Level: Level,
-            Key:Key,
-            Correct:Correct,
-          });
-        })
-        setquestionL(list);
-      })
-     
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionL4 = async()=>{
-    try{
-     await firestore()
-      .collection('ListenPart4')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain, Audio, Question, Level} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Audio: Audio,
-            Question: Question,
-            Level: Level,
-          });
-        })
-        setquestionL(list);
-      })
-     
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionR1 = async()=>{
-    try{
-     await firestore()
-      .collection('ReadPart1')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain,Question, Level, Answer} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Answer: Answer,
-            Question: Question,
-            Level: Level,
-          });
-        })
-        setquestionL(list);
-      })
-     
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionR2 = async()=>{
-    try{
-     await firestore()
-      .collection('ReadPart2')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain,Question} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Question: Question,
-          });
-        })
-        setquestionL(list);
-      })
-     
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionR3 = async()=>{
-    try{
-     await firestore()
-      .collection('ReadPart3')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain,Question, Paragraph} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Question: Question,
-            Paragraph:Paragraph,
-          });
-        })
-        setquestionL(list);
-      })   
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionS1 = async()=>{
-    try{
-     await firestore()
-      .collection('SpeakPart1')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain,Question} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Question: Question,
-          });
-        })
-        setquestionL(list);
-      })   
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionS2 = async()=>{
-    try{
-     await firestore()
-      .collection('SpeakPart2')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain, Picture} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Picture: Picture,
-          });
-        })
-        setquestionL(list);
-      })   
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionS3 = async()=>{
-    try{
-     await firestore()
-      .collection('SpeakPart3')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Context, Explain, Question} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Context: Context,
-            Explain: Explain,
-            Question: Question,
-          });
-        })
-        setquestionL(list);
-      })   
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionS4 = async()=>{
-    try{
-     await firestore()
-      .collection('SpeakPart4')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {AvailableInfo, Explain, Question} = doc.data();
-          list.push({          
-            QId: doc.id,
-            AvailableInfo: AvailableInfo,
-            Explain: Explain,
-            Question: Question,
-          });
-        })
-        setquestionL(list);
-      })   
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionS5 = async()=>{
-    try{
-     await firestore()
-      .collection('SpeakPart5')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain, Question} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Question: Question,
-          });
-        })
-        setquestionL(list);
-      })   
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionW1 = async()=>{
-    try{
-     await firestore()
-      .collection('WritePart1')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain, Picture, SugesstedWord} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Picture: Picture,
-            SugesstedWord: SugesstedWord,
-          });
-        })
-        setquestionL(list);
-      })   
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionW2 = async()=>{
-    try{
-     await firestore()
-      .collection('WritePart2')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain, Question, Direction} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Question: Question,
-            Direction: Direction,
-          });
-        })
-        setquestionL(list);
-      })   
-    } catch(e){
-      console.log(e);
-    }
-  }
-  const fetchQuestionW3 = async()=>{
-    try{
-     await firestore()
-      .collection('WritePart3')
-      .get()
-      .then((querySnapshot)=>{
-        const list = [];
-        querySnapshot.forEach(doc =>{
-          const {Explain, Question} = doc.data();
-          list.push({          
-            QId: doc.id,
-            Explain: Explain,
-            Question: Question,
-          });
-        })
-        setquestionL(list);
-      })   
-    } catch(e){
-      console.log(e);
-    }
-  }
+   const fetchQuestion = async (part) => {
+     if (!isopen) {
+       const list = await Api.getQuestion(number, part);
+       setquestionL(list);
+     }
+   };
+ 
+
   useEffect(() => {
     if(part=='L1'){
       setpartname('Photographs');
       setDirections('In this part, you will look at photographs. For each photograph you will hear four statements. You will have to choose which statement has the best description of the picture.')
-      fetchQuestionL1();
+      fetchQuestion('ListenPart1');
     }
     else if(part=='L2'){
       setpartname('Question & Response');
       setDirections('In this part, you will be tested on your ability to respond to a question. It is very important that you can understand and identify wh-questions. You will listen to three possible responses. Only one of the responses is correct.')
-      fetchQuestionL2();
+      fetchQuestion('ListenPart2');
     }
     else if(part=='L3'){
       setpartname('Short Conversations');
       setDirections('In this part, you will listen to a short conversation. After the conversation, you will answer three questions about the dialogue. There will be four possible answers for each question. Typical questions include, who, what, where, when, why, and how. You may also be asked to make an inference.')
-      fetchQuestionL3();
+      fetchQuestion('ListenPart3');
     }
     else if(part=='L4'){
       setpartname('Short Talks');
       setDirections('In this part, you will listen to a short talk. It might be an announcement, a radio advertisement, or a telephone recording. You will listen to the talk and read a few questions about it.')
-      fetchQuestionL4();
+      fetchQuestion('ListenPart4');
     }
     else if(part=='R1'){
       setpartname('Incomplete Sentences');
       setDirections('In this part, you will read a sentence that has one blank spot. There will be four choices of words or phrases to choose from. You will have to choose the one that you think completes the sentence.')
-      fetchQuestionR1();
+      fetchQuestion('ReadPart1');
     }
     else if(part=='R2'){
       setpartname('Text Completion');
       setDirections('In this part, you will read four passages of text, such as an article, a letter, a form and an e-mail. In each reading passage there will be three blanks to fill in. You will read four possible choices for each blank. You should read the entire passage to make sure you choose the correct choice in context.')
-      fetchQuestionR2();
+      fetchQuestion('ReadPart2');
     }
     else if(part=='R3'){
       setpartname('Reading Comprehension');
       setDirections('In this part, you will read passages in the form of letters, ads, memos, faxes, schedules, etc. The reading section has a number of single passages and 4 double passages. You will be asked 2-4 questions about each single passage, and 5 questions for each double passage. Sometimes you will be asked for specific details. Other times you will be asked about what the passage implies. In the paired passages you will also be asked to make connections between the two related texts. On the real test you will not have time to read every word. You need to practice scanning and reading quickly for details.')
-      fetchQuestionR3();
+      fetchQuestion('ReadPart3');
     }
     else if(part=='S1'){
     setpartname('Read a text aloud');
     setDirections('In this part of the test, you will read aloud the text on the screen. You will have 45 seconds to prepare. Then you will have 45 seconds to read the text aloud.')
-    fetchQuestionS1();
+    fetchQuestion('SpeakPart1');
     }
     else if(part=='S2'){
       setpartname('Describe a picture');
       setDirections('In this part of the test, you will describe the picture on your screen in as much detail as you can. You will have 45 seconds to prepare your response. Then you will have 30 seconds to speak about the picture.')
-      fetchQuestionS2();
+      fetchQuestion('SpeakPart2');
     }
     else if(part=='S3'){
       setpartname(' Respond to questions');
       setDirections('In this part of the test, you will answer three questions. You will have three seconds to prepare after you hear each question. You will have 15 seconds to respond to Questions 5 and 6, and 30 seconds to respond to Question 7.')
-      fetchQuestionS3();
+      fetchQuestion('SpeakPart3');
     }
     else if(part=='S4'){
       setpartname('Respond to questions using information provided');
       setDirections(' In this part of the test, you will answer three questions based on the information provided. You will have 45 seconds to read the information before the questions begin. You will have three seconds to prepare and 15 seconds to respond to Questions 8 and 9. You will hear Question 10 two times. You will have three seconds to prepare and 30 seconds to respond to Question 10.')
-      fetchQuestionS4();
+      fetchQuestion('SpeakPart4');
     }
     else if(part=='S5'){
       setpartname('Express an opinion');
       setDirections(' In this part of the test, you will give your opinion about a specific topic. Be sure to say as much as you can in the time allowed. You will have 45 seconds to prepare. Then you will have 60 seconds to speak.')
-      fetchQuestionS5();
+      fetchQuestion('SpeakPart5');
     }
     else if(part=='W1'){
       setpartname('Write a sentence based on a picture');
       setDirections(' In this part of the test, you will write ONE sentence that is based on a picture. With each picture, you will be given TWO words or phrases that you must use in your sentence.\n\nYou can change the forms of the words and you can use the words in any order.\n\nYour sentence will be scored on the appropriate use of grammar, and the relevance of the sentence to the picture.\n\nYou will have eight minutes to complete this part of the test.')
-      fetchQuestionW1();
+      fetchQuestion('WritePart1');
     }
     else if(part=='W2'){
       setpartname('Respond to a written request');
       setDirections(' In this part of the test, you will show how well you can write a response to an e-mail. \n\n Your response will be scored on the quality and variety of your sentences, vocabulary, and organization. \n\n You will have 10 minutes to read and answer each e-mail.')
-      fetchQuestionW2();
+      fetchQuestion('WritePart2');
     }
     else if(part=='W3'){
       setpartname('Write an opinion essay');
       setDirections('Respond to the e-mail. Respond as if you have recently moved to a new city. \n\n In your e-mail to the committee, make at least TWO requests for information.')
-      fetchQuestionW3();
+      fetchQuestion('WritePart3');
     }
   }, [isopen]);
   return (

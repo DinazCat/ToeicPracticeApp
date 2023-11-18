@@ -1,27 +1,36 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList} from 'react-native'
-import React from 'react'
+import React, {useContext, useEffect, useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PostCard from '../components/PostCard';
+import { Keyboard } from 'react-native';
 
-const SearchPostScreen = ({navigation}) => {
-  const posts =[
-    {
-      postId: 1,
-      userName: 'Cát Tường',
-      postTime: 'Wed October 28 2023 at 5.14.50 PM',
-      cate: 'Study Resources', 
-      topic: 'Chia sẻ tài liệu TOEIC mới nhất 10/2023',
-      postImg: 'https://www.tailieuielts.com/wp-content/uploads/2020/12/Seperti-apa-sih-TOEICThumbnails-1024x585-1.jpg',   
-    },
-    {
-      postId: 2,
-      userName: 'Cát Tường',
-      postTime: 'Wed October 28 2023 at 5.14.50 PM',
-      cate: 'Review Exam Experiences',
-      topic: 'Review đề thi IDP 12/10/2023',
-      postImg: 'https://www.tailieuielts.com/wp-content/uploads/2020/12/Seperti-apa-sih-TOEICThumbnails-1024x585-1.jpg',   
+const SearchPostScreen = ({navigation,route}) => {
+  const [postfilter, setPostFilter] = useState(null);
+  const [checkSearch, setCheckSearch] = useState(false);
+  const [content, setContent] = useState('');
+  const {posts} = route.params
+  const filterPost = () => {
+    Keyboard.dismiss();
+    if (content != '') {
+      const newData = posts.filter(item => {
+        const topic = item.topic.toUpperCase();
+        const text = item.text.toUpperCase();
+        const search = content.toUpperCase();
+        if (topic.indexOf(search) > -1 || text.indexOf(search)>-1) {
+          return item;
+        } else {
+          return null;
+        }
+      });
+      setPostFilter(newData);
+      setCheckSearch(true);
+    } else {
+      setCheckSearch(false);
     }
-  ]
+  };
+  useEffect(() => {
+
+  }, []);
   return (
     <View style={styles.container}>
        <View style={{flexDirection:'row'}}>
@@ -31,27 +40,33 @@ const SearchPostScreen = ({navigation}) => {
         <View style={styles.inputContainer}>
           <TextInput style={styles.input}
             placeholder="Enter the topic, content..."
-            placeholderTextColor={'#555'}/>
-          <TouchableOpacity onPress={() => {}}>
+            placeholderTextColor={'#555'}
+            onChangeText={text => {
+              setContent(text)
+            }}
+            />
+          <TouchableOpacity onPress={() => {filterPost()}}>
             <Ionicons name={'search-outline'} style={styles.IconButton}/>        
           </TouchableOpacity>
         </View>    
       </View>
       <View style={styles.devider}/>
-      <FlatList
-          data={posts}
+      {postfilter&& <FlatList
+          data={postfilter}
           renderItem={({item}) => (
             <PostCard
-              item={item}
-              onUserPress={() => {navigation.navigate('profileScreen', {userId: item.userId})}}
-              onCommentPress={() => navigation.navigate('CommentScreen')}
-              onGotoPostPress={() => navigation.navigate('PostScreen')}
-              editright={false}
-            />
+            item={item}
+            onUserPress={() => {
+              navigation.navigate('ProfileScreen', {userId: item.userId});
+            }}
+            onCommentPress={() => navigation.navigate('CommentScreen',{postId:item.postId,topic:item.topic, user:item.userId})}
+            onGotoPostPress={() => navigation.navigate('PostScreen',{postId: posts[index].postId,sign:'nocmt'})}
+            editright={false}
+          />
           )}
           keyExtractor={(item) => item.postId}
           showsVerticalScrollIndicator={false}           
-        />  
+        />   }
     </View>
   )
 }

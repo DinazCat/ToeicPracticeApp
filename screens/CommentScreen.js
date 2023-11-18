@@ -7,21 +7,7 @@ import auth from '@react-native-firebase/auth';
 import socketServices from '../api/socketService';
 import { Keyboard } from 'react-native';
 
-// const comments = [
-//   {
-//     text: 'Bình luận 1',
-//     userName: 'u1',
-//     replies: [
-//       { text: 'Phản hồi 1.1', userName: 'u2', replies: [
-//         { text: 'Phản hồi 1.1.1', userName: 'u4', replies: [
-//            {text: 'Phản hồi 1.2.1.1', userName: 'u5', replies: []}
-//         ] }
-//       ] },
-//       { text: 'Phản hồi 1.2', userName: 'u3', replies: [] },
-//     ]
-//   },
-// ];
-//
+
 const CommentScreen = ({navigation, route}) => {
   const {postId, topic, user} = route.params
   const [comment, setComment] = useState('')

@@ -16,40 +16,58 @@ import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import QuestionCard from './QuestionCard';
 const {width} = Dimensions.get('window');
-const ReadP23QuestionForm = ({item, part}) => {
+const ReadP23QuestionForm = ({item, part,click,flag, check}) => {
 
   return (
     <Animated.View style={styles.container}>
-     
-     <View style={styles.box}>
-  
-     {part=='R3'&&<ScrollView>
-       <Text style={[styles.answerLong,{marginBottom:15, marginTop:10}]}>{item.Paragraph}</Text> 
-      <FlatList
+      <View style={styles.box}>
+        {part == 'R3' && (
+          <ScrollView>
+            <Text
+              style={[styles.answerLong, {marginBottom: 15, marginTop: 10}]}>
+              {item.Paragraph}
+            </Text>
+            <FlatList
+              data={item.Question}
+              renderItem={({item, index}) => (
+                <QuestionCard 
+                question={item.Q} 
+                answer={item.A} 
+                click={(i)=>click(i,index)}
+              Select = {check?.Select[index]}
+              Default = {check?.Default[index]}
+              flag={flag}
+                />
+              )}
+            />
+          </ScrollView>
+        )}
+        {part == 'R2' && (
+          <FlatList
             data={item.Question}
             renderItem={({item, index}) => (
-          <QuestionCard
+              <QuestionCard 
               question={item.Q} 
-              answer={item.A}
+              answer={item.A} 
+              click={(i)=>click(i,index)}
+              Select = {check?.Select[index]}
+              Default = {check?.Default[index]}
+              flag={flag}
+              />
+            )}
+          />
+        )}
+        {part == 'R1' && (
+          <QuestionCard 
+          question={item.Question} 
+          answer={item.Answer}
+          click={(i)=>click(i)}
+              Select = {check?.Select}
+              Default = {check?.Default}
+              flag={flag}
                />
-          )}/>
-      </ScrollView>}
-      {part=='R2'&& <FlatList
-            data={item.Question}
-            renderItem={({item, index}) => (
-          <QuestionCard
-              question={item.Q} 
-              answer={item.A}
-               />
-          )}/>}
-          {
-            part=='R1'&& <QuestionCard question={item.Question} 
-             answer={item.Answer}/>
-          }
-     </View>
-      
-     
-  
+        )}
+      </View>
     </Animated.View>
   );
 };

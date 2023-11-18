@@ -40,7 +40,7 @@ const ChangeProfileScreen = ({navigation, route}) => {
         userImg:response.data.photo ,
         age:age
       }
-      await Api.updateUser(data)
+      await Api.updateUserPrivate(data)
     } catch (error) {
       console.error(error);
     }
@@ -67,7 +67,18 @@ const ChangeProfileScreen = ({navigation, route}) => {
     });
   };
   const saveProfile=async()=>{
-    uploadImage()
+    if(userData.userImg.startsWith("http")||userData.userImg==null)
+    {
+      const data = {
+        id:profileData.id,
+        name: userData.name,
+        about: userData.about,
+        email: userData.email,
+        age:age
+      }
+      await Api.updateUser(data)
+    }
+    else uploadImage()
     // const data = {
     //   name: userData.name,
     //   about: userData.about,

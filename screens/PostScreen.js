@@ -169,7 +169,7 @@ onCommentPress=() => navigation.navigate('CommentScreen',{postId:postData.postId
             <View key={key}>
               {item.type == 'img' ? (
                 <Image source={{uri: item.uri}} style={styles.PostImage} />
-              ) : (
+              ) : item.type == 'video'?(
                 <VideoPlayer
                   video={{uri: item.uri}}
                   videoWidth={400}
@@ -180,6 +180,11 @@ onCommentPress=() => navigation.navigate('CommentScreen',{postId:postData.postId
                     uri: 'https://tse1.mm.bing.net/th?id=OIP.pENsrXZ3F7yXMHHRIHS22QHaEK&pid=Api&rs=1&c=1&qlt=95&w=192&h=108',
                   }}
                 />
+              ) : (
+                <TouchableOpacity style={{justifyContent:'center', alignItems:'center',height:200, width:400, alignSelf:'center'}} onPress={()=>navigation.navigate('ReadPDFScreen',{link:item.uri})}>
+                <Image source={{uri:'https://tse3.mm.bing.net/th?id=OIP.gh9hvhaRiqOVr8zU54fm-AHaEK&pid=Api&P=0&h=220'}} style={{height:160, width:360, marginTop:5}} resizeMode='cover'/>
+                <Text style={{color:'black', fontSize:14}}>{item.name}</Text>
+             </TouchableOpacity>
               )}
             </View>
           );

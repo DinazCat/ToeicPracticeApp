@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image , FlatList} from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image , FlatList,Modal,ScrollView} from 'react-native'
 import React, {useEffect, useState} from 'react';
 import PostCard from '../components/PostCard';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -7,6 +7,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import auth from '@react-native-firebase/auth';
 import Api from '../api/Api'
 import socketServices from '../api/socketService';
+import LottieView from 'lottie-react-native';
 
 const Forum = ({navigation}) => {
   const [profileData, setProfileData] = useState(null);
@@ -14,6 +15,9 @@ const Forum = ({navigation}) => {
   const [levelsource, setLevelSource] = useState(require('../assets/Lv0.png'))
   const [posts, setPosts] = useState(null);
   const [mark, setmark] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [hashtag, sethashtag] = useState('');
+  const [postFilter, setPostFilter] = useState('');
   const getProfile = async () => {
     const data = await Api.getUserData(auth().currentUser.uid)
     setProfileData(data)
@@ -62,33 +66,189 @@ const Forum = ({navigation}) => {
     })
     
   }
-  // const posts =[
-  //   {
-  //     postId: 1,
-  //     userName: 'Cát Tường',
-  //     postTime: 'Wed October 28 2023 at 5.14.50 PM',
-  //     cate: 'Study Resources', 
-  //     topic: 'Chia sẻ tài liệu TOEIC mới nhất 10/2023',
-  //     postImg: 'https://www.tailieuielts.com/wp-content/uploads/2020/12/Seperti-apa-sih-TOEICThumbnails-1024x585-1.jpg',   
-  //   },
-  //   {
-  //     postId: 2,
-  //     userName: 'Cát Tường',
-  //     postTime: 'Wed October 28 2023 at 5.14.50 PM',
-  //     cate: 'Review Exam Experiences',
-  //     topic: 'Review đề thi IDP 12/10/2023',
-  //     postImg: 'https://www.tailieuielts.com/wp-content/uploads/2020/12/Seperti-apa-sih-TOEICThumbnails-1024x585-1.jpg',   
-  //   }
-  // ]
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+const filter =async()=>{
+  if(hashtag==''&&postFilter=='') return;
+  else if(hashtag!=''&& postFilter==''){
+    const data = await Api.filterOnlyhashtag(hashtag)
+    setPosts(data)
+  }
+  else if(hashtag==''&& postFilter!=''){
+    const data = await Api.filterOnlyPost(auth().currentUser.uid,postFilter)
+    setPosts(data)
+  }
+  else if(hashtag!=''&& postFilter!=''){
+    const data = await Api.filterBoth(auth().currentUser.uid,postFilter,hashtag)
+    setPosts(data)
+  }
+}
+  const FilterSide = () => {
+  
+    return (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={toggleModal}>
+            <View style={styles.panel}>
+                  <View style={{alignItems: 'center'}}>
+              <Text style={[styles.panelSubtitle, {color: '#222'}]}>{'Filter by'}</Text>
+              </View>    
+            <View style={{height: 410, borderColor: '#DDD', borderBottomWidth: 1, borderTopWidth: 1}}>
+              <ScrollView>
+              <Text style={[styles.TextStyle,{marginTop: 15}]}>Category</Text>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Q&A')?'#EAABAB':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Q&A')
+                         sethashtag('');
+                        else sethashtag('Q&A')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Q&A</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Help?')? '#74A8C5':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Help?')
+                        sethashtag('');
+                       else sethashtag('Help?')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Help?</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Study Resources')? '#FA9D68':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Study Resources')
+                        sethashtag('');
+                       else sethashtag('Study Resources')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Study Resources</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Exam Analysis')? '#CF87DF':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Exam Analysis')
+                        sethashtag('');
+                       else sethashtag('Exam Analysis')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Exam Analysis</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (hashtag!='Preparation Experiences')?'#F6F069':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Preparation Experiences')
+                        sethashtag('');
+                       else sethashtag('Preparation Experiences')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Preparation Experiences</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (hashtag!='Share Your Results')?'#51D855':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Share Your Results')
+                        sethashtag('');
+                       else sethashtag('Share Your Results')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Share Your Results</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Events/News')? '#70DECE':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Events/News')
+                        sethashtag('');
+                       else sethashtag('Events/News')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Events/News</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (hashtag!='Review Exam Experiences')?'#E55858':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Review Exam Experiences')
+                        sethashtag('');
+                       else sethashtag('Review Exam Experiences')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Review Exam Experiences</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (hashtag!='Others')?'#BCE37A':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Others')
+                        sethashtag('');
+                       else sethashtag('Others')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Others</Text>
+                      </TouchableOpacity>
+                  </View>
+                  <Text style={[styles.TextStyle,{marginTop: 15}]}>Post</Text>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (postFilter!='Newest')?'#9ACC1C':'white'}]}
+                      onPress={() => {
+                        if(postFilter=='Newest')
+                        setPostFilter('');
+                       else setPostFilter('Newest')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Newest</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(postFilter!='Hottest')? '#9ACC1C':'white'}]}
+                      onPress={() => {
+                        if(postFilter=='Hottest')
+                        setPostFilter('');
+                       else setPostFilter('Hottest')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Hottest</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (postFilter!='Liked')?'#9ACC1C':'white'}]}
+                      onPress={() => {
+                        if(postFilter=='Liked')
+                        setPostFilter('');
+                       else setPostFilter('Liked')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Liked</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (postFilter!='Commented')?'#9ACC1C':'white'}]}
+                      onPress={() => {
+                        if(postFilter=='Commented')
+                        setPostFilter('');
+                       else setPostFilter('Commented')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Commented</Text>
+                      </TouchableOpacity>
+                  </View>
+                  <View style={{flexDirection: 'row', justifyContent: 'space-around', marginTop: 10, borderColor: '#DDD', borderTopWidth: 1, padding: 5}}>
+                      <TouchableOpacity
+                          style={[styles.panelButton, {width: 100}]}
+                          onPress={() => {toggleModal(), filter()}}>
+                          <Text style={[styles.panelButtonTitle, {fontWeight: '700'}]}>Ok</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                          style={[styles.panelButton, {width: 100}]}
+                          onPress={() => {toggleModal(),setPostFilter(''),sethashtag('')}}>
+                          <Text style={[styles.panelButtonTitle, {fontWeight: '700'}]}>Cancel</Text>
+                      </TouchableOpacity>         
+                  </View>
+              </ScrollView>
+              </View>
+            </View>
+        </Modal>
+    )
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>TOEIC Share Forum</Text>
         <View style={{flex: 1}} />
-        <TouchableOpacity onPress={() => navigation.navigate('SearchPost')}>
+        <TouchableOpacity onPress={() => navigation.navigate('SearchPost',{posts:posts})}>
           <Ionicons name={'search-outline'} style={styles.IconButton} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('FilterSide')}>
+        <TouchableOpacity  onPress={toggleModal}>
           <Ionicons name={'filter-outline'} style={styles.IconButton} />
         </TouchableOpacity>
         <TouchableOpacity
@@ -132,13 +292,17 @@ const Forum = ({navigation}) => {
               height: 15,
             }}></Image>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.push('AddPost')}>
+        <TouchableOpacity onPress={() => navigation.push('AddPost',{sign:'Forum'})}>
           <View style={styles.addPostTextContainer}>
             <Text>{'Share something helpful for other TOEIC learners...'}</Text>
           </View>
         </TouchableOpacity>
       </View>
-      <FlatList
+      {
+        (posts==null)? 
+        <LottieView source={require('../assets/animation_lnu2onmv.json')} autoPlay loop style={{flex: 1, width:100, height:100, alignSelf:'center'}}/>
+        :
+        <FlatList
         data={posts}
         renderItem={({item,index}) => (
           <PostCard
@@ -154,6 +318,9 @@ const Forum = ({navigation}) => {
         keyExtractor={item => item.postId}
         showsVerticalScrollIndicator={false}
       />
+      }
+      
+      {FilterSide()}
     </View>
   );
 }
@@ -209,5 +376,45 @@ const styles = StyleSheet.create({
     color:'#3300FF', 
     marginLeft:15, 
     marginVertical:10
-  }
+  },
+  panelHeader: {
+    alignItems: 'center',
+  },
+  panelHandle: {
+    width: 40,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#00000040',
+    marginBottom: 10,
+  },
+  panelSubtitle: {
+    fontSize: 18,
+    color: '#555',
+    height: 30,
+    marginBottom: 10,
+  },
+  panelButton: {
+    padding: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+    marginVertical: 5,
+    marginHorizontal: 10,
+  },
+  panelButtonTitle: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#222',
+  },
+  TextStyle: {
+    marginBottom: 5,
+    fontSize: 15
+  },
+  panel: {
+    padding: 20,
+    backgroundColor: '#E8E8E8',
+    paddingTop: 20,
+    width: '100%',
+    position:'absolute'
+  },
 })

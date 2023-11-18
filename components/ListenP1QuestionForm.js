@@ -126,16 +126,16 @@ const ListenP1QuestionForm = ({item,list,click,flag, check}) => {
         <Image  source={{uri: item.Image}} style={{height:200, width:"88%", alignSelf:'center', marginTop:'5%'}}></Image>
         {flag=='QuestionScreen'?
         <View style={{flexDirection:'row', alignItems:'center', justifyContent:"space-evenly", marginTop:'7%'}}>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='A'&&(item.Answer[0]?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>{setsign('A'),click(0)}}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='A'&&(styles.answerboxStyleTrue)]} onPress={()=>{setsign('A'),click(0)}}>
                 <Text style={styles.answertext}>A</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='B'&&(item.Answer[1]?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>{setsign('B'),click(1)}}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='B'&&(styles.answerboxStyleTrue)]} onPress={()=>{setsign('B'),click(1)}}>
                 <Text style={styles.answertext}>B</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='C'&&(item.Answer[2]?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>{setsign('C'),click(2)}}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='C'&&(styles.answerboxStyleTrue)]} onPress={()=>{setsign('C'),click(2)}}>
                 <Text style={styles.answertext}>C</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='D'&&(item.Answer[3]?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>{setsign('D'),click(3)}}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='D'&&(styles.answerboxStyleTrue)]} onPress={()=>{setsign('D'),click(3)}}>
                 <Text style={styles.answertext}>D</Text>
             </TouchableOpacity>
         </View>

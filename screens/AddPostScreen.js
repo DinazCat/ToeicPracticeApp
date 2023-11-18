@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity,Button,TextInput, Image, ScrollView,Modal, Animated} from 'react-native'
+import { StyleSheet, Text, View, FlatList, TouchableOpacity,Button,TextInput, Image, ScrollView,Modal, Animated,Alert} from 'react-native'
 import React, {useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -8,8 +8,19 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import axios from 'axios';
 import VideoPlayer from 'react-native-video-player'
+import DocumentPicker from 'react-native-document-picker';
+import firestore from '@react-native-firebase/firestore';
+import firebase from '@react-native-firebase/app'
+import SpeakP1QuestionForm from '../components/SpeakP1QuestionForm';
+import SpeakP2QuestionForm from '../components/SpeakP2QuestionForm';
+import SpeakP34QuestionForm from '../components/SpeakP34QuestionForm';
+import SpeakP5QuestionForm from '../components/SpeakP5QuestionForm';
+import SpeakP6QuestionForm from '../components/SpeakP6QuestionForm';
+import WriteP1QuestionForm from '../components/WriteP1QuestionForm';
+import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
 
-const AddPostScreen = ({navigation}) => {
+const AddPostScreen = ({navigation,route}) => {
+  const {sign,Answer,part,item} = route.params
   const [profileData, setProfileData] = useState(null);
   const [OpenModal, setOpenModal] = useState(false);
   const [OpenModal2, setOpenModal2] = useState(false);
@@ -97,13 +108,45 @@ const AddPostScreen = ({navigation}) => {
         type:'video'
       });
       setimage(image2);
-      // console.log('kk')
-      // console.log(img)
     });
   };
+  handleFilePicker = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.pdf],
+        allowMultiSelection:false,
+        copyTo:'cachesDirectory'
+      });
+      console.log(res)
+      // console.log('URI : ' + res[0].uri);
+      // console.log('Type : ' + res[0].type);
+      // console.log('File Name : ' + res[0].name);
+      // console.log('File Size : ' + res[0].size);
+      let image2 = image.slice();
+      image2.push({
+        uri:res[0].fileCopyUri,
+        type:'pdf',
+        filename:res[0].name
+      });
+      setimage(image2);
+      console.log(image2)
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('User cancelled the file picker');
+      } else {
+        console.log('Something went wrong', err);
+      }
+    }
+  };
   const allowPost=()=>{
-    if((topic!='' && text!=''&& hashtag!=null)||(image.length>0 && topic!=''&& hashtag!=null)) return true
-    return false
+    if(sign=='ReviewQuestion'){
+      if(topic!='' && text!=''&& hashtag!=null) return true
+      return false
+    }
+    else{
+      if((topic!='' && text!=''&& hashtag!=null)||(image.length>0 && topic!=''&& hashtag!=null)) return true
+      return false
+    }
   }
   const uploadImage = async () => {
     const list = []
@@ -119,7 +162,7 @@ const AddPostScreen = ({navigation}) => {
           const response = await axios.post('http://192.168.1.2:3000/upload', formData);
           list.push({uri:response.data.photo,type:'img'})
         }
-        else{
+        else if(image[i].type=='video'){
           const formData = new FormData();
           formData.append('video', {
             uri: image[i].uri,
@@ -129,16 +172,19 @@ const AddPostScreen = ({navigation}) => {
           const response = await axios.post('http://192.168.1.2:3000/uploadvideo', formData);
           list.push({uri:response.data.video,type:'video'})
         }
+        else if(image[i].type=='pdf'){
+          const formData = new FormData();
+          formData.append('pdf', {
+            uri: image[i].uri,
+            name: 'file.pdf',
+            type: 'application/pdf',
+          });     
+          const response = await axios.post('http://192.168.1.2:3000/uploadpdf', formData);
+          list.push({uri:response.data.filepdf,type:'pdf',name:image[i].filename})
+        }
         if(i == image.length-1){
-          const currentDate = new Date()
-          const currentDay = currentDate.getDate(); 
-          const currentMonth = currentDate.getMonth() + 1; 
-          const currentYear = currentDate.getFullYear(); 
-          const currentHours = currentDate.getHours(); 
-          const currentMinutes = currentDate.getMinutes();
-          const time = currentDay+'/'+currentMonth+'/'+currentYear+' at '+currentHours+':'+currentMinutes
           const data = {
-            postTime: time,
+            postTime: firebase.firestore.Timestamp.fromDate(new Date()),
             likes: [],
             comments: [],
             topic:topic,
@@ -149,7 +195,10 @@ const AddPostScreen = ({navigation}) => {
             userName:profileData.name||profileData.email,
             hashtag:hashtag
           }
-          await Api.addPost(data)
+          await Api.addPost(data).then(()=>{
+            navigation.navigate('Forum')
+          })
+          
         }
       }
      
@@ -160,30 +209,56 @@ const AddPostScreen = ({navigation}) => {
   const submitPost= async()=>{
     if(allowPost())
     {
-      if(image.length>0){
-        uploadImage()
-      }
-      else{
-        const currentDate = new Date()
-        const currentDay = currentDate.getDate(); 
-        const currentMonth = currentDate.getMonth() + 1; 
-        const currentYear = currentDate.getFullYear(); 
-        const currentHours = currentDate.getHours(); 
-        const currentMinutes = currentDate.getMinutes();
-        const time = currentDay+'/'+currentMonth+'/'+currentYear+' at '+currentHours+':'+currentMinutes
+      if(sign=='ReviewQuestion'){
         const data = {
-          postTime: time,
+          postTime: firebase.firestore.Timestamp.fromDate(new Date()),
           likes: [],
           comments: [],
           topic:topic,
           text:text,
-          postImg:null,
+          postImg:[{item:item, part:part , flag:'ReviewQuestion', check:Answer, type:'question'}],
           userId:auth().currentUser.uid,
           userImg:profileData.userImg,
           userName:profileData.name||profileData.email,
           hashtag:hashtag
         }
+        Alert.alert('Success!', "Your post have push successfully");
         await Api.addPost(data)
+      }
+      else{
+        if(image.length>0){
+          uploadImage()
+        }
+        else{
+          const data = {
+            postTime: firebase.firestore.Timestamp.fromDate(new Date()),
+            likes: [],
+            comments: [],
+            topic:topic,
+            text:text,
+            postImg:null,
+            userId:auth().currentUser.uid,
+            userImg:profileData.userImg,
+            userName:profileData.name||profileData.email,
+            hashtag:hashtag
+          }
+          Alert.alert('Success!', "Your post have push successfully");
+          await Api.addPost(data)
+            
+          
+        }
+      }
+      
+    }
+    else{
+      if(topic == ''){
+        Alert.alert('Notice!', "Please enter this port's topic");
+      }
+      else if(text == ''&& image.length==0){
+        Alert.alert('Notice!', "Please enter this port's content");
+      }
+      else if(hashtag==null){
+        Alert.alert('Notice!', "Please enter this port's hastag");
       }
     }
 
@@ -218,29 +293,7 @@ const AddPostScreen = ({navigation}) => {
         </Modal>
     )
   }
-    {/* Q&A, Study Resources, Exam Analysis, Preparation Experiences, Review Exam Experiences, Share Your Results, Events/News, Others */}
 
-    const [hashtagList, setHashtagList] = useState( [
-      {key:"Q&A", tick: false}, {key:"Study Resources", tick: false}, {key:"Exam Analysis", tick: false}, {key:"Preparation Experiences", tick: false},{key: "Review Exam Experiences", tick: false},
-      {key: "Share Your Results", tick: false},{key: "Events/News", tick: false},{key: "Others", tick: false}
-  ]);
-
-  const Hashtags = ({each})=>(
-    <TouchableOpacity style={{backgroundColor:(each.tick)?'#9ACD32':'#E6E6FA', marginLeft:15, marginTop:10, alignItems:'center', borderRadius:15, borderColor:'#8470FF', borderWidth:1, padding: 1, paddingHorizontal:7, paddingVertical: 4}}
-    onPress={()=>{
-      const index1 = hashtagList.findIndex(item => item === each);
-      if(index1 != -1)
-      {
-        const newData = [...hashtagList];
-        newData[index1].tick = !each.tick;
-        setHashtagList(newData);
-      }
-       sethashtag(each.key);
-    }}
-    >
-        <Text style={{color:'black', fontWeight:'600'}} >{each.key}</Text>
-    </TouchableOpacity>
-  );
 
   function RenderCategory(){
     return(
@@ -256,7 +309,8 @@ const AddPostScreen = ({navigation}) => {
           </TouchableOpacity>
           {/* Q&A, Study Resources, Exam Analysis, Preparation Experiences, Review Exam Experiences, Share Your Results, Events/News, Others */}
           <View style={{flex: 1}}/>
-          <TouchableOpacity onPress={pickImageAsync}>
+          {(sign=='Forum')&&<>
+            <TouchableOpacity onPress={pickImageAsync}>
             <Icon
               name={'images'}
               style={styles.IconWrapper}
@@ -274,9 +328,10 @@ const AddPostScreen = ({navigation}) => {
               name={'paperclip'}
               style={styles.IconWrapper}
             />
-          </TouchableOpacity>         
+          </TouchableOpacity>  
+          </>}       
         </View>
-          <FlatList
+          {/* <FlatList
             data={hashtagList}
             renderItem={({item, index}) => (
               <Hashtags
@@ -284,7 +339,90 @@ const AddPostScreen = ({navigation}) => {
                    />
               )}
             numColumns={2}
-          />
+          /> */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Q&A')?'#EAABAB':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Q&A')
+                         sethashtag('');
+                        else sethashtag('Q&A')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Q&A</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Help?')? '#74A8C5':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Help?')
+                        sethashtag('');
+                       else sethashtag('Help?')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Help?</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Study Resources')? '#FA9D68':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Study Resources')
+                        sethashtag('');
+                       else sethashtag('Study Resources')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Study Resources</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Exam Analysis')? '#CF87DF':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Exam Analysis')
+                        sethashtag('');
+                       else sethashtag('Exam Analysis')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Exam Analysis</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (hashtag!='Preparation Experiences')?'#F6F069':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Preparation Experiences')
+                        sethashtag('');
+                       else sethashtag('Preparation Experiences')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Preparation Experiences</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (hashtag!='Share Your Results')?'#51D855':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Share Your Results')
+                        sethashtag('');
+                       else sethashtag('Share Your Results')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Share Your Results</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor:(hashtag!='Events/News')? '#70DECE':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Events/News')
+                        sethashtag('');
+                       else sethashtag('Events/News')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Events/News</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (hashtag!='Review Exam Experiences')?'#E55858':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Review Exam Experiences')
+                        sethashtag('');
+                       else sethashtag('Review Exam Experiences')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Review Exam Experiences</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                      style={[styles.panelButton, {backgroundColor: (hashtag!='Others')?'#BCE37A':'white'}]}
+                      onPress={() => {
+                        if(hashtag=='Others')
+                        sethashtag('');
+                       else sethashtag('Others')
+                      }}>
+                      <Text style={[styles.panelButtonTitle]}>Others</Text>
+                      </TouchableOpacity>
+                  </View>
     </View>
     </Modal>
 
@@ -386,17 +524,22 @@ const AddPostScreen = ({navigation}) => {
           />:null} */}
         </View>
         <View style={{flex:1}}>
-        <ScrollView style={{flexDirection:'column' }}>
+        {(sign=='Forum')&&<ScrollView style={{flexDirection:'column' }}>
             {
               image.map((each,key)=>{
                 return(  
                     <View key={key} >
-                      {each.type=='img'?<Image source={{uri:each.uri}} style={{height:200, width:400, marginTop:5}} resizeMode='cover'/>:
+                      {each.type=='img'?<Image source={{uri:each.uri}} style={{height:200, width:400, marginTop:5}} resizeMode='cover'/>:(each.type=='video')?
                       <VideoPlayer
                       video={{ uri: each.uri }}
                       videoWidth={400}
                       videoHeight={200}
-                  />
+                  />:
+                  <View style={{justifyContent:'center', alignItems:'center',height:200, width:400}}>
+                     <Image source={{uri:'https://tse3.mm.bing.net/th?id=OIP.gh9hvhaRiqOVr8zU54fm-AHaEK&pid=Api&P=0&h=220'}} style={{height:160, width:360, marginTop:5}} resizeMode='cover'/>
+                     <Text style={{color:'black', fontSize:14}}>{each.filename}</Text>
+                  </View>
+
                       }
                       <TouchableOpacity style={{ marginTop:3, position:'absolute'}} onPress={()=>{
                         let filterRssult=image.filter(function(element){
@@ -412,7 +555,18 @@ const AddPostScreen = ({navigation}) => {
              
             }
   
+          </ScrollView>}
+          {(sign=='ReviewQuestion')&&
+          <ScrollView style={{flexDirection:'column' }}>
+            {(part=='W1')&&<WriteP1QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={Answer}/>}
+            {(part=='W2'||part=='W3')&&<WriteP23QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={Answer}/>}
+            {(part == 'S1')&&<SpeakP1QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
+            {(part == 'S2')&&<SpeakP2QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
+            {(part == 'S3')&&<SpeakP34QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
+            {(part == 'S4')&&<SpeakP5QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
+            {(part == 'S5')&&<SpeakP6QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
           </ScrollView>
+          }
         </View>
 
         <View style={styles.IconContainer}>
@@ -425,6 +579,7 @@ const AddPostScreen = ({navigation}) => {
           </TouchableOpacity>
           {/* Q&A, Study Resources, Exam Analysis, Preparation Experiences, Review Exam Experiences, Share Your Results, Events/News, Others */}
           <View style={{flex: 1}}/>
+          {(sign=='Forum')&&<>
           <TouchableOpacity onPress={pickImageAsync}>
             <Icon
               name={'images'}
@@ -438,12 +593,13 @@ const AddPostScreen = ({navigation}) => {
               light
             />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleFilePicker}>
             <Icon
               name={'paperclip'}
               style={styles.IconWrapper}
             />
-          </TouchableOpacity>         
+          </TouchableOpacity> 
+          </>}      
         </View>
         {RenderCategory()}
         {RenderModal()}
@@ -494,7 +650,6 @@ const styles = StyleSheet.create({
     padding: 5,
     flexDirection: 'row',
     backgroundColor: '#9ACC1C',
-    marginTop: 10,
     zIndex:1
   },
   IconWrapper:{
@@ -522,14 +677,26 @@ const styles = StyleSheet.create({
     margin: 16
 },
 panel: {
-  height: '60%',
+  height: '50%',
   width: '100%',
-  backgroundColor: 'white',
+  backgroundColor: '#E8E8E8',
   position: 'absolute',
-  marginTop: 350,
+  marginTop:'100%',
   borderColor: 'black',
   zIndex:0,
 },
-
+panelButton: {
+  padding: 5,
+  paddingHorizontal: 10,
+  borderRadius: 20,
+  alignItems: 'center',
+  marginVertical: 5,
+  marginHorizontal: 10,
+},
+panelButtonTitle: {
+  fontSize: 14,
+  fontWeight: '400',
+  color: '#222',
+},
 
 })

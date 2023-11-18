@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity,Alert,ScrollView} from 'react-native'
 import React, { useEffect, useRef, useState, useContext } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -7,44 +7,19 @@ import Api from '../api/Api'
 import auth from '@react-native-firebase/auth';
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import { useNavigation } from '@react-navigation/native';
+import SpeakP1QuestionForm from '../components/SpeakP1QuestionForm';
+import SpeakP2QuestionForm from '../components/SpeakP2QuestionForm';
+import SpeakP34QuestionForm from '../components/SpeakP34QuestionForm';
+import SpeakP5QuestionForm from '../components/SpeakP5QuestionForm';
+import SpeakP6QuestionForm from '../components/SpeakP6QuestionForm';
+import WriteP1QuestionForm from '../components/WriteP1QuestionForm';
+import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
 
-const PopupMenu = () =>{
-    const[visible,setvisible] = useState(false);
-    const options = [
-      {
-        title:"Delete",
-        // action:()=>{
-        //   deletePost(item.id)
-        // },
-      },
-      {
-        title:'Edit',
-        // action:()=>{
-        //   editPost();
-        // },
-      }
-    ];
 
-    return(
-      <View style={{flexDirection:'row'}}>
-       {visible && <View style = {styles.popup}>
-            {
-              options.map((op,i)=>(
-                <TouchableOpacity  style={[styles.popupitem,{borderBottomWidth:i===options.length-1?0:1}]} key={i} onPress={op.action}>
-                  <Text>{op.title}</Text>
-                </TouchableOpacity>
-              ))
-            }
-          </View>}
-       <TouchableOpacity style={styles.MenuButton} onPress={()=>setvisible(!visible)}>
-            <Icon name={'ellipsis-h'}  color={'#555'}/>
-        </TouchableOpacity>
-      </View>
-    )
-  }
-const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress}) => {  
+const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress,editright}) => {  
   const navigation = useNavigation();
   const [levelsource, setLevelSource] = useState(require('../assets/Lv0.png'))
+  const [Allow, SetAllow] = useState(false);
   const [isLike, setIsLike] = useState(false);
   const [countCm, setCountCm] = useState(0);
   const getLevel = async () => {
@@ -107,6 +82,14 @@ const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress}) => {
     if(foundItem) setIsLike(true)
     else setIsLike(false)
   }
+  function allow()
+  {
+    if( auth().currentUser.uid ===  item.userId)
+    {
+      SetAllow(true);
+    }
+    else SetAllow(false);
+  }
   // const countComment=async(cmId)=>{
   //   const data = await Api.getOneComment(cmId)
   //   console.log(data)
@@ -127,9 +110,70 @@ const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress}) => {
   //     console.log("tong"+tong)
   //   }
   useEffect(() => {
+    allow();
+})
+  useEffect(() => {
     getLevel();
     checkLike();
   }, [item]);
+
+  const PopupMenu = ({Allow,EditRight}) =>{
+    const[visible,setvisible] = useState(false);
+    const options = [
+      {
+        title:"Delete",
+        action:async()=>{
+          setvisible(false)
+          Alert.alert('Success!', "Post delete successfully");
+          await Api.deletePost(item.postId)
+        },
+      },
+      {
+        title:'Edit',
+        action:()=>{
+          setvisible(false)
+        },
+      }
+    ];
+    const options2 = [
+      {
+        title:'Save',
+        action:async ()=>{
+          setvisible(false)
+          Alert.alert('Success!', "Post save successfully");
+          await Api.savePost(item.postId)
+        },
+      }
+    ]
+
+    return(
+      <View style={{flexDirection:'row'}}>
+       {(visible && Allow && EditRight)? <View style = {styles.popup}>
+            {
+              options.map((op,i)=>(
+                <TouchableOpacity  style={[styles.popupitem,{borderBottomWidth:i===options.length-1?0:1}]} key={i} onPress={op.action}>
+                  <Text>{op.title}</Text>
+                </TouchableOpacity>
+              ))
+            }
+          </View>:
+          (visible)?
+          <View style = {[styles.popup,{height:40}]}>
+          {
+            options2.map((op,i)=>(
+              <TouchableOpacity  style={[styles.popupitem]} key={i} onPress={op.action}>
+                <Text>{op.title}</Text>
+              </TouchableOpacity>
+            ))
+          }
+        </View>:null
+          }
+       <TouchableOpacity style={styles.MenuButton} onPress={()=>setvisible(!visible)}>
+            <Icon name={'ellipsis-h'}  color={'#555'}/>
+        </TouchableOpacity>
+      </View>
+    )
+  }
   return (
     <View style={styles.Container}>
       <View style={styles.UserInfoContainer}>
@@ -162,14 +206,14 @@ const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress}) => {
           <Text style={styles.PostTime}>{item.postTime}</Text>
         </View>
         <View style={{flex: 1}} />
-        <PopupMenu />
+      <PopupMenu Allow = {Allow} EditRight = {editright}/>
       </View>
 
       <Text style={styles.PostTitle}>Topic: {item.topic}</Text>
 
-      <Text style={styles.PostText}>
+      {(item.text!='')?<Text style={styles.PostText}>
         {item.text}
-      </Text>
+      </Text>:null}
       <Text style={{fontStyle: 'italic', fontWeight: 'bold'}}>
           {"#"+item.hashtag}
         </Text>
@@ -185,9 +229,9 @@ const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress}) => {
       </TouchableOpacity>
 
       <View>
-        {item.postImg?item.postImg[0].type == 'img' ? (
+        {(item.postImg)?(item.postImg[0].type == 'img') ? 
           <Image source={{uri: item.postImg[0].uri}} style={styles.PostImage} />
-        ) : (
+         : (item.postImg[0].type == 'video') ? 
           <VideoPlayer
             video={{uri:item.postImg[0].uri}}
             videoWidth={400}
@@ -196,7 +240,22 @@ const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress}) => {
             disableSeek={true}
             endThumbnail={{uri:'https://tse1.mm.bing.net/th?id=OIP.pENsrXZ3F7yXMHHRIHS22QHaEK&pid=Api&rs=1&c=1&qlt=95&w=192&h=108'}}
           />
-        ):null}
+        :(item.postImg[0].type == 'pdf') ? 
+        <TouchableOpacity style={{justifyContent:'center', alignItems:'center',height:200, width:400, alignSelf:'center'}} onPress={()=>navigation.navigate('ReadPDFScreen',{link:item.postImg[0].uri})}>
+        <Image source={{uri:'https://tse3.mm.bing.net/th?id=OIP.gh9hvhaRiqOVr8zU54fm-AHaEK&pid=Api&P=0&h=220'}} style={{height:160, width:360, marginTop:5}} resizeMode='cover'/>
+        <Text style={{color:'black', fontSize:14}}>{item.postImg[0].name}</Text>
+     </TouchableOpacity>
+        :
+        <ScrollView style={{flexDirection:'column' }}>
+        {(item.postImg[0].part=='W1')&&<WriteP1QuestionForm item={item.postImg[0].item} part={item.postImg[0].part}  flag={'ReviewQuestion'} check={item.postImg[0].check}/>}
+        {(item.postImg[0].part=='W2'||item.postImg[0].part=='W3')&&<WriteP23QuestionForm item={item.postImg[0].item} part={item.postImg[0].part}  flag={'ReviewQuestion'} check={item.postImg[0].check}/>}
+            {(item.postImg[0].part == 'S1')&&<SpeakP1QuestionForm item={item.postImg[0].item} part={item.postImg[0].part} flag={'ReviewQuestion'} check={item.postImg[0].check}/>}
+            {(item.postImg[0].part == 'S2')&&<SpeakP2QuestionForm item={item.postImg[0].item} part={item.postImg[0].part} flag={'ReviewQuestion'} check={item.postImg[0].check}/>}
+            {(item.postImg[0].part == 'S3')&&<SpeakP34QuestionForm item={item.postImg[0].item} part={item.postImg[0].part} flag={'ReviewQuestion'} check={item.postImg[0].check}/>}
+            {(item.postImg[0].part == 'S4')&&<SpeakP5QuestionForm item={item.postImg[0].item} part={item.postImg[0].part} flag={'ReviewQuestion'} check={item.postImg[0].check}/>}
+            {(item.postImg[0].part == 'S5')&&<SpeakP6QuestionForm item={item.postImg[0].item} part={item.postImg[0].part} flag={'ReviewQuestion'} check={item.postImg[0].check}/>}
+      </ScrollView>
+        :null}
       </View>
 
       <View style={styles.devider} />

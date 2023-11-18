@@ -150,16 +150,46 @@ import socketServices from '../api/socketService';
               </TouchableOpacity>
             </View>
 
-            { (pHistoryList!=null)&&<FlatList
-              data={pHistoryList.slice(0, 3)}
-              renderItem={({item, index}) => (
-                <SmallHistoryCard display={item} 
-                click={()=>{
-                  navigation.push('CompleteCard',{score:item.Correct,quantity:item.Quantity,answer:item.History, sign:'Home',part:item.Part,questionL:item.History,partName:item.PartName})
+            {pHistoryList != null && (
+              <FlatList
+                data={pHistoryList.slice(0, 3)}
+                renderItem={({item, index}) => {
+                  if (item.History) {
+                    return (
+                      <SmallHistoryCard
+                        display={item}
+                        click={() => {
+                          navigation.push('CompleteCard', {
+                            quantity: item.Quantity,
+                            answer: item.History,
+                            sign: 'Home',
+                            part: item.Part,
+                            questionL: item.History,
+                            partName: item.PartName,
+                            DetailQty: item.DetailQty,
+                          });
+                        }}
+                      />
+                    );
+                  } else {
+                    return (
+                      <SmallHistoryCard
+                        display={item}
+                        click={() => {
+                          navigation.push('CompleteCard2', {
+                            quantity: item.Quantity,
+                            sign: 'Home',
+                            part: item.Part,
+                            questionL: item.result,
+                            partName: item.PartName,
+                          });
+                        }}
+                      />
+                    );
+                  }
                 }}
-                />
-              )}
-            />}
+              />
+            )}
 
             <View
               style={{
@@ -168,9 +198,12 @@ import socketServices from '../api/socketService';
                 width: '90%',
                 marginTop: 10,
               }}>
-              <TouchableOpacity onPress={()=>{
-                navigation.push('HistoryScreen',{list:pHistoryList?pHistoryList:[]})
-              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.push('HistoryScreen', {
+                    list: pHistoryList ? pHistoryList : [],
+                  });
+                }}>
                 <Text style={AppStyle.button.buttonText}>See more</Text>
               </TouchableOpacity>
             </View>

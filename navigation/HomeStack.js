@@ -7,6 +7,7 @@ import Test from '../screens/Test';
 import InPartCard from '../components/InPartCard';
 import InTestCard from '../components/InTestCard';
 import CompleteCard from '../components/CompleteCard';
+import CompleteCard2 from '../components/CompleteCard2';
 import QuestionScreen from '../screens/QuestionScreen';
 import SavedVocabScreen from '../screens/SavedVocabScreen';
 import Game from '../components/Game';
@@ -15,14 +16,15 @@ import GetUserGoal from '../screens/GetUserGoal';
 import { AuthContext } from '../navigation/AuthProvider';
 import firestore from '@react-native-firebase/firestore';
 import Api from '../api/Api';
-import ConsultTable from '../components/ConsultTable';
+import ResultTable from '../components/ResultTable';
 import ReviewQuestion from '../screens/ReviewQuestion';
 import HistoryScreen from '../screens/HistoryScreen';
+import AddPostScreen from '../screens/AddPostScreen';
 
 const Stack = createNativeStackNavigator();
 export default function HomeStack() {
     const {user} = useContext(AuthContext);
-    const [initialScreen, setInitialScreen] = useState('');
+    const [initialScreen, setInitialScreen] = useState();
     const [isLoading, setLoading] = useState(true);
     const isUserGoalDataNull = async () => {
         // const userData = await Api.getAllUsers()
@@ -40,6 +42,7 @@ export default function HomeStack() {
         // setInitialScreen('HomeinStack')  
         const userData = await Api.getUserData(user.uid)
         .catch(error => console.error(error));
+
         if (userData && userData.targetScore) {
             setInitialScreen('Homeinstack');
             setLoading(false); 
@@ -75,12 +78,14 @@ export default function HomeStack() {
             <Stack.Screen name='Testinstack' component={Test} options={{ header: () => null }}/>
             <Stack.Screen name='QuestionScreen' component={QuestionScreen} options={{ header: () => null }}/>
             <Stack.Screen name='CompleteCard' component={CompleteCard} options={{ header: () => null }}/>
+            <Stack.Screen name='CompleteCard2' component={CompleteCard2} options={{ header: () => null }}/>
             <Stack.Screen name='SavedVocabScreen' component={SavedVocabScreen} options={{ header: () => null }}/>
             <Stack.Screen name='Game' component={Game} options={{ header: () => null }}/>
             <Stack.Screen name='GameScreen' component={GameScreen} options={{ header: () => null }}/>
-            <Stack.Screen name='ConsultTable' component={ConsultTable} options={{ header: () => null }}/>
+            <Stack.Screen name='ResultTable' component={ResultTable} options={{ header: () => null }}/>
             <Stack.Screen name='ReviewQuestion' component={ReviewQuestion} options={{ header: () => null }}/>
             <Stack.Screen name='HistoryScreen' component={HistoryScreen} options={{ header: () => null }}/>
+            <Stack.Screen name="AddPost" component={AddPostScreen} options={{ header: () => null }} />  
         </Stack.Navigator>
     );
   };

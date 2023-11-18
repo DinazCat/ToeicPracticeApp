@@ -8,7 +8,7 @@ import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 
 const {width} = Dimensions.get('window');
 
-const  WriteP23QuestionForm = ({item, onAnswerChange}) => {
+const  WriteP23QuestionForm = ({item, onAnswerChange, flag, check}) => {
   return (
     <Animated.View style={styles.container}>     
       <Text style={{color:'black', fontWeight:'500', fontSize:20,textAlign:'left',marginTop:'5%', marginLeft:"5%"}}>Response the email</Text>
@@ -23,13 +23,19 @@ const  WriteP23QuestionForm = ({item, onAnswerChange}) => {
       </View>
       
       <View style={{flex: 1, width:'90%', alignSelf:'center', backgroundColor:'white', borderColor:PRIMARY_COLOR, borderWidth:2, marginTop:'3%', marginBottom: '10%', borderRadius:15}}>
-      <TextInput
-            multiline={true}
-            style={{fontSize: 16, marginLeft: 3, color:'black',borderRadius:15}}
-            placeholder="Write your answer here"
-            placeholderTextColor={'rgba(0,0,0,0.8)'}
-            onChangeText={text => {onAnswerChange(text, item.QId)}}
-          />
+           {flag == 'QuestionScreen' ? (
+               <TextInput
+               multiline={true}
+               style={{fontSize: 16, marginLeft: 3, color:'black',borderRadius:15}}
+               placeholder="Write your answer here"
+               placeholderTextColor={'rgba(0,0,0,0.8)'}
+               onChangeText={text => {onAnswerChange(text, item.Id)}}
+             />
+        ) : (
+          <Text style={{fontSize: 16, marginLeft: 3, color: 'black'}}>
+            {check.answer}
+          </Text>
+        )}
       </View>
     </Animated.View>
   );

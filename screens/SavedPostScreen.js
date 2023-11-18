@@ -17,8 +17,15 @@ import {
   import QuestionScreen from '../screens/QuestionScreen';
   import Api from '../api/Api'
   import SmallHistoryCard from '../components/SmallHistoryCard';
-  const HistoryScreen = ({navigation,route}) => {
-    const {list} = route.params
+  const SavedPostScreen = ({navigation}) => {
+    const [posts, setPosts] = useState(null);
+    useEffect(()=>{
+        getPost()
+      },[])
+      const getPost = async()=>{
+        const data = await Api.getsavePost()
+        setPosts(data)
+      }
     return (
         <View style={styles.container}>
            <ImageBackground source={require('../assets/bg8.png')} style={{ flex: 1, resizeMode: 'cover' }}>
@@ -33,46 +40,25 @@ import {
               fontSize: 20,
               marginLeft: 15,
             }}>
-            Practice History
+            Saved Post
           </Text>
         </View>
-          <FlatList
-                  data={list}
-                  renderItem={({item, index}) => {
-                    if (item.History) {
-                      return (
-                        <SmallHistoryCard
-                          display={item}
-                          click={() => {
-                            navigation.push('CompleteCard', {
-                              quantity: item.Quantity,
-                              answer: item.History,
-                              sign: 'Home',
-                              part: item.Part,
-                              questionL: item.History,
-                              partName: item.PartName,
-                              DetailQty: item.DetailQty,
-                            });
-                          }}
-                        />
-                      );
-                    } else {
-                      return (
-                        <SmallHistoryCard
-                          display={item}
-                          click={() => {
-                            navigation.push('CompleteCard2', {
-                              quantity: item.Quantity,
-                              sign: 'Home',
-                              part: item.Part,
-                              questionL: item.result,
-                              partName: item.PartName,
-                            });
-                          }}
-                        />
-                      );
-                    }
-                  }}/>
+        <FlatList
+        data={posts}
+        renderItem={({item,index}) => (
+          <PostCard
+            item={item}
+            onUserPress={() => {
+              navigation.navigate('ProfileScreen', {userId: item.userId});
+            }}
+            onCommentPress={() => navigation.navigate('CommentScreen',{postId:item.postId,topic:item.topic, user:item.userId})}
+            onGotoPostPress={() => navigation.navigate('PostScreen',{postId: posts[index].postId,sign:'nocmt'})}
+            editright={false}
+          />
+        )}
+        keyExtractor={item => item.postId}
+        showsVerticalScrollIndicator={false}
+      />
                 </ImageBackground>
           
           
@@ -91,4 +77,4 @@ import {
             justifyContent: 'center',
             alignItems: 'center',
         },})
-  export default HistoryScreen
+  export default SavedPostScreen

@@ -15,44 +15,138 @@ import AppStyle from '../theme'
 import Sound from 'react-native-sound';
 const {width} = Dimensions.get('window');
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
-const ListenP2QuestionForm = ({item,list}) => {
+const ListenP2QuestionForm = ({item,list,click,flag, check}) => {
   const [sign, setsign] = useState('1');
-  const [playState, setPlayState] = useState('paused')
-  const playPause = () => {
-    
-    if (playState=='playing') {
-      list.pause(()=>{
-        console.log('successfully pause');
-      });
-      setPlayState('paused')
-    } else {
-      setPlayState('playing')
-      list.play(success => {
-        if (success) {
-          console.log('successfully finished playing');
-          setPlayState('paused')
-          list.stop()
-        } else {
-          console.log('playback failed due to audio decoding errors');
-        }
-      });
+  const [duration, setduration] = useState('00:00')
+  const [position, setPosition] = useState('00:00');
+  const [duration1, setduration1] = useState(0)
+  const [position1, setPosition1] = useState(0);
+  const [playState, setPlayState] = useState('playing')
+  const [isPlay, setisPlay] = useState(false);
+
+  const [SliderEditing, setSliderEditing] = useState(false)
+ 
+   const onSliderEditing = (value) => {
+    if(list.isLoaded()){
+    const formattedNumber = value.toLocaleString("en-US", {
+      minimumFractionDigits: 3,
+      maximumFractionDigits: 3,
+      });      
+      console.log(formattedNumber);
+      const u =  parseFloat(formattedNumber);
+        list.setCurrentTime(u);
+        const P = getAudioTimeString(value)
+          setPosition(P);
+          //setPosition1(value);
     }
-  };
+  }
+
+ 
+  const jumpPrev15Seconds = () => {jumpSeconds(-3);}
+  const jumpNext15Seconds = () => {jumpSeconds(3);}
+  const jumpSeconds = (secsDelta) => {
+      if(list.isLoaded()){
+         list.getCurrentTime((secs, isPlaying) => {
+              let nextSecs = secs + secsDelta;
+              if(nextSecs < 0) nextSecs = 0;
+              else if(nextSecs > duration1) nextSecs = 14;
+              const t = getAudioTimeString(nextSecs);
+              list.setCurrentTime(nextSecs);
+              setPosition(t);
+              setPosition1(nextSecs);
+          })
+      }
+  }
+
+  const getAudioTimeString=(seconds)=>{
+      const m = parseInt(seconds%(60*60)/60);
+      const s = parseInt(seconds%60);
+
+      return ( (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s));
+  }
+
+    useEffect(() => {
+      if(list!=null &&list.isLoaded()){
+      setduration(getAudioTimeString(list.getDuration()))
+      setduration1(list.getDuration())
+      }
+      if(list!=null &&list.isLoaded()){
+        const interval = setInterval(() => {
+
+          
+            // setPosition1(list._duration)
+            list.getCurrentTime((seconds) => {
+              
+              setPosition1(seconds)
+              
+              setPosition(getAudioTimeString(seconds))
+ 
+            })
+          
+        
+        }, 1000)
+        return () => clearInterval(interval); 
+      } 
+      }, []);
+      useEffect(() => {
+        if(list.isPlaying()){
+          setPlayState('playing')
+        }
+        else{
+          setPlayState('paused')
+        }
+        }, [list.isPlaying()]);
+    const playPause = () => {
+      if (list.isPlaying()) {
+        list.pause(()=>{
+          console.log('successfully pause');
+        });
+       // sound.setCurrentTime(position1)
+        setPlayState('paused')
+      } else {
+        // sound.play(playComplete);
+        setPlayState('playing')
+        list.play(success => {
+          if (success) {
+            console.log('successfully finished playing');
+            setPlayState('paused')
+            list.stop()
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }
+    };
+    
   return (
     <Animated.View style={styles.container}>
       <View style={styles.boxstyle}>
         <Text style={{color:PRIMARY_COLOR, fontWeight:'600', fontSize:20,textAlign:'left',marginTop:'5%', marginLeft:"5%"}}>Select the answer</Text>
+        {flag=='QuestionScreen'?
         <View style={{flexDirection:'row', alignItems:'center', justifyContent:"space-evenly", marginTop:'10%'}}>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='A'&&(item.Answer[0].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>setsign('A')}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='A'&&(styles.answerboxStyleTrue)]} onPress={()=>{setsign('A'),click(0)}}>
                 <Text style={styles.answertext}>A</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='B'&&(item.Answer[1].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>setsign('B')}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='B'&&(styles.answerboxStyleTrue)]} onPress={()=>{setsign('B'),click(1)}}>
                 <Text style={styles.answertext}>B</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.answerboxStyle,sign=='C'&&(item.Answer[2].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse)]} onPress={()=>setsign('C')}>
+            <TouchableOpacity style={[styles.answerboxStyle,sign=='C'&&(styles.answerboxStyleTrue)]} onPress={()=>{setsign('C'),click(2)}}>
                 <Text style={styles.answertext}>C</Text>
             </TouchableOpacity>
         </View>
+        :
+        <View style={{flexDirection:'row', alignItems:'center', justifyContent:"space-evenly", marginTop:'10%'}}>
+            <TouchableOpacity style={[styles.answerboxStyle,{ backgroundColor:(check.Default==0)?PRIMARY_COLOR:(check.Select==0)?'red':'white'}]} >
+                <Text style={styles.answertext}>A</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.answerboxStyle,{ backgroundColor:(check.Default==1)?PRIMARY_COLOR:(check.Select==1)?'red':'white'}]} >
+                <Text style={styles.answertext}>B</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.answerboxStyle,{ backgroundColor:(check.Default==2)?PRIMARY_COLOR:(check.Select==2)?'red':'white'}]} >
+                <Text style={styles.answertext}>C</Text>
+            </TouchableOpacity>
+        </View>
+  }
       </View>
       <View style={{flex:1}}/>
       <View
@@ -63,26 +157,29 @@ const ListenP2QuestionForm = ({item,list}) => {
           justifyContent: 'space-evenly',
           alignItems: 'center',
         }}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={jumpPrev15Seconds}>
           <FontAwesome name="backward" color="black" size={20} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={playPause}>
-     {playState == 'playing'?<FontAwesome name="pause-circle" color="black" size={20} />:
-     <FontAwesome name="play-circle" color="black" size={20} />
-     }
-      </TouchableOpacity>
-        <TouchableOpacity>
+       <TouchableOpacity onPress={playPause}>
+       {playState == 'playing'?<FontAwesome name="pause-circle" color="black" size={20} />:
+       <FontAwesome name="play-circle" color="black" size={20} />
+       }
+        </TouchableOpacity>
+        <TouchableOpacity onPress={jumpNext15Seconds}>
           <FontAwesome name="forward" color="black" size={20} />
         </TouchableOpacity>
-        <Text style={styles.TimeFont}>00:00</Text>
+        <Text style={styles.TimeFont}>{position}</Text>
         <Slider
           style={{width: 100, height: 40}}
           minimumValue={0}
-          maximumValue={1}
-          minimumTrackTintColor="#FFFFFF"
+          maximumValue={duration1}
+          step={1}
+          minimumTrackTintColor="black"
           maximumTrackTintColor="#990000"
+          onValueChange={onSliderEditing}
+          value={position1}
         />
-        <Text style={styles.TimeFont}>00:17</Text>
+       {duration&&<Text style={styles.TimeFont}>{ duration}</Text>}
       </View>
     </Animated.View>
   );

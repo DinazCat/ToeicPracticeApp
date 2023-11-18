@@ -1,5 +1,5 @@
 import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Animated, Dimensions, PermissionsAndroid, Alert, Platform} from 'react-native';
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext,useEffect} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -18,7 +18,7 @@ const permissions = [
   PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
 ];
 
-const SpeakP5QuestionForm = ({item, onRecordComplete}) => {
+const SpeakP5QuestionForm = ({item, onRecordComplete,flag, check}) => {
   const {user} = useContext(AuthContext);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [isRecording, setIsRecording] = useState([false, false, false]);
@@ -53,6 +53,12 @@ const SpeakP5QuestionForm = ({item, onRecordComplete}) => {
       console.log('permission granted')
     }
   };
+  useEffect(()=>{
+    if(flag != 'QuestionScreen'){
+      const list = [check.record0, check.record1, check.record2];
+      setRecordings(list)
+    }
+  },[])
 
   const QuestionForm = ({question, index}) => {
 
@@ -105,7 +111,7 @@ const SpeakP5QuestionForm = ({item, onRecordComplete}) => {
         newIsRecording[index] = false;
         setIsRecording(newIsRecording);
 
-        onRecordComplete(recordings, item.QId);
+        onRecordComplete(recordings, item.Id);
       } catch (err) {
         console.error(err);
         Toast.show({
@@ -115,6 +121,7 @@ const SpeakP5QuestionForm = ({item, onRecordComplete}) => {
         });
       }
     };
+
     const onStartPlay = async () => {
       try{
         if(recordings[index] === null) {return;}
@@ -168,7 +175,9 @@ const SpeakP5QuestionForm = ({item, onRecordComplete}) => {
       <View style={{backgroundColor:card_color, width:'98%', alignSelf:'center', marginTop:'3%', paddingTop: 5}}>
       <View style={styles.questionzone}>
         <Text style={styles.questionstyle}>{question}</Text>
-        {!isRecording[index] ? (
+        {flag == 'QuestionScreen' ? (
+              <>
+                      {!isRecording[index] ? (
           <TouchableOpacity style={{ borderRadius:30, borderWidth:3, borderColor:PRIMARY_COLOR, height:30, width:30, alignItems:'center', justifyContent:'center',}}
           onPress={onStartRecord}>
           <Icon name={'microphone-alt'} style={{color: PRIMARY_COLOR, fontSize: 20}} />
@@ -179,6 +188,9 @@ const SpeakP5QuestionForm = ({item, onRecordComplete}) => {
           <Icon name={'microphone-alt'} style={{color: PRIMARY_COLOR, fontSize: 20}} />
           </TouchableOpacity>
         )}
+              </>
+            ):null}
+
       </View>
       <View style={{ height: 50, flexDirection: 'row', marginTop:'1%', alignItems: 'center',}}>
       <Text style={[styles.TimeFont, {marginLeft: '5%'}]}>Your answer:</Text>

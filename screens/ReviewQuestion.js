@@ -104,6 +104,10 @@ import {
     if(loading && (part=='L1'||part=='L2'||part=='L3'||part=='L4'))
       flatListRef.current.scrollToIndex({ index: indication, animated: true });
     },[loading])
+    useEffect(()=>{
+      if(soundL=='-1')
+        flatListRef.current.scrollToIndex({ index: indication, animated: true });
+      },[])
     function RenderModal() {
       return (
         <Modal visible={OpenModal} animationType="slide" transparent={true}>
@@ -228,7 +232,7 @@ import {
             style={{marginLeft: '2%'}}
             onPress={()=>{
                 navigation.goBack(),
-                soundL[ItemIndex].stop()
+              (soundL!='-1')&&soundL[ItemIndex].stop()
             }}>
             <FontAwesome name="chevron-left" color="white" size={20} />
           </TouchableOpacity>
@@ -248,18 +252,22 @@ import {
             style={{marginLeft: '3%'}}
           />
           <View style={{flex: 1}} />
-          <TouchableOpacity onPress={() => setOpenModal(true)}>
-            <Text
-              style={{
-                textAlign: 'left',
-                color: 'white',
-                fontSize: 20,
-                marginRight: '5%',
-                textDecorationLine: 'underline',
-              }}>
-               Explain
-            </Text>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={() => setOpenModal(true)}>
+          <Text
+            style={{
+              textAlign: 'left',
+              color: 'white',
+              fontSize: 20,
+              marginRight: '5%',
+              textDecorationLine: 'underline',
+            }}>
+            Explain
+          </Text>
+        </TouchableOpacity>
+        {(part!='L1'&&'L2'&&'L3'&&'L4'&&'R1'&&'R2'&&'R3')&&<TouchableOpacity
+        style={{padding:5}} onPress={() => navigation.push('AddPost',{sign:'ReviewQuestion', Answer:History[ItemIndex],part:part,item:questionList[ItemIndex]})}>
+        <Icon name={"share"} style={{color: 'white', fontSize: 20, alignSelf:'center',marginLeft:2, marginRight:5}}  />
+      </TouchableOpacity>}
         </View>
        <View style={{flex: 1}}>
         {
@@ -270,6 +278,13 @@ import {
               pagingEnabled
               showsHorizontalScrollIndicator={false}
               scrollEventThrottle={16}
+              ref={flatListRef}
+              onScrollToIndexFailed={info => {
+                const wait = new Promise(resolve => setTimeout(resolve, 700));
+                wait.then(() => {
+                  flatListRef.current?.scrollToIndex({ index: info.index, animated: true/false });
+                });
+              }}
               onScroll={Animated.event(
                 [
                   {
@@ -280,25 +295,24 @@ import {
                 ],
                 {useNativeDriver: true},
               )}
-              ref={flatListRef}
               renderItem={({item, index}) => {
                 
                  if (part == 'R2' || part == 'R3' || part == 'R1') {
-                   return <ReadP23QuestionForm item={item} part={part} />;
+                   return <ReadP23QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={History[index]}/>;
                  } else if (part == 'S1') {
-                   return <SpeakP1QuestionForm item={item} part={part} />;
+                   return <SpeakP1QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={History[index]}/>;
                  } else if (part == 'S2') {
-                   return <SpeakP2QuestionForm item={item} part={part} />;
+                   return <SpeakP2QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={History[index]}/>;
                  } else if (part == 'S3') {
-                   return <SpeakP34QuestionForm item={item} part={part} />;
+                   return <SpeakP34QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={History[index]}/>;
                  } else if (part == 'S4') {
-                   return <SpeakP5QuestionForm item={item} part={part} />;
+                   return <SpeakP5QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={History[index]}/>;
                  } else if (part == 'S5') {
-                   return <SpeakP6QuestionForm item={item} part={part} />;
+                   return <SpeakP6QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={History[index]}/>;
                  } else if (part == 'W1') {
-                   return <WriteP1QuestionForm item={item} part={part} />;
+                   return <WriteP1QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={History[index]}/>;
                  } else if (part == 'W2' || 'W3') {
-                   return <WriteP23QuestionForm item={item} part={part} />;
+                   return <WriteP23QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={History[index]}/>;
                  }        
               }}
             />:
@@ -335,11 +349,11 @@ import {
                   )}
                 else if(part=='L2'){
                 return(
-              <ListenP2QuestionForm item={item} list={soundL[index]} />
+              <ListenP2QuestionForm item={item} list={soundL[index]}  flag={'ReviewQuestion'} check={History[index]} />
                 )}
                 else if(part=='L3'||part=='L4'){
                   return(
-                <ListenP34QuestionForm item={item} list={soundL[index]} />
+                <ListenP34QuestionForm item={item} list={soundL[index]}  flag={'ReviewQuestion'} check={History[index]}/>
                   )}
                   
               }}

@@ -108,6 +108,16 @@ const updateUser = async(userData) => {
         console.log('error: ', error.message);
     }
 }
+const updateUserPrivate = async(userData) => {
+    const endpoint = '/updateUserPrivate/' + auth().currentUser.uid;
+    console.log(endpoint);
+    try {
+        const response = await client.put(endpoint, userData);
+        console.log(response.data)
+      } catch (error) {
+        console.log('error: ', error.message);
+    }
+}
 const getAllUsers = async() => {
     try{
         const response = await client.get('/Users')
@@ -315,6 +325,92 @@ const updateNotification = async(id, data) => {
         console.error('error: ', error.message);
     }
 }
+// router.get('/filterOnlyhashtag/:hashtag',filterOnlyhashtag)
+// router.get('/filterOnlyPost/:userId/:type',filterOnlyPost)
+// router.get('/filterBoth/:userId/:type/:hashtag',filterBoth)
+const filterOnlyhashtag = async(hashtag)=>{
+    const endpoint = "/filterOnlyhashtag/"+hashtag
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.posts
+        }
+        else{
+            console.log("not get")
+        }      
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+const filterOnlyPost = async(userId,type)=>{
+    const endpoint = "/filterOnlyPost/"+userId+"/"+type
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.posts
+        }
+        else{
+            console.log("not get")
+        }      
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+const filterBoth = async(userId,type,hashtag)=>{
+    const endpoint = "/filterBoth/"+userId+"/"+type+"/"+hashtag
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.posts
+        }
+        else{
+            console.log("not get")
+        }      
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+// router.put('/savePost/:userId/:postId', pushSavedPost)
+// router.get('/getsavePost/:userId',getSavedPost)
+// router.delete('/deletePost/:postId',deletePost)
+const savePost = async(postId)=>{
+    try{
+         await client.put('/savePost/'+auth().currentUser.uid+"/"+postId)   
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const getsavePost = async()=>{
+    const endpoint = "/getsavePost/"+auth().currentUser.uid
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.SavedPost
+        }
+        else{
+            console.log("not get")
+        }      
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+const deletePost = async(id)=>{
+    try{
+        await client.delete('/deletePost/'+id)    
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
 export default {
     getVocabLesson,
     getVocabinLesson,
@@ -341,4 +437,11 @@ export default {
     addNotification,
     deleteNotification,
     updateNotification,
+    filterBoth,
+    filterOnlyPost,
+    filterOnlyhashtag,
+    updateUserPrivate,
+    savePost,
+    getsavePost,
+    deletePost,
 }

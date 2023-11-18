@@ -16,94 +16,130 @@ import AppStyle from '../theme'
 import QuestionCard from './QuestionCard';
 const {width} = Dimensions.get('window');
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
-const ListenP34QuestionForm = ({item,list}) => {
+const ListenP34QuestionForm = ({item,list,click,flag, check}) => {
   const [sign, setsign] = useState('1');
-  const [playState, setPlayState] = useState('paused')
-  const [Qindex, setQindex] = useState('');
-  const [Qhistory, setQhistory] = useState(null);
-  const playPause = () => {
-    
-    if (playState=='playing') {
-      list.pause(()=>{
-        console.log('successfully pause');
-      });
-      setPlayState('paused')
-    } else {
-      setPlayState('playing')
-      list.play(success => {
-        if (success) {
-          console.log('successfully finished playing');
-          setPlayState('paused')
-          list.stop()
-        } else {
-          console.log('playback failed due to audio decoding errors');
-        }
-      });
+  const [duration, setduration] = useState('00:00')
+  const [position, setPosition] = useState('00:00');
+  const [duration1, setduration1] = useState(0)
+  const [position1, setPosition1] = useState(0);
+  const [playState, setPlayState] = useState('playing')
+  const [isPlay, setisPlay] = useState(false);
+
+  const [SliderEditing, setSliderEditing] = useState(false)
+ 
+   const onSliderEditing = (value) => {
+    if(list.isLoaded()){
+    const formattedNumber = value.toLocaleString("en-US", {
+      minimumFractionDigits: 3,
+      maximumFractionDigits: 3,
+      });      
+      console.log(formattedNumber);
+      const u =  parseFloat(formattedNumber);
+        list.setCurrentTime(u);
+        const P = getAudioTimeString(value)
+          setPosition(P);
+          //setPosition1(value);
     }
-  };
-  const sethistory=(index)=>{
-    const list = [...Qhistory]
-    list.push(index)
-    setQhistory(list);
   }
-  function Card({question, index}){
-    return(
-      <View style={styles.boxstyle}>
-      <Text style={{color:'black', fontSize:20,textAlign:'left', marginLeft:"5%", marginTop:'3%'}}>{question.Q}</Text>
-      <View style={{flexDirection:'colunm',}}>
-        <View  style={styles.answerZone}>
-        <TouchableOpacity style={[styles.answerboxStyle,(Qindex== index)?sign=='A'&&(question.A[0].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse):null]} onPress={()=>{setsign('A'), setQindex(index)}}>
-              <Text style={styles.answertext}>A</Text>
-          </TouchableOpacity>
-          <Text style={styles.answerLong}> {question.A[0].script}</Text>
-        </View>
-        <View  style={styles.answerZone}>
-        <TouchableOpacity style={[styles.answerboxStyle,(Qindex== index)?sign=='B'&&(question.A[1].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse):null]} onPress={()=>{setsign('B'), setQindex(index)}}>
-              <Text style={styles.answertext}>B</Text>
-          </TouchableOpacity>
-          <Text style={styles.answerLong}>{question.A[1].script}</Text>
-        </View>
-        <View  style={styles.answerZone}>
-        <TouchableOpacity style={[styles.answerboxStyle,(Qindex== index)?sign=='C'&&(question.A[2].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse):null]} onPress={()=>{setsign('C'), setQindex(index)}}>
-              <Text style={styles.answertext}>C</Text>
-          </TouchableOpacity>
-          <Text style={styles.answerLong}>{question.A[2].script}</Text>
-        </View>
-        <View  style={styles.answerZone}>
-        <TouchableOpacity style={[styles.answerboxStyle,(Qindex== index)?sign=='D'&&(question.A[3].status?styles.answerboxStyleTrue:styles.answerboxStyleFalse):null]} onPress={()=>{setsign('D'), setQindex(index)}}>
-              <Text style={styles.answertext}>D</Text>
-          </TouchableOpacity>
-          <Text style={styles.answerLong}>{question.A[3].script}</Text>
-        </View>
-      </View>
-    </View>
-    )
+
+ 
+  const jumpPrev15Seconds = () => {jumpSeconds(-3);}
+  const jumpNext15Seconds = () => {jumpSeconds(3);}
+  const jumpSeconds = (secsDelta) => {
+      if(list.isLoaded()){
+         list.getCurrentTime((secs, isPlaying) => {
+              let nextSecs = secs + secsDelta;
+              if(nextSecs < 0) nextSecs = 0;
+              else if(nextSecs > duration1) nextSecs = 14;
+              const t = getAudioTimeString(nextSecs);
+              list.setCurrentTime(nextSecs);
+              setPosition(t);
+              setPosition1(nextSecs);
+          })
+      }
   }
+
+  const getAudioTimeString=(seconds)=>{
+      const m = parseInt(seconds%(60*60)/60);
+      const s = parseInt(seconds%60);
+
+      return ( (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s));
+  }
+
+    useEffect(() => {
+      if(list!=null &&list.isLoaded()){
+      setduration(getAudioTimeString(list.getDuration()))
+      setduration1(list.getDuration())
+      }
+      if(list!=null &&list.isLoaded()){
+        const interval = setInterval(() => {
+
+          
+            // setPosition1(list._duration)
+            list.getCurrentTime((seconds) => {
+              
+              setPosition1(seconds)
+              
+              setPosition(getAudioTimeString(seconds))
+ 
+            })
+          
+        
+        }, 1000)
+        return () => clearInterval(interval); 
+      } 
+      }, []);
+      useEffect(() => {
+        if(list.isPlaying()){
+          setPlayState('playing')
+        }
+        else{
+          setPlayState('paused')
+        }
+        }, [list.isPlaying()]);
+    const playPause = () => {
+      if (list.isPlaying()) {
+        list.pause(()=>{
+          console.log('successfully pause');
+        });
+       // sound.setCurrentTime(position1)
+        setPlayState('paused')
+      } else {
+        // sound.play(playComplete);
+        setPlayState('playing')
+        list.play(success => {
+          if (success) {
+            console.log('successfully finished playing');
+            setPlayState('paused')
+            list.stop()
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }
+    };
+  
   return (
     <Animated.View style={styles.container}>
       <ScrollView>
      <View style={styles.box}>
-      {/* <FlatList
-            data={item.Question}
-            renderItem={({item, index}) => (
-          <Card 
-              question={item} 
-              index = {index}
-               />
-          )}/> */}
-           <FlatList
+        <FlatList
             data={item.Question}
             renderItem={({item, index}) => (
           <QuestionCard
               question={item.Q} 
               answer={item.A}
+              click={(i)=>click(i,index)}
+              Select = {check?.Select[index]}
+              Default = {check?.Default[index]}
+              flag={flag}
                />
           )}/>
      </View>
      </ScrollView>
       
      <View style={{flex:1}}/>
-      <View
+     <View
         style={{
           height: 70,
           backgroundColor: card_color,
@@ -111,26 +147,29 @@ const ListenP34QuestionForm = ({item,list}) => {
           justifyContent: 'space-evenly',
           alignItems: 'center',
         }}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={jumpPrev15Seconds}>
           <FontAwesome name="backward" color="black" size={20} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={playPause}>
-     {playState == 'playing'?<FontAwesome name="pause-circle" color="black" size={20} />:
-     <FontAwesome name="play-circle" color="black" size={20} />
-     }
-      </TouchableOpacity>
-        <TouchableOpacity>
+       <TouchableOpacity onPress={playPause}>
+       {playState == 'playing'?<FontAwesome name="pause-circle" color="black" size={20} />:
+       <FontAwesome name="play-circle" color="black" size={20} />
+       }
+        </TouchableOpacity>
+        <TouchableOpacity onPress={jumpNext15Seconds}>
           <FontAwesome name="forward" color="black" size={20} />
         </TouchableOpacity>
-        <Text style={styles.TimeFont}>00:00</Text>
+        <Text style={styles.TimeFont}>{position}</Text>
         <Slider
           style={{width: 100, height: 40}}
           minimumValue={0}
-          maximumValue={1}
-          minimumTrackTintColor="#FFFFFF"
+          maximumValue={duration1}
+          step={1}
+          minimumTrackTintColor="black"
           maximumTrackTintColor="#990000"
+          onValueChange={onSliderEditing}
+          value={position1}
         />
-        <Text style={styles.TimeFont}>00:17</Text>
+       {duration&&<Text style={styles.TimeFont}>{ duration}</Text>}
       </View>
   
     </Animated.View>

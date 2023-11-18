@@ -17,7 +17,7 @@ const permissions = [
   PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
   PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
 ];
-const SpeakP1QuestionForm = ({item, onRecordComplete}) => {
+const SpeakP1QuestionForm = ({item, onRecordComplete,flag, check}) => {
   const {user} = useContext(AuthContext);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -26,6 +26,7 @@ const SpeakP1QuestionForm = ({item, onRecordComplete}) => {
   const [duration, setDuration] = useState('00:00');
   const [position, setPosition] = useState();
   const [uri, setUri] = useState(null);
+
 
   const getPermissions = async () => {
     const granted = await PermissionsAndroid.requestMultiple(permissions);
@@ -94,7 +95,7 @@ const SpeakP1QuestionForm = ({item, onRecordComplete}) => {
       setDuration(recordTime);
       setRecordTime('');
 
-      onRecordComplete(result, item.QId);
+      onRecordComplete(result, item.Id);
     } catch (err) {
       console.error(err);
       Toast.show({
@@ -104,7 +105,11 @@ const SpeakP1QuestionForm = ({item, onRecordComplete}) => {
       });
     }
   };
-
+  useEffect(()=>{
+    if(flag != 'QuestionScreen'){
+      setUri(check.record)
+    }   
+  },[])
   const onStartPlay = async () => {
     try {
       console.log('onStartPlay');
@@ -187,7 +192,9 @@ const SpeakP1QuestionForm = ({item, onRecordComplete}) => {
       </View>
       <Text style={styles.TimeFont}>{duration}</Text>
     </View>
-    {!isRecording ? (
+    {flag == 'QuestionScreen' ? (
+    <>
+     {!isRecording ? (
       <TouchableOpacity style={{ alignSelf:'center', borderRadius:30, marginTop:'8%', borderWidth:3, borderColor:PRIMARY_COLOR, height:60, width:60, alignItems:'center', justifyContent:'center'}}
       onPress={onStartRecord}>
       <Icon name={'microphone-alt'} style={{color: PRIMARY_COLOR, fontSize: 30}} />
@@ -200,6 +207,9 @@ const SpeakP1QuestionForm = ({item, onRecordComplete}) => {
     )
     }
     <Text style={[styles.TimeFont, {fontSize: 20, marginTop: 5}]}>{recordTime}</Text>
+    </>): null
+    }
+   
     </Animated.View>
   );
 };

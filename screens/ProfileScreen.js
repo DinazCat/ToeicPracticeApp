@@ -9,6 +9,7 @@ import socketServices from '../api/socketService';
 const ProfileScreen = ({navigation, route}) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [posts, setPosts] = useState(null);
+  const [likes, setLikes] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [level, setLevel] = useState('0 (Basic Proficiency)');
   const [levelsource, setLevelSource] = useState(require('../assets/Lv0.png'))
@@ -48,12 +49,17 @@ const ProfileScreen = ({navigation, route}) => {
     socketServices.initializeSocket()
     getProfile();
     getPosts()
+    getpostLiked();
   }, []);
 
   const getPosts = async()=>{
     socketServices.on(userId+'userPosts',(data) => {
       setPosts(data)
     })
+  }
+  const getpostLiked = async()=>{
+    const data = await Api.filterOnlyPost(auth().currentUser.uid,'Liked')
+    setLikes(data)
   }
 //   const posts =[
 //     {
@@ -65,16 +71,16 @@ const ProfileScreen = ({navigation, route}) => {
 //       postImg: 'https://www.tailieuielts.com/wp-content/uploads/2020/12/Seperti-apa-sih-TOEICThumbnails-1024x585-1.jpg',   
 //     },
 // ];
-const likes=[
-    {
-      postId: 2,
-      userName: 'Cát Tường',
-      postTime: 'Wed October 28 2023 at 5.14.50 PM',
-      cate: 'Review Exam Experiences',
-      topic: 'Review đề thi IDP 12/10/2023',
-      postImg: 'https://www.tailieuielts.com/wp-content/uploads/2020/12/Seperti-apa-sih-TOEICThumbnails-1024x585-1.jpg',   
-    }
-  ]
+// const likes=[
+//     {
+//       postId: 2,
+//       userName: 'Cát Tường',
+//       postTime: 'Wed October 28 2023 at 5.14.50 PM',
+//       cate: 'Review Exam Experiences',
+//       topic: 'Review đề thi IDP 12/10/2023',
+//       postImg: 'https://www.tailieuielts.com/wp-content/uploads/2020/12/Seperti-apa-sih-TOEICThumbnails-1024x585-1.jpg',   
+//     }
+//   ]
   return (
     <ScrollView
       style={styles.container}
@@ -113,24 +119,27 @@ const likes=[
       <Text multiline style={styles.aboutUser}>
         {profileData ? profileData.about || 'No details added.' : ''}
       </Text>
+      {(userId==auth().currentUser.uid)?
       <TouchableOpacity
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'center',
-          marginBottom: 15,
-          width: 90,
-        }}
-        onPress={() => {
-          navigation.navigate('ChangeProfile', {profileData: profileData});
-        }}>
-        <Text style={[styles.userBtnTxt, {color: 'black'}]}>
-          {'Edit Profile'}
-        </Text>
-        <Icon
-          name={'pen'}
-          style={{color: 'black', fontSize: 20, marginLeft: '20%'}}
-        />
-      </TouchableOpacity>
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 15,
+        width: 90,
+      }}
+      onPress={() => {
+        navigation.navigate('ChangeProfile', {profileData: profileData});
+      }}>
+      <Text style={[styles.userBtnTxt, {color: 'black'}]}>
+        {'Edit Profile'}
+      </Text>
+      <Icon
+        name={'pen'}
+        style={{color: 'black', fontSize: 20, marginLeft: '20%'}}
+      />
+    </TouchableOpacity>
+    : null
+      }
       <View style={styles.userBtnWrapper}>
         <View style={styles.userBtn}>
           <Text style={styles.userBtnTxt}>{'Level ' + level}</Text>
@@ -149,7 +158,7 @@ const likes=[
                 backgroundColor: selectedTab == 0 ? '#F1A3A2' : '#fff',
               },
             ]}>
-            <Text style={styles.userInfoTitle}>1</Text>
+            <Text style={styles.userInfoTitle}>{posts?.length}</Text>
             <Text style={styles.userInfoSubTitle}>{'Posts'}</Text>
           </View>
         </TouchableOpacity>
@@ -164,11 +173,11 @@ const likes=[
                 backgroundColor: selectedTab == 1 ? '#A2F3AD' : '#fff',
               },
             ]}>
-            <Text style={styles.userInfoTitle}>{1}</Text>
+            <Text style={styles.userInfoTitle}>{likes?.length}</Text>
             <Text style={styles.userInfoSubTitle}>{'Likes'}</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => {
             setSelectedTab(2);
           }}>
@@ -182,7 +191,7 @@ const likes=[
             <Text style={styles.userInfoTitle}>{1}</Text>
             <Text style={styles.userInfoSubTitle}>{'Tests'}</Text>
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       {selectedTab == 0 && (
         <>
@@ -199,20 +208,21 @@ const likes=[
       )}
       {selectedTab == 1 && (
         <>
-          {likes.map((item, index) => (
+          {likes?.map((item, index) => (
             <PostCard
               key={index}
               item={item}
-              onCommentPress={() => navigation.navigate('CommentScreen', {})}
+              onCommentPress={() => navigation.navigate('CommentScreen', {postId:item.postId})}
               onGotoPostPress={() => navigation.navigate('PostScreen')}
               onUserPress={() => {
                 navigation.navigate('ProfileScreen', {userId: item.userId});
               }}
+              editright={false}
             />
           ))}
         </>
       )}
-      {selectedTab == 2 && (
+      {/* {selectedTab == 2 && (
         <>
           {following.map((item, index) => (
             <AvatarComponent
@@ -225,7 +235,7 @@ const likes=[
             />
           ))}
         </>
-      )}
+      )} */}
     </ScrollView>
   );
 }
