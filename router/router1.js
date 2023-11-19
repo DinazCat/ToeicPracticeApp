@@ -3,7 +3,7 @@ const router = express.Router();
 const {getVocabLesson, getVocabinLesson, getVocabs, setAlarmVocab, getAlarmVocab, updateAlarmVocab} = require('../controllers/Vocab')
 const {setUserInfo, updateUser, getAllUsers, getUserData,updateUserPrivate} = require ('../controllers/User')
 const {uploadAudio, uploadPracticeHistory} = require ('../controllers/SWskills')
-const {getQuestion, pushPracticeHistory, getOneQuestion} = require('../controllers/Question')
+const {getQuestion, pushPracticeHistory, getOneQuestion, addQuestion} = require('../controllers/Question')
 const {uploadPracticePlan, getPracticePlan, updatePracticePlan} = require('../controllers/PracticePlan')
 const {addPost, updatePost, addComment, getOneComment, addNotification, deleteNotification, updateNotification,
      filterOnlyPost,filterOnlyhashtag,filterBoth, pushSavedPost, getSavedPost, deletePost}=require('../controllers/Post')
@@ -25,6 +25,7 @@ router.post('/uploadPracticeHistory', uploadPracticeHistory)
 router.get('/Question/:Part/:userId/:number',getQuestion)
 router.post('/PracticeHistory/:userId/:sign',pushPracticeHistory)
 router.get('/oneQuestion/:Part/:Qid',getOneQuestion)
+router.post('/Question/:Part/add',addQuestion)
 //PracticePlan
 router.post('/PracticePlan/:userId/add', uploadPracticePlan)
 router.get('/PracticePlan/:userId', getPracticePlan)

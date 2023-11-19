@@ -257,4 +257,16 @@ const get1PHistory = async(list)=>{
   }
   return dataList;
  }
- module.exports={getQuestion, pushPracticeHistory, getOneQuestion, get1PHistory,getMaxquestion,pushHistoryUser1}
+
+ const addQuestion = async (req, res) => {
+  try {
+    const myCollection = collection(firestore, req.params.Part);
+    await addDoc(myCollection, req.body);
+    console.log("Document successfully add!");
+    res.send({ message: 'Question added successfully' });
+  } catch (error) {
+    console.error("Error adding document: ", error);
+    res.status(500).json({ success: false, message: 'something went wrong when adding question'});
+  }
+};
+ module.exports={getQuestion, pushPracticeHistory, getOneQuestion, get1PHistory,getMaxquestion,pushHistoryUser1, addQuestion}
