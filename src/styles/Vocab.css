@@ -1,0 +1,52 @@
+.leftbar li {
+    margin-top: 5px;
+}
+.BtnNormal{
+    background-color: white;
+    color: black;
+}
+.BtnClick{
+    background-color:green;
+    color: white;
+}
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* số cột */
+    grid-gap: 10px; /* khoảng cách giữa các hình */
+    overflow: hidden;
+  }
+.addBtn{
+    width: 100px;
+    height: 100px;
+  align-self: center;
+  display:grid;
+  margin: auto;
+  margin-top: 65px;
+}
+/* .addBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  } */
+.text-input{
+     height:100px;
+      width:600px;
+       display:flex;
+       align-items: center;
+       margin:auto;
+}
+.text-input2{
+    height:90px;
+     width:600px;
+      display:flex;
+      align-items: center;
+      margin:auto;
+}
+/* #TR{
+    width: 100px;
+    height: 25px;
+    margin-left: 5px;
+} */
+h3{
+    margin: 0;
+}

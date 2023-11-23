@@ -6,7 +6,6 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   flex-direction: column; 
 }
-
 .fileContainer{
   flex-direction: row;   
 }
@@ -19,6 +18,7 @@ label {
 
 .rlable{
   display: flex;
+  width: 70px;
   align-items: center;
 }
 
@@ -48,4 +48,26 @@ button {
 
 button:hover {
   background-color: #45a049;
+}
+.roundBtn1 {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  background-color: white;
+  color:black ;
+  border-width: 1px;
+  border-color: black;
+  cursor: pointer;
+  margin-right: 15px;
+}
+.roundBtn2 {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  background-color: green;
+  color:black ;
+  border-width: 1px;
+  border-color: black;
+  cursor: pointer;
+  margin-right: 15px;
 }
