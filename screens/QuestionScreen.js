@@ -49,7 +49,6 @@ const QuestionScreen = ({navigation, route}) => {
   const [loading, setloading] = useState(false);
   const [buttonTitle, setButtonTitle] = useState('Submit')
   const [recordingsList, setRecordingsList] = useState([]);
-  const [Score, setScore] = useState(0);
   const [history, setHistory] = useState([]);
   const recordsRef = useRef([]);
   const answersRef = useRef([]);
@@ -264,7 +263,7 @@ const gettime = ()=>{
       if (soundL!='-1'&&soundL[ItemIndex].isPlaying()) {
         soundL[ItemIndex].stop();
       }
-            const time = gettime()
+      const time = gettime()
       const data = {
         PartName:partName,
         Part:part,

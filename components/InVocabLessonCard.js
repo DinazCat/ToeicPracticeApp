@@ -88,6 +88,7 @@ const InVocabLessonCard = ({navigation,route}) => {
     function RenderModal() {
       return (
         <Modal visible={OpenModal} animationType="slide" transparent={true}>
+          <View style={[styles.container,{backgroundColor:'rgba(0, 0, 0, 0.3)'}]}>
           <View style={{ height:200,width:"90%", borderRadius:15 ,backgroundColor:'white',borderColor:'black', borderWidth:2, alignSelf:'center', marginVertical:300,backgroundColor:'white', position:'absolute'}}>
             <View style={{flexDirection:'row', height:50, alignItems:'center', justifyContent:"space-between"}}>
             <Text style={{    fontSize: 20, marginLeft: 5, color: 'black',fontWeight: '500',}}>Example</Text>
@@ -104,7 +105,8 @@ const InVocabLessonCard = ({navigation,route}) => {
             </View>
            {vocabs&&<Text style={{fontSize: 18, marginLeft: 5, color: 'black',fontWeight: '400',}}>{vocabs[i]?vocabs[i].Example:'i'}</Text>}
           </View>
-          </Modal>
+          </View>
+        </Modal>
       )
     }
     const saveAlarm=async()=>{
@@ -164,11 +166,11 @@ const InVocabLessonCard = ({navigation,route}) => {
             marginBottom:'5%'
           }}>
           <TouchableOpacity style={styles.buttonStyle} onPress={()=>navigation.push('Game',{vocabList:vocabs})}>
-            <FontAwesome name="gamepad" color="black" size={30} />
+            <FontAwesome name="gamepad" color="white" size={30} />
             <Text style={styles.TextFont}>Game</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonStyle} onPress={showAlert}>
-            <Icon name={'clock'} style={{color: 'black', fontSize: 30}} />
+            <Icon name={'clock'} style={{color: 'white', fontSize: 30}} />
             <Text style={styles.TextFont}>Remind</Text>
           </TouchableOpacity>
         </View>
@@ -201,10 +203,11 @@ const styles = StyleSheet.create({
   buttonStyle: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: 20,
     backgroundColor: PRIMARY_COLOR,
     width: 150,
     justifyContent: 'center',
+    paddingVertical: 4
   },
   boxstyle: {
     flexDirection: 'row',

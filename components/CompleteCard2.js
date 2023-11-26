@@ -148,7 +148,7 @@ const CompleteCard2=({navigation,route})=> {
               fontSize: 25,
               marginLeft: 5,
             }}>
-            You need to try harder
+            Congratulations!
           </Text>
           <Text style={[styles.TextFont, {fontWeight: '400'}]}>
             You have completed the exercise

@@ -8,10 +8,13 @@ import PartPracticePlan from '../screens/PartPracticePlan';
 import ChoosePracticePlan from '../screens/ChoosePracticePlan';
 import PracticePlanTime from '../screens/PracticePlanTime';
 import QuestionScreen from '../screens/QuestionScreen';
-import Test from '../screens/Test';
+import TestQuestions from '../screens/TestQuestions';
 import InPartCard from '../components/InPartCard';
 import InTestCard from '../components/InTestCard';
 import CompleteCard from '../components/CompleteCard';
+import ResultTable from '../components/ResultTable';
+import CompleteTestCard from '../components/CompleteTestCard';
+import ReviewQuestion from '../screens/ReviewQuestion';
 import Api from '../api/Api';
 import { AuthContext } from './AuthProvider';
 
@@ -54,6 +57,10 @@ const PracticePlanStack = () => {
         <Stack.Screen name='InTestCard' component={InTestCard} options={{ header: () => null }}/>
         <Stack.Screen name='QuestionScreen' component={QuestionScreen} options={{ header: () => null }}/>
         <Stack.Screen name='CompleteCard' component={CompleteCard} options={{ header: () => null }}/>
+        <Stack.Screen name='TestQuestions' component={TestQuestions} options={{ header: () => null }}/>
+        <Stack.Screen name='ResultTable' component={ResultTable} options={{ header: () => null }}/>
+        <Stack.Screen name='CompleteTestCard' component={CompleteTestCard} options={{ header: () => null }}/>
+        <Stack.Screen name='ReviewQuestion' component={ReviewQuestion} options={{ header: () => null }}/>
     </Stack.Navigator>
   )
 }

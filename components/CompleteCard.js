@@ -15,24 +15,26 @@ const CompleteCard=({navigation,route})=> {
   const [score, setScore] = useState(0)
   const [quantity1, setQuantity1] = useState(route.params.quantity)
   const SetScore = ()=>{
+    let score = 0;
     if(part=='L1'||part=='L2'||part=='R1'){
     for(let i = 0 ; i < questionL.length; i++){
       if(answer[i].Select==answer[i].Default){
-        const p = score + 1;
-        setScore(p);
+        score = score + 1;
       }
     }
+    setScore(score);
   }
   else{
     for(let i = 0 ; i < questionL.length; i++){
       for(let j = 0; j < answer[i].Default.length; j++){
         if(answer[i].Select[j]==answer[i].Default[j]){
-          const p = score + 1;
-          setScore(p);
+          score = score + 1;
         }
       }
     }
+    setScore(score);
   }
+  
   }
   const setReview= async()=>{
     const list=[]
@@ -166,7 +168,7 @@ const CompleteCard=({navigation,route})=> {
               fontSize: 25,
               marginLeft: 5,
             }}>
-            You need to try harder
+            Congratulations!
           </Text>
           <Text style={[styles.TextFont, {fontWeight: '400'}]}>
             You have completed the exercise
@@ -180,13 +182,13 @@ const CompleteCard=({navigation,route})=> {
         </View>
         <Text
           style={{
-            marginLeft: '4%',
+            marginLeft: '6%',
             marginTop: '10%',
             fontSize: 25,
             fontWeight: '500',
             color: 'black',
           }}>
-          Consult: {score}/{quantity1}
+          Result: {score}/{quantity1}
         </Text>
         <View style={styles.boxstyle}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>

@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     btnText: {
-        fontSize: 18,
+        fontSize: 17,
         color: "#FFF",
     },
     cont1: {

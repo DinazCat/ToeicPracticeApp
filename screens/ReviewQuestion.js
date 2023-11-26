@@ -39,7 +39,7 @@ import {
   const {width} = Dimensions.get('window');
   const ReviewQuestion = ({navigation, route}) => {
     const scrollX = useRef(new Animated.Value(0)).current;
-    const {questionList,indication,History,part} = route.params;
+    const {questionList,indication,History,part,isMiniTest} = route.params;
     const [soundL, setsoundL] = useState(null);
     const [ItemIndex, setItemIndex] = useState(0);
     // const [oldIndex, setoldIndex] = useState(0);
@@ -55,39 +55,44 @@ import {
     const list = [];
     const createsound = () => {
       for (let i = 0; i < questionList.length; i++) {
-        const sound = new Sound(questionList[i].Audio,null, error => {
-          if (error) {
-            console.log('failed to load the sound', error);
-            return;
-          }
-          else{
-
-            if(i==questionList.length-1) {setloading(true);}
-        
-          }
-        });
-        list.push(sound);
-        setsoundL(list);
-        
+        if(questionList[i].Audio != undefined) {
+          const sound = new Sound(questionList[i].Audio,null, error => {
+            if (error) {
+              console.log('failed to load the sound', error);
+              return;
+            }
+            else{
+              if(isMiniTest){
+                if(i==4) {setloading(true);}
+              }
+              else{
+                if(i==questionList.length-1) {setloading(true);}
+              }     
+            }
+          });
+          list.push(sound);
+        }     
       }
+      setsoundL(list); 
     };
   
     useEffect(() => {
-      if(part=='L1'||part=='L2'||part=='L3'||part=='L4')
-      createsound();
-    else setsoundL('-1')
+      if(isMiniTest || part=='L1'||part=='L2'||part=='L3'||part=='L4')
+        createsound();
+      else setsoundL('-1')
     }, []);
     useEffect(() => {
       scrollX.addListener(({value}) => {
         const index = Math.round(value / width);
         setItemIndex(index);
-        if(loading && (part=='L1'||part=='L2'||part=='L3'||part=='L4')){
-        for(let i = 0; i < soundL.length; i++)
+        if(loading && (isMiniTest || part=='L1'||part=='L2'||part=='L3'||part=='L4')){
+          for(let i = 0; i < soundL.length; i++)
             {
               if(i != index &&soundL[i].isPlaying()){
                 soundL[i].stop();
               }       
             }
+          if(index < soundL.length){
             soundL[index].play(success => {
               if (success) {
                 console.log('successfully finished playing');
@@ -96,13 +101,14 @@ import {
                 console.log('playback failed due to audio decoding errors');
               }
             });
-       
+          }             
       }
       });
     }, [loading]);
     useEffect(()=>{
-    if(loading && (part=='L1'||part=='L2'||part=='L3'||part=='L4'))
+    if(loading && (isMiniTest || part=='L1'||part=='L2'||part=='L3'||part=='L4')){
       flatListRef.current.scrollToIndex({ index: indication, animated: true });
+    }
     },[loading])
     useEffect(()=>{
       if(soundL=='-1')
@@ -198,27 +204,36 @@ import {
             </TouchableOpacity>
             {ExplainButton == '1' && 
               <View style={{marginLeft: 5, marginTop: 10}}>
-                 <Text>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script}
+                 <Text style={styles.answertext2}>
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script?.split("(")[1]}
                   {questionList[ItemIndex]&&questionList[ItemIndex].Explain.SampleAnswer}
+                 </Text>
+                 <Text style={styles.answertext2}>
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script?.split("(")[2]}
+                 </Text>
+                 <Text style={styles.answertext2}>
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script?.split("(")[3]}
+                 </Text>
+                 <Text style={styles.answertext2}>
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script?.split("(")[4]}
                  </Text>
               </View>
             }
             {ExplainButton == '2' && (
               <View style={{marginLeft: 5, marginTop: 10}}>
-               <Text>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate}
+               <Text style={styles.answertext2}>
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate?.split("(")[1]}
                   {questionList[ItemIndex]&&questionList[ItemIndex].Explain.Translation}
                  </Text>
-              </View>
-            )}
-            {ExplainButton == '3' && (
-              <View style={{marginLeft: 5, marginTop: 10}}>
-               <Text>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.tip}
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.Tips}
+                 <Text style={styles.answertext2}>
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate?.split("(")[2]}
                  </Text>
-                
+                 <Text style={styles.answertext2}>
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate?.split("(")[3]}
+                 </Text>
+                 <Text style={styles.answertext2}>
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate?.split("(")[4]}
+                 </Text>
               </View>
             )}
           </View>
@@ -231,8 +246,8 @@ import {
           <TouchableOpacity
             style={{marginLeft: '2%'}}
             onPress={()=>{
-                navigation.goBack(),
-              (soundL!='-1')&&soundL[ItemIndex].stop()
+              navigation.goBack(),
+              (soundL!='-1')&&(ItemIndex<soundL.length)&&soundL[ItemIndex].stop()
             }}>
             <FontAwesome name="chevron-left" color="white" size={20} />
           </TouchableOpacity>
@@ -313,11 +328,11 @@ import {
                    return <WriteP1QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={History[index]}/>;
                  } else if (part == 'W2' || 'W3') {
                    return <WriteP23QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={History[index]}/>;
-                 }        
+                 }       
               }}
-            />:
-              (!loading)? <LottieView source={require('../assets/animation_lnu2onmv.json')} autoPlay loop style={{flex: 1, width:100, height:100, alignSelf:'center'}}/>:
-              <Animated.FlatList
+            />
+              : (!loading)? <LottieView source={require('../assets/animation_lnu2onmv.json')} autoPlay loop style={{flex: 1, width:100, height:100, alignSelf:'center'}}/>
+              : <Animated.FlatList
               data={questionList}
               contentContainerStyle={styles.listContent}
               horizontal
@@ -341,21 +356,22 @@ import {
                 ],
                 {useNativeDriver: true},
               )}
-              renderItem={({item, index}) => {
-                
-                if(part=='L1'){
+              renderItem={({item, index}) => {              
+                if(part=='L1' || item.part == 'L1'){
                   return(
-                <ListenP1QuestionForm item={item} list={soundL[index]} flag={'ReviewQuestion'} check={History[index]}/>
+                  <ListenP1QuestionForm item={item} list={soundL[index]} flag={'ReviewQuestion'} check={History[index]}/>
                   )}
-                else if(part=='L2'){
-                return(
-              <ListenP2QuestionForm item={item} list={soundL[index]}  flag={'ReviewQuestion'} check={History[index]} />
-                )}
-                else if(part=='L3'||part=='L4'){
+                else if(part=='L2' || item.part == 'L2'){
                   return(
-                <ListenP34QuestionForm item={item} list={soundL[index]}  flag={'ReviewQuestion'} check={History[index]}/>
+                  <ListenP2QuestionForm item={item} list={soundL[index]}  flag={'ReviewQuestion'} check={History[index]} />
                   )}
-                  
+                else if(part=='L3'||part=='L4' || item.part == 'L3'|| item.part == 'L4'){
+                  return(
+                  <ListenP34QuestionForm item={item} list={soundL[index]}  flag={'ReviewQuestion'} check={History[index]}/>
+                  )}                  
+                else if(item.part == 'R2' || item.part == 'R3' || item.part == 'R1') {
+                  return <ReadP23QuestionForm item={item} part={item.part} flag={'ReviewQuestion'} check={History[index]}/>;
+                }              
               }}
             />
                          
@@ -449,6 +465,10 @@ import {
     ExplainFontFalse: {
       color: 'white',
       fontSize: 18,
+    },
+    answertext2: {
+      color: '#333',
+      fontSize: 17,
     },
   });
   export default ReviewQuestion;

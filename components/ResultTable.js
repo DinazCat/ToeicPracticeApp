@@ -16,22 +16,26 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import ResultCard from './ResultCard';
 import SmallHistoryCard from './SmallHistoryCard';
 const ResultTable=({route, navigation})=>{
-const {History,questionList,part,score,quantity} = route.params
+const {History,questionList,part,score,quantity,isMiniTest} = route.params
 const [unanswered, setUnanswered] = useState(0)
-// numbers.filter(number => number === -1).length
+
 useEffect(() => {
- for(let i = 0; i < History.length; i++){
-  if(Array.isArray(History[i].Select)){
-    const sum = History[i].Select.filter(number => number === -1).length
-    const sum1 = sum+unanswered
-    setUnanswered(sum1)
-  }
+  let unAnswers = 0;
+  for(let i = 0; i < History.length; i++){
+    if(Array.isArray(History[i].Select)){
+      const sum = History[i].Select.filter(number => number === -1).length
+      // const sum1 = sum+unanswered
+      // setUnanswered(sum1)
+      unAnswers = unAnswers + sum;
+    }
   else{
     if(History[i].Select == -1){
-      const sum1 = 1+unanswered
-      setUnanswered(sum1)
+      // const sum1 = 1+unanswered
+      // setUnanswered(sum1)
+      unAnswers= unAnswers + 1;
     }
   }
+  setUnanswered(unAnswers);
  }
 }, []);
 return (
@@ -93,7 +97,8 @@ return (
     <FlatList
       data={History}
       renderItem={({item, index}) => {
-        if (part != 'L3' && part != 'L4'&&part != 'R2' && part != 'R3') {
+        if ((part && part != 'L3' && part != 'L4'&&part != 'R2' && part != 'R3') 
+        || (isMiniTest && item.part != 'L3' && item.part != 'L4' && item.part != 'R2' && item.part != 'R3')) {
           return (
             <ResultCard
               defaultanswer={item.Default}
@@ -105,7 +110,8 @@ return (
                   questionList: questionList,
                   indication: index,
                   History: History,
-                  part: part,
+                  part: part? part: null,
+                  isMiniTest: route.params.isMiniTest
                 });
               }}
             />
@@ -117,14 +123,15 @@ return (
               <ResultCard
                 defaultanswer={each}
                 useranswer={item.Select[key]}
-                question={(key + 1) / 10}
+                question={index + (( key + 1) / 10)}
                 id={item.Qid}
                 click={() => {
                   navigation.push('ReviewQuestion', {
                     questionList: questionList,
                     indication: index,
                     History: History,
-                    part: part,
+                    part: part? part: null,
+                    isMiniTest: route.params.isMiniTest
                   });
                 }}
               />
@@ -133,12 +140,6 @@ return (
           }
       }}
     />
-    {/* <ConsultCard defaultanswer={'A'} useranswer={'A'}/>
-    <ConsultCard defaultanswer={'B'} useranswer={'C'}/>
-    <ConsultCard defaultanswer={'D'} useranswer={"C"}/>
-    <ConsultCard defaultanswer={'A'} useranswer={"A"}/>
-    <ConsultCard defaultanswer={'B'} useranswer={'B'}/>
-    <ConsultCard defaultanswer={'D'} useranswer={'D'}/> */}
   </View>
 );
 }

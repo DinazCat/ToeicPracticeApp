@@ -195,9 +195,8 @@ const AddPostScreen = ({navigation,route}) => {
             userName:profileData.name||profileData.email,
             hashtag:hashtag
           }
-          await Api.addPost(data).then(()=>{
-            navigation.navigate('Forum')
-          })
+          await Api.addPost(data);
+          Alert.alert('Success!', "Your post have push successfully");
           
         }
       }
@@ -243,9 +242,7 @@ const AddPostScreen = ({navigation,route}) => {
             hashtag:hashtag
           }
           Alert.alert('Success!', "Your post have push successfully");
-          await Api.addPost(data)
-            
-          
+          await Api.addPost(data)   
         }
       }
       

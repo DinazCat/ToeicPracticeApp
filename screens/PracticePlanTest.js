@@ -3,6 +3,7 @@ import React from 'react'
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Api from '../api/Api';
 
 const PracticePlanTest=({navigation, route})=> {
 
@@ -34,8 +35,8 @@ const PracticePlanTest=({navigation, route})=> {
     questionList = questionList.concat(getRandomQuestions(listP6, 1, 'R2'));
     questionList = questionList.concat(getRandomQuestions(listP7, 1, 'R3'));
 
-    console.log(questionList);
-    navigation.navigate('TestQuestions', {questionList: questionList});
+    //console.log(questionList);
+    navigation.navigate('TestQuestions', {questionList: questionList, isFromPL: true, isMiniTest: true, targetLevel: route.params.targetLevel});
   }
 
   return (
@@ -49,10 +50,10 @@ const PracticePlanTest=({navigation, route})=> {
         </View>
       <View style={{marginTop:'90%', width:'80%', alignSelf:'center'}}>
       <Text style={{fontSize:20, color:'black', textAlign:'center', fontWeight:'500'}}>To begin, let's take an assessment test to determine the appropriate practice plan.</Text>
-      <Text style={[styles.TextStyle, {marginTop:'5%'}]}>Time: 11m35s</Text>
-      <Text style={styles.TextStyle}>Question: 14</Text>
+      <Text style={[styles.TextStyle, {marginTop:'5%'}]}>Time: 12m</Text>
+      <Text style={styles.TextStyle}>Question: 8</Text>
       </View>
-      <TouchableOpacity style={[AppStyle.button.button2,{marginTop:'10%'}]} onPress={() => navigation.navigate('PracticePlanTime', {targetLevel: route.params.targetLevel, currentLevel: 2})}>
+      <TouchableOpacity style={[AppStyle.button.button2,{marginTop:'10%'}]} onPress={onBegin}>
         <Text style={AppStyle.button.button2_Text}>Begin</Text>
       </TouchableOpacity>
      

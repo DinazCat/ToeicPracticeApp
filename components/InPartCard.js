@@ -154,7 +154,7 @@ const InPartCard = ({route, navigation}) => {
             </Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
               <Text style={[styles.TextFont, {fontWeight: '300', marginRight:5}]}>Progress:</Text>
-              <Progress.Bar progress={0.3} width={120} height={10} style={{height:10,}} color={PRIMARY_COLOR}/>
+              <Progress.Bar progress={0} width={120} height={10} style={{height:10,}} color={PRIMARY_COLOR}/>
             </View>
           </View>
         </View>

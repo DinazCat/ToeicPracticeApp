@@ -8,8 +8,9 @@ const PracticePlanTime = ({navigation, route}) => {
     const [selectedOption, setSelectedOption] = useState(0);
     const [alert, setAlert] = useState('');
     const onStart = async () => {
-      console.log(selectedOption + alert);
       if(selectedOption !== 0 && alert === ''){
+        console.log(currentLevel);
+        console.log(targetLevel);
         const result = await Api.addPracticePlan(currentLevel, targetLevel, selectedOption)
         if(result == 'Success')
           navigation.navigate('PracticePlan');
@@ -63,7 +64,7 @@ const PracticePlanTime = ({navigation, route}) => {
             <TouchableOpacity style={[styles.btn, {backgroundColor: selectedOption == 120 ? PRIMARY_COLOR : '#fff'}]} 
             onPress={()=>{
               setSelectedOption(120)
-              if(120 < (targetLevel - currentLevel) * 30){
+              if(120 < (targetLevel - currentLevel) * 23){
                 setAlert('*This plan is not appropriate to you.')
               }
               else {setAlert('')};

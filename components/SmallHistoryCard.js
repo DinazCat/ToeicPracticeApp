@@ -41,7 +41,7 @@ const SmallHistoryCard = ({display,click}) => {
     else setShowPercent(false)
   },[])
   return (
-    <TouchableOpacity style={{flexDirection:'row', height:40, justifyContent:'space-between', alignItems:'center', width:'90%',marginTop:5}} onPress={click}>
+    <TouchableOpacity style={{flexDirection:'row', height:50, justifyContent:'space-between', alignItems:'center', width:'97%',marginTop:5, justifyContent: 'center'}} onPress={click}>
      {display.Part=='L1'&& <Image  style={{width:'15%', height:40,}} source={require("../assets/headphones.png")} resizeMode='contain'/>}
      {display.Part=='L2'&& <Image  style={{width:'15%', height:40,}} source={require("../assets/headphones.png")} resizeMode='contain'/>}
      {display.Part=='L3'&& <Image  style={{width:'15%', height:40,}} source={require("../assets/headphones.png")} resizeMode='contain'/>}

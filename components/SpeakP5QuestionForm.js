@@ -148,6 +148,10 @@ const SpeakP5QuestionForm = ({item, onRecordComplete,flag, check}) => {
           newPositions[index] = currentPosition;
           setPositions(newPositions);
 
+          const newDurations = [...durations];
+          newDurations[index] = formatTime(e.duration);
+          setDurations(newDurations);
+
           if(e.currentPosition == e.duration){
             const newIsPlaying = [...isPlaying];
             newIsPlaying[index] = false;

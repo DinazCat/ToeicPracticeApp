@@ -9,6 +9,7 @@ import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFetchBlob from 'rn-fetch-blob';
 import Api from '../api/Api';
 import { AuthContext } from '../navigation/AuthProvider';
+import Sound from 'react-native-sound';
 
 const {width} = Dimensions.get('window');
 const audioRecorderPlayer = new AudioRecorderPlayer();
@@ -75,9 +76,8 @@ const SpeakP1QuestionForm = ({item, onRecordComplete,flag, check}) => {
     console.log('start recording');
     const result = await audioRecorderPlayer.startRecorder(path);
     audioRecorderPlayer.addRecordBackListener((e) => {
-      // console.log('record time: ' + audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)))
-      setRecordTime(formatTime(e.currentPosition));
-      
+      //console.log('record time: ' + audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)))
+      setRecordTime(formatTime(e.currentPosition))   
     });
     setIsRecording(true);
     setUri(path);
@@ -105,11 +105,6 @@ const SpeakP1QuestionForm = ({item, onRecordComplete,flag, check}) => {
       });
     }
   };
-  useEffect(()=>{
-    if(flag != 'QuestionScreen'){
-      setUri(check.record)
-    }   
-  },[])
   const onStartPlay = async () => {
     try {
       console.log('onStartPlay');
@@ -134,6 +129,30 @@ const SpeakP1QuestionForm = ({item, onRecordComplete,flag, check}) => {
     await audioRecorderPlayer.pausePlayer();
     setIsPlaying(false);
   };
+
+  const getAudioTimeString=(seconds)=>{
+    const m = parseInt(seconds%(60*60)/60);
+    const s = parseInt(seconds%60);
+
+    return ( (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s));
+  }
+  const getDuration = async()=>{
+    const sound = new Sound(check.record, null, error => {
+      if (error) {
+        console.log('failed to load the sound', error);
+        return;
+      }
+      else{
+        setDuration(getAudioTimeString(sound.getDuration()))
+      }
+    });
+  }
+  useEffect(()=>{
+    if(flag != 'QuestionScreen'){   
+      setUri(check.record)
+      getDuration();
+    }   
+  },[])
 
   return (
     <Animated.View style={styles.container}>    

@@ -19,16 +19,22 @@ const ResultCard=({ defaultanswer, useranswer, question, id, click})=> {
 return (
   <TouchableOpacity onPress={click} >
     <View style={styles.AnswersWrapper}>
-   {defaultanswer==useranswer? <Icon
+        {defaultanswer==useranswer? 
+        <Icon
           name={'check'}
           style={{color: PRIMARY_COLOR, fontSize: 20,  marginLeft:10, width:'10%'}}
-        />:
+        />: useranswer == -1 ?
+        <Icon
+          name={'minus'}
+          style={{color: '#2774D0', fontSize: 20,  marginLeft:10,width:'10%'}}
+        />
+        :
         <Icon
           name={'times'}
           style={{color: 'red', fontSize: 20,  marginLeft:10,width:'10%'}}
         />
         }
-        <Text style={{color:'black', fontSize:18, fontWeight:'400', }}> Question {question+1}</Text>
+        <Text style={{color:'black', fontSize:16, fontWeight:'400', width: 95 }}> Question {question+1}</Text>
         <View style={{flexDirection:'row', alignItems:'center', justifyContent:"space-evenly", width:'65%'}}>
           <TouchableOpacity style={[styles.answerboxStyle,{ backgroundColor:(defaultanswer==0)?PRIMARY_COLOR:(useranswer==0)?'red':'white'}]}>
               <Text style={styles.answertext}>A</Text>
@@ -50,7 +56,7 @@ return (
 const styles = StyleSheet.create({
 
 answerboxStyle:{
-  width:30, height:30,backgroundColor:'white', borderRadius:25,borderColor:'black', borderWidth:2, alignItems:'center', justifyContent:'center'
+  width:30, height:30,backgroundColor:'white', borderRadius:25,borderColor:'black', borderWidth:1.5, alignItems:'center', justifyContent:'center'
 },
 answertext:{
   color:'black',fontWeight:'500', fontSize:20
