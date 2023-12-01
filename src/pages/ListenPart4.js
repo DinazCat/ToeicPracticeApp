@@ -48,7 +48,7 @@ function ListenPart4({flag, index, complete, item}) {
         if(number[i].A[j].status) correct.push(j)
       }
     }
-    if (flag != "Test") {
+    if (flag === "submit") {
       let data = {
         Audio: audioFile,
         Question: number,
@@ -60,9 +60,10 @@ function ListenPart4({flag, index, complete, item}) {
         Correct: correct,
         Order: await api.countQuestion("ListenPart4"),
       };
-
+      alert('Add question successfully')
       await api.addQuestion("ListenPart4", data);
-    } else {
+    } 
+    else if(flag === 'Test'){
       let data = {
         Audio: audioFile,
         Question: number,
@@ -73,6 +74,21 @@ function ListenPart4({flag, index, complete, item}) {
         },
         Correct: correct,
       };
+      alert('Add successfully')
+      complete(data);
+    }
+    else if(flag === 'fix'){
+      let data = {
+        Audio: audioFile,
+        Question: number,
+        Explain: {
+          script: script,
+          tip: tip,
+          translate: translation,
+        },
+        Correct: correct,
+      };
+      alert('Update successfully')
       complete(data);
     }
   };
@@ -80,6 +96,48 @@ function ListenPart4({flag, index, complete, item}) {
   return (
     <div className='addQuestion'>
       {(flag!='Test')?<h2>Add Question Listen part 4</h2>:<h2>Question {index+1} </h2>}
+    {(flag==='see')&&<>
+      <div className='fileContainer'>
+        <label>
+          Audio:
+          <input type="file" accept="audio/*" onChange={handleAudioChange} />
+          <text style={{font:12}}>or input the link:</text>
+          <input type='url' onChange={(e) => setAudioFile(e.target.value)} value={item.Audio}/>
+        </label>
+      </div>
+
+
+      <label>Question:</label>
+     
+      {
+        item.Question.map((each,key)=>{
+            return(
+            <QuestionForm 
+            index={key} 
+            item = {each}
+            flag ={'see'}
+           />)
+        })
+      }
+
+
+      <label>
+        Script:
+        <textarea value={item.Explain.script} onChange={(e) => setScript(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Tip:
+        <textarea value={item.Explain.tip} onChange={(e) => setTip(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Translation:
+        <textarea value={item.Explain.translate} onChange={(e) => setTranslation(e.target.value)} rows="4" />
+      </label>
+
+    </>}
+    {(flag!=='see')&&<>
       <div className='fileContainer'>
         <label>
           Audio:
@@ -140,7 +198,10 @@ function ListenPart4({flag, index, complete, item}) {
         <textarea value={translation} onChange={(e) => setTranslation(e.target.value)} rows="4" />
       </label>
 
-      {(flag!='Test')?<button onClick={handleSubmit}>Submit</button>:<button onClick={handleSubmit}>Add</button>}
+    </>}
+      {(flag==='Test')&&<button onClick={handleSubmit}>Add</button>}
+{(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
+{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
     </div>
   );
 }

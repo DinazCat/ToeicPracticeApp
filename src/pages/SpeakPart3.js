@@ -4,12 +4,12 @@ import '../styles/Questions.css';
 import api from '../api/Api';
 import client from '../api/client';
 import axios from 'axios';
-function SpeakPart3() {
-  const [translation, setTranslation] = useState(['','','','']);
-  const [context, setContext] = useState('');
-  const [question, setQuestion] = useState(['','','']);
-  const [sampleAnswer, setSampleAnswer] = useState(['','','']);
-  const [tip, setTip] = useState(['','','']);
+function SpeakPart3({item,complete,flag}) {
+  const [translation, setTranslation] = useState(item?.Explain?.Translation||['','','','']);
+  const [context, setContext] = useState(item?.Context||'');
+  const [question, setQuestion] = useState(item?.Question||['','','']);
+  const [sampleAnswer, setSampleAnswer] = useState(item?.Explain?.SampleAnswer||['','','']);
+  const [tip, setTip] = useState(item?.Explain?.Tips||['','','']);
 
 const handleSetQuestion=(i, t)=>{
     let list = question.slice();
@@ -34,28 +34,126 @@ const handleSetTips=(i, t)=>{
 }
   const handleSubmit = async () => {
     
-    let data = {
-      Question: question,
-      Context: context,
-      Explain: {
-        SampleAnswer: sampleAnswer,
-        Tips: tip,
-        Translation:translation,
-      },
-      Order:await api.countQuestion('SpeakPart3')
+    if(flag==='submit'){
+      let data = {
+        Question: question,
+        Context: context,
+        Explain: {
+          SampleAnswer: sampleAnswer,
+          Tips: tip,
+          Translation:translation,
+        },
+        Order:await api.countQuestion('SpeakPart3')
+      }
+      //console.log(data);
+  
+      // const response = await axios.post('http://192.168.1.103:3000/api/Question/uploadAudio', formData1);
+      
+       await api.addQuestion('SpeakPart3', data);
     }
-    //console.log(data);
-
-    // const response = await axios.post('http://192.168.1.103:3000/api/Question/uploadAudio', formData1);
-    
-     await api.addQuestion('SpeakPart3', data);
+    else if(flag==='fix'){
+      let data = {
+        Question: question,
+        Context: context,
+        Explain: {
+          SampleAnswer: sampleAnswer,
+          Tips: tip,
+          Translation:translation,
+        }
+      }
+      complete(data)
+    }
   };
 
   return (
     <div className='addQuestion'>
       <h2>Add Question Speak part 3</h2>
       
+     {(flag==='see')&&<>
+     <label>
+      <h3>Context:</h3>
+        <textarea value={item.Context} onChange={(e) => setContext(e.target.value)} rows="4" />
+      </label>
+      <div style={{display:'grid'}}>
+      <h3 style={{marginLeft:5}}>Question:</h3>
+      <div style={{backgroundColor:'#E8E8E8',display:'grid'}}>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>1/</h3>
+             <input type='text' onChange={(e) => {handleSetQuestion(0,e.target.value)}} value={item?.Question[0]} id='TR'></input> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>2/</h3>
+             <input type='text' onChange={(e) => {handleSetQuestion(1,e.target.value)}} value={item?.Question[1]} id='TR'></input> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>3/</h3>
+             <input type='text' onChange={(e) => {handleSetQuestion(2,e.target.value)}} value={item?.Question[2]} id='TR'></input> 
+        </div>
+        </div>
+        </div>
+
       <label>
+      <h3>Translation:</h3>          
+      <label>
+        Context:
+        <textarea value={item.Explain.Translation[0]} onChange={(e) => handleSetTrans(0,e.target.value)} rows="4" />
+      </label>
+      <label>
+        Question:
+        <div style={{display:'grid', backgroundColor:'#E8E8E8', marginTop:5}}>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>1/</h3>
+             <input type='text' onChange={(e) => {handleSetTrans(1,e.target.value)}} value={item.Explain.Translation[1]} id='TR'></input> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>2/</h3>
+             <input type='text' onChange={(e) => {handleSetTrans(2,e.target.value)}} value={item.Explain.Translation[2]} id='TR'></input> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>3/</h3>
+             <input type='text' onChange={(e) => {handleSetTrans(3,e.target.value)}} value={item.Explain.Translation[3]} id='TR'></input> 
+        </div>
+        </div>
+      </label>
+      </label>
+      <div style={{marginTop:20}}>
+      <h3>Sample Answer:</h3>
+        <div style={{display:'grid', marginTop:5}}>
+         <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>1/</h3>
+             <textarea onChange={(e) => {handleSetSample(0,e.target.value)}} value={item.Explain.SampleAnswer[0]} id='TR'></textarea> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>2/</h3>
+             <textarea  onChange={(e) => {handleSetSample(1,e.target.value)}} value={item.Explain.SampleAnswer[1]} id='TR'></textarea> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>3/</h3>
+             <textarea  onChange={(e) => {handleSetSample(2,e.target.value)}} value={item.Explain.SampleAnswer[2]} id='TR'></textarea> 
+        </div>
+        </div>
+      </div>
+      <div style={{marginTop:20}}>
+      <h3>Tips:</h3>
+        <div style={{display:'grid',backgroundColor:'#E8E8E8', marginTop:5}}>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>1/</h3>
+             <textarea  onChange={(e) => {handleSetTips(0,e.target.value)}} value={item.Explain.Tips[0]} id='TR'></textarea> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>2/</h3>
+             <textarea  onChange={(e) => {handleSetTips(1,e.target.value)}} value={item.Explain.Tips[1]} id='TR'></textarea> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5, marginTop:5}}>
+            <h3>3/</h3>
+             <textarea  onChange={(e) => {handleSetTips(2,e.target.value)}} value={item.Explain.Tips[2]} id='TR'></textarea> 
+        </div>
+        </div>
+      </div>
+
+     </>}
+     {(flag!=='see')&&<>
+     <label>
       <h3>Context:</h3>
         <textarea value={context} onChange={(e) => setContext(e.target.value)} rows="4" />
       </label>
@@ -136,7 +234,9 @@ const handleSetTips=(i, t)=>{
         </div>
       </div>
 
-      <button style={{ marginTop:10}} onClick={handleSubmit}>Submit</button>
+     </>}
+      {(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
+{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import "../styles/Questions.css";
-const QuestionForm=({index, handleAnswerChange,deleteSelf, item, questionText,answerText}) =>{
+const QuestionForm=({index, handleAnswerChange,deleteSelf, item, questionText,answerText, flag}) =>{
     // const [qText, SetQText] = useState([])
     // const [q1, SetQ1] = useState(false)
     // const [q2, SetQ2] = useState(false)
@@ -39,7 +39,7 @@ const QuestionForm=({index, handleAnswerChange,deleteSelf, item, questionText,an
         <button className={(item.A[3].status?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(3)}}>D</button>
         <input type='text' onChange={(e) =>{answerText(3,e.target.value)}} value={item.A[3].script}  id='TR'></input> 
         </div>
-        <button onClick={() => {deleteSelf(index)}} style={{position:'absolute', marginLeft:300}}>Delete</button>
+        {(flag!=='see')&&<button onClick={() => {deleteSelf(index)}} style={{position:'absolute', marginLeft:300}}>Delete</button>}
       </div>
   )
 }

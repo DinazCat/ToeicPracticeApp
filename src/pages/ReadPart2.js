@@ -34,7 +34,7 @@ function ReadPart2({flag, index, complete, item}) {
         if(number[i].A[j].status) correct.push(j)
       }
     }
-    if (flag != "Test") {
+    if (flag === "submit") {
       let data = {
         Question: number,
         Explain: {
@@ -46,7 +46,20 @@ function ReadPart2({flag, index, complete, item}) {
         Order: await api.countQuestion("ReadPart2"),
       };
       await api.addQuestion("ReadPart2", data);
-    } else {
+    } 
+    else if(flag === 'Test') {
+      let data = {
+        Question: number,
+        Explain: {
+          script: script,
+          tip: tip,
+          translate: translation,
+        },
+        Correct: correct,
+      };
+      complete(data);
+    }
+    else if(flag === 'fix') {
       let data = {
         Question: number,
         Explain: {
@@ -63,7 +76,38 @@ function ReadPart2({flag, index, complete, item}) {
   return (
     <div className='addQuestion'>
       {(flag!='Test')?<h2>Add Question Read part 2</h2>:<h2>Question {index+1} </h2>}
-      <label>Question:</label>
+      {(flag === 'see')&&<>
+        <label>Question:</label>
+     
+      {
+        item?.Question?.map((each,key)=>{
+            return(
+            <QuestionForm 
+            index={key} 
+            item = {each}
+            flag ={'see'}
+          />)
+        })
+      }
+
+
+      <label>
+        Script:
+        <textarea value={item.Explain.script} onChange={(e) => setScript(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Tip:
+        <textarea value={item.Explain.tip} onChange={(e) => setTip(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Translation:
+        <textarea value={item.Explain.translate} onChange={(e) => setTranslation(e.target.value)} rows="4" />
+      </label>
+      </>}
+      {(flag !== 'see')&&<>
+        <label>Question:</label>
       <button onClick={() => {
         let list = number.slice();
         list.push({
@@ -112,8 +156,10 @@ function ReadPart2({flag, index, complete, item}) {
         Translation:
         <textarea value={translation} onChange={(e) => setTranslation(e.target.value)} rows="4" />
       </label>
-
-      {(flag!='Test')?<button onClick={handleSubmit}>Submit</button>:<button onClick={handleSubmit}>Add</button>}
+      </>}
+      {(flag==='Test')&&<button onClick={handleSubmit}>Add</button>}
+{(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
+{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
     </div>
   );
 }

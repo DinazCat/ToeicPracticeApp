@@ -65,7 +65,7 @@ function ListenPart2({flag, index, complete, item}) {
     formData1.append('audio', audioFile);
 
     console.log(audioFile);
-    if(flag!='Test'){
+    if(flag==='submit'){
       let data = {
         Audio: audioFile,
         Answer: answerL,
@@ -76,9 +76,10 @@ function ListenPart2({flag, index, complete, item}) {
         },
         Order:await api.countQuestion('ListenPart2')
       }
+      alert('Add question successfully')
       await api.addQuestion('ListenPart2', data);
     }
-    else{
+    else if(flag==='fix') {
       let data = {
         Audio: audioFile,
         Answer: answerL,
@@ -88,6 +89,20 @@ function ListenPart2({flag, index, complete, item}) {
           translate: translation,
         },
       }
+      alert('Update successfully')
+      complete(data)
+    }
+    else if(flag==='Test'){
+      let data = {
+        Audio: audioFile,
+        Answer: answerL,
+        Explain: {
+          script: script,
+          tip: tip,
+          translate: translation,
+        },
+      }
+      alert('Add successfully')
       complete(data)
     }
    
@@ -99,9 +114,56 @@ function ListenPart2({flag, index, complete, item}) {
 
   return (
     <div className='addQuestion'>
-     {(flag!='Test')?<h2>Add Question Listen part 2</h2>:<h2>Question {index+1} </h2>}
+     {(flag!=='Test')?<h2>Add Question Listen part 2</h2>:<h2>Question {index+1} </h2>}
+     {(flag==='see')&&
+     <>
       <div className='fileContainer'>
-        <label>
+      <label>
+          Audio:
+          <input type="file" accept="audio/*" onChange={handleAudioChange} />
+          <text style={{font:12}}>or input the link:</text>
+          <input type='url' onChange={(e) => setAudioFile(e.target.value)} value={item.Audio}/>
+        </label>
+      </div>
+
+
+      <label>Answer:</label>
+      <div style={{marginTop:10, marginBottom:10, display:'grid'}}>
+      <div style={{display:'inline-flex', marginLeft:5}}>
+        <button className={((item.Answer[0])?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(0)}}>A</button>
+             <input type='text' onChange={(e) => setTextR1(e.target.value)} value={textR1} id='TR'></input> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5}}>
+        <button className={((item.Answer[1])?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(1)}}>B</button>
+        <input type='text' onChange={(e) => setTextR2(e.target.value)} value={textR2} id='TR'></input>
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5}}>
+        <button className={((item.Answer[2])?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>C</button>
+        <input type='text' onChange={(e) => setTextR3(e.target.value)} value={textR3} id='TR'></input> 
+        </div>
+
+      </div>
+
+      <label>
+        Script:
+        <textarea value={item.Explain.script} onChange={(e) => setScript(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Tip:
+        <textarea value={item.Explain.tip} onChange={(e) => setTip(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Translation:
+        <textarea value={item.Explain.translate} onChange={(e) => setTranslation(e.target.value)} rows="4" />
+      </label>
+     </>
+     }
+      {(flag!=='see')&&
+     <>
+      <div className='fileContainer'>
+      <label>
           Audio:
           <input type="file" accept="audio/*" onChange={handleAudioChange} />
           <text style={{font:12}}>or input the link:</text>
@@ -124,29 +186,7 @@ function ListenPart2({flag, index, complete, item}) {
         <button className={((selectedAnswer == 2)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>C</button>
         <input type='text' onChange={(e) => setTextR3(e.target.value)} value={textR3} id='TR'></input> 
         </div>
-       
-        
-        {/* <div style={{display:'inline-flex'}}>
-        <label className='rlable1'>
-          <input type="radio" name="answer" value={0} onChange={handleAnswerChange} checked={selectedAnswer == 0} id='r1'/>
-          <label for="r1">A</label>
-        </label>
-             <input type='text' onChange={(e) => setTextR1(e.target.value)} value={textR1} id='TR'></input> 
-        </div>
-        <div style={{display:'inline-flex'}}>
-        <label className='rlable1'>
-          <input type="radio" name="answer" value={1} onChange={handleAnswerChange} checked={selectedAnswer == 1} id='r2'/> 
-          <label for="r2">B</label>
-        </label>
-        <input type='text' onChange={(e) => setTextR2(e.target.value)} value={textR2} id='TR'></input>
-        </div>
-        <div style={{display:'inline-flex'}}>
-        <label className='rlable1'>
-          <input type="radio" name="answer" value={2} onChange={handleAnswerChange} checked={selectedAnswer == 2} id='r3'/> 
-          <label for="r3">C</label>
-        </label>
-        <input type='text' onChange={(e) => setTextR3(e.target.value)} value={textR3} id='TR'></input> 
-        </div> */}
+
       </div>
 
       <label>
@@ -163,8 +203,12 @@ function ListenPart2({flag, index, complete, item}) {
         Translation:
         <textarea value={translation} onChange={(e) => setTranslation(e.target.value)} rows="4" />
       </label>
+     </>
+     }
 
-      {(flag!='Test')?<button onClick={handleSubmit}>Submit</button>:<button onClick={handleSubmit}>Add</button>}
+      {(flag==='Test')&&<button onClick={handleSubmit}>Add</button>}
+{(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
+{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
     </div>
   );
 }

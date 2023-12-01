@@ -9,7 +9,13 @@
 .fileContainer{
   flex-direction: row;   
 }
-
+.Qicon {
+  margin: auto;
+  margin-right: 7px;
+}
+.Qicon :hover{
+  color: black;
+}
 label {
   /* display: flex; */
   align-items: center;

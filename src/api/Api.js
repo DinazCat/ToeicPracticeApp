@@ -63,6 +63,71 @@ const addVocab = async(data)=>{
       console.log('error: ', error.message)
   }
 }
-export default {addQuestion, countQuestion, getVocabLesson, addVocabLesson, addVocab}
+const getPost = async ()=>{
+    try{
+        const response = await client.get('/getPosts')
+        if(response.data.success){
+            return {All:response.data.allP, Today: response.data.todayP}
+        }
+        else{
+            console.log("not get")
+        }
+        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return {All:[], Today:[]};
+    }
+  }
+  const updatePost = async(id, data) => {
+    const endpoint = '/updatePost/' + id;
+    try {
+        const response = await client.put(endpoint, data);
+      } catch (error) {
+        console.error('error: ', error.message);
+    }
+}
+const deletePost = async(id)=>{
+    try{
+        await client.delete('/deletePost/'+id)    
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const getAllQuestion = async (part)=>{
+    try{
+        const response = await client.get('/getAllQuestion/'+part)
+        if(response.data.success){
+            return response.data.Questions
+        }
+        else{
+            console.log("not get")
+        }
+        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+  }
+  const deleteQuestion = async(part,id)=>{
+    try{
+        await client.delete('/deleteQuestion/'+part+'/'+id)    
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const updateQuestion = async(part,id, data) => {
+    const endpoint = '/updateQuestion/' + part+'/'+id;
+    try {
+        const response = await client.put(endpoint, data);
+      } catch (error) {
+        console.error('error: ', error.message);
+    }
+}
+export default {addQuestion, countQuestion, getVocabLesson, addVocabLesson, addVocab, getPost, updatePost, deletePost,
+     getAllQuestion,deleteQuestion, updateQuestion}
 
 

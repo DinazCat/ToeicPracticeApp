@@ -39,7 +39,7 @@ function ReadPart1({flag, index, complete, item}) {
         });
     }
 
-    if (flag != "Test") {
+    if (flag === "submit") {
       let data = {
         Question: question,
         Answer: answerL,
@@ -50,8 +50,10 @@ function ReadPart1({flag, index, complete, item}) {
         },
         Order: await api.countQuestion("ReadPart1"),
       };
+      alert('Add question successfully')
       await api.addQuestion("ReadPart1", data);
-    } else {
+    } 
+    else if(flag === 'Test'){
       let data = {
         Question: question,
         Answer: answerL,
@@ -61,6 +63,20 @@ function ReadPart1({flag, index, complete, item}) {
           translate: translation,
         },
       };
+      alert('Add successfully')
+      complete(data);
+    }
+    else if(flag === 'fix'){
+      let data = {
+        Question: question,
+        Answer: answerL,
+        Explain: {
+          script: script,
+          tip: tip,
+          translate: translation,
+        },
+      };
+      alert('Update successfully')
       complete(data);
     }
   };
@@ -68,7 +84,48 @@ function ReadPart1({flag, index, complete, item}) {
   return (
     <div className='addQuestion'>
       {(flag!='Test')?<h2>Add Question Read part 1</h2>:<h2>Question {index+1} </h2>}
+      {(flag==='see')&&<>
+        <label>
+        Question:
+        <textarea value={item.Question} onChange={(e) => setQuestion(e.target.value)} rows="2" />
+      </label>
+      <label>Answer:</label>
+      <div style={{marginTop:10, marginBottom:10,display:'grid'}}>
+      <div style={{display:'inline-flex', marginLeft:5}}>
+        <button className={((item.Answer[0].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(0)}}>A</button>
+             <input type='text' onChange={(e) => setTextR1(e.target.value)} value={item.Answer[0].script} id='TR'></input> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5}}>
+        <button className={((item.Answer[1].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(1)}}>B</button>
+        <input type='text' onChange={(e) => setTextR2(e.target.value)} value={item.Answer[1].script} id='TR'></input>
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5}}>
+        <button className={((item.Answer[2].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>C</button>
+        <input type='text' onChange={(e) => setTextR3(e.target.value)} value={item.Answer[2].script} id='TR'></input> 
+        </div>
+        <div style={{display:'inline-flex', marginLeft:5}}>
+        <button className={((item.Answer[3].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>D</button>
+        <input type='text' onChange={(e) => setTextR4(e.target.value)} value={item.Answer[3].script} id='TR'></input> 
+        </div>
+      </div>
+
       <label>
+        Script:
+        <textarea value={item.Explain.script} onChange={(e) => setScript(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Tip:
+        <textarea value={item.Explain.tip} onChange={(e) => setTip(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Translation:
+        <textarea value={item.Explain.translate} onChange={(e) => setTranslation(e.target.value)} rows="4" />
+      </label>
+      </>}
+      {(flag!=='see')&&<>
+        <label>
         Question:
         <textarea value={question} onChange={(e) => setQuestion(e.target.value)} rows="2" />
       </label>
@@ -90,34 +147,6 @@ function ReadPart1({flag, index, complete, item}) {
         <button className={((selectedAnswer == 3)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>D</button>
         <input type='text' onChange={(e) => setTextR4(e.target.value)} value={textR4} id='TR'></input> 
         </div>
-        {/* <div style={{display:'inline-flex'}}>
-        <label className='rlable1'>
-          <input type="radio" name="answer" value={0} onChange={handleAnswerChange} checked={selectedAnswer == 0} id='r1'/>
-          <label for="r1">A</label>
-        </label>
-             <input type='text' onChange={(e) => setTextR1(e.target.value)} value={textR1} id='TR'></input> 
-        </div>
-        <div style={{display:'inline-flex'}}>
-        <label className='rlable1'>
-          <input type="radio" name="answer" value={1} onChange={handleAnswerChange} checked={selectedAnswer == 1} id='r2'/> 
-          <label for="r2">B</label>
-        </label>
-        <input type='text' onChange={(e) => setTextR2(e.target.value)} value={textR2} id='TR'></input>
-        </div>
-        <div style={{display:'inline-flex'}}>
-        <label className='rlable1'>
-          <input type="radio" name="answer" value={2} onChange={handleAnswerChange} checked={selectedAnswer == 2} id='r3'/> 
-          <label for="r3">C</label>
-        </label>
-        <input type='text' onChange={(e) => setTextR3(e.target.value)} value={textR3} id='TR'></input> 
-        </div>
-        <div style={{display:'inline-flex'}}>
-        <label className='rlable1'>
-          <input type="radio" name="answer" value={3} onChange={handleAnswerChange} checked={selectedAnswer == 3} id='r4'/> 
-          <label for="r4">D</label>
-        </label>
-        <input type='text' onChange={(e) => setTextR4(e.target.value)} value={textR4} id='TR'></input> 
-        </div> */}
       </div>
 
       <label>
@@ -134,8 +163,11 @@ function ReadPart1({flag, index, complete, item}) {
         Translation:
         <textarea value={translation} onChange={(e) => setTranslation(e.target.value)} rows="4" />
       </label>
+      </>}
 
-      {(flag!='Test')?<button onClick={handleSubmit}>Submit</button>:<button onClick={handleSubmit}>Add</button>}
+      {(flag==='Test')&&<button onClick={handleSubmit}>Add</button>}
+{(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
+{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
     </div>
   );
 }

@@ -39,7 +39,7 @@ function ReadPart3({flag, index, complete, item}) {
         if(number[i].A[j].status) correct.push(j)
       }
     }
-    if (flag != "Test") {
+    if (flag === "submit") {
       let data = {
         Question: number,
         Paragraph: paragraph,
@@ -53,7 +53,21 @@ function ReadPart3({flag, index, complete, item}) {
       };
 
       await api.addQuestion("ReadPart3", data);
-    } else {
+    } 
+    else if(flag === 'Test') {
+      let data = {
+        Question: number,
+        Paragraph: paragraph,
+        Explain: {
+          script: script,
+          tip: tip,
+          translate: translation,
+        },
+        Correct: correct,
+      };
+      complete(data);
+    }
+    else if(flag === 'fix') {
       let data = {
         Question: number,
         Paragraph: paragraph,
@@ -71,6 +85,43 @@ function ReadPart3({flag, index, complete, item}) {
   return (
     <div className='addQuestion'>
       {(flag!='Test')?<h2>Add Question Read part 3</h2>:<h2>Question {index+1} </h2>}
+     {(flag === 'see')&&
+     <>
+      <label>
+        Paragraph:
+        <textarea value={item.Paragraph} onChange={(e) => setParagraph(e.target.value)} rows="4" />
+      </label>
+      <label>Question:</label>
+     
+      {
+        item?.Question?.map((each,key)=>{
+            return(
+            <QuestionForm 
+            index={key} 
+            item = {each}
+            flag ={'see'}
+            />)
+        })
+      }
+
+
+      <label>
+        Script:
+        <textarea value={item.Explain.script} onChange={(e) => setScript(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Tip:
+        <textarea value={item.Explain.tip} onChange={(e) => setTip(e.target.value)} rows="4" />
+      </label>
+
+      <label>
+        Translation:
+        <textarea value={item.Explain.translate} onChange={(e) => setTranslation(e.target.value)} rows="4" />
+      </label>
+     </>}
+     {(flag !== 'see')&&
+     <>
       <label>
         Paragraph:
         <textarea value={paragraph} onChange={(e) => setParagraph(e.target.value)} rows="4" />
@@ -124,8 +175,11 @@ function ReadPart3({flag, index, complete, item}) {
         Translation:
         <textarea value={translation} onChange={(e) => setTranslation(e.target.value)} rows="4" />
       </label>
+     </>}
 
-      {(flag!='Test')?<button onClick={handleSubmit}>Submit</button>:<button onClick={handleSubmit}>Add</button>}
+      {(flag==='Test')&&<button onClick={handleSubmit}>Add</button>}
+{(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
+{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
     </div>
   );
 }
