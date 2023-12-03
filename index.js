@@ -62,8 +62,10 @@ io.on('connection', (socket) => {
   .onSnapshot((doc)=>{
     if (doc.exists) {
       const list = doc.data().vocabAlarms;
+      const list1 = doc.data().SavedQuestion;
       const name = userId+'Alarmchange'
       io.emit(name, list)
+      io.emit(userId+'savedQ', list1)
     } else {
       const name = userId+'Alarmchange'
       io.emit(name, [])

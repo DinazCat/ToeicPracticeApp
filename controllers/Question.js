@@ -1,5 +1,5 @@
 const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc, query,where} = require('firebase/firestore');
-const {firebase}= require('../config')
+const {firebase,db}= require('../config')
 const firestore = getFirestore(firebase);
 
 const getMaxquestion = async (userId, Part)=>{
@@ -238,6 +238,26 @@ const getQuestion = async (req,res)=>{
       console.error('Error get document: ', e);
     }
  }
+ const getReviewQuestion = async(req,res)=>{
+  const list=[];
+  const myCollection = collection(firestore, req.body.Part);
+  const dataL = req.body.listQ
+  for(let i = 0; i < dataL.length; i++){
+    const docRef = doc(myCollection,dataL[i]);
+    try{
+    const documentSnapshot = await getDoc(docRef);
+  
+  if (documentSnapshot.exists()) {
+    const data = {...documentSnapshot.data(),Id: documentSnapshot.id}
+    list.push(data)
+  }
+    }
+    catch(e){
+      console.error('Error get document: ', e);
+    }
+  }
+  res.json({success:true, questionL:list});
+ }
 const get1PHistory = async(list)=>{
   const myCollection = collection(firestore, 'PracticeHistory');
   const dataList=[];
@@ -269,4 +289,89 @@ const get1PHistory = async(list)=>{
     res.status(500).json({ success: false, message: 'something went wrong when adding question'});
   }
 };
- module.exports={getQuestion, pushPracticeHistory, getOneQuestion, get1PHistory,getMaxquestion,pushHistoryUser1, addQuestion}
+const countQuestion = async (req,res)=>{
+  db.collection(req.params.Part).get().then((snapshot) => {
+  const count = snapshot.size + 1;
+  res.json({success:true, Order:count});
+  console.log(`Số lượng document id trong collection: ${count}`);
+}).catch((error) => {
+  console.log('Lỗi khi đếm số lượng document id:', error);
+});
+}
+const getAllQuestion = async (req,res)=>{
+  try {
+    db.collection( req.params.Part)
+    .orderBy('Order', 'asc')
+      .get()
+      .then((querySnapshot)=>{
+    const list = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      const docId = doc.id;
+      return { ...data, Id: docId };
+    });
+    // console.log(list.length+req.params.Part )
+    res.json({ success: true, Questions: list });
+  })
+    
+  } catch (e) {
+    res.json({
+      success: false,
+      message: "something went wrong when get data from getQuestion",
+    });
+  }
+}
+const updateQuestion= async(req,res)=>{
+  const myCollection = collection(firestore,  req.params.Part);
+  const docRef = doc(myCollection, req.params.Qid);
+  try {
+      await updateDoc(docRef, req.body);
+      console.log('Document successfully updated!');
+      res.send({ message: 'Document successfully updated!' });
+    } catch (error) {
+      console.error('Error updating document: ', error);
+    }
+}
+const deleteQuestion = async (req, res) => {
+  try {
+    const documentRef = db.collection(req.params.Part).doc(req.params.Qid);
+    await documentRef.delete();
+    console.log('Document deleted successfully.');
+  } catch (error) {
+    console.log('Error deleting document:', error);
+  }
+}
+const getSavedQuestion = async (req,res)=>{
+  const myCollection = collection(firestore, 'Users');
+  const docRef = doc(myCollection, req.params.userId);
+  try{
+  const documentSnapshot = await getDoc(docRef);
+
+if (documentSnapshot.exists()) {
+  const data = documentSnapshot.data().SavedQuestion || [];
+  res.json({success:true, savedQuestion:data});
+} else {
+  console.log('Document does not exist.');
+  res.json({success:true, savedQuestion:'-1'});
+}
+  }
+  catch(e){
+      res.json({
+          success:false,
+          message:'something went wrong when get data from save question'
+      })
+      console.log(e)
+  }
+}
+const updateSavedQ = async(req,res)=>{
+  const myCollection = collection(firestore, 'Users');
+  const docRef = doc(myCollection, req.params.userId);
+  try {
+      await updateDoc(docRef, req.body);
+      console.log('Document successfully updated!');
+      res.send({ message: 'Document successfully updated!' });
+    } catch (error) {
+      console.error('Error updating document: ', error);
+    }
+}
+ module.exports={getQuestion, pushPracticeHistory, getOneQuestion, get1PHistory,getMaxquestion,pushHistoryUser1, 
+  addQuestion, countQuestion, getAllQuestion, updateQuestion, deleteQuestion, getReviewQuestion, getSavedQuestion, updateSavedQ}

@@ -1,5 +1,5 @@
 const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc} = require('firebase/firestore');
-const {firebase}= require('../config')
+const {firebase,db}= require('../config')
 const firestore = getFirestore(firebase);
 
 // const myCollection = collection(firestore, 'VocabLesson');
@@ -127,4 +127,87 @@ const updateAlarmVocab = async(req,res)=>{
         console.error('Error updating document: ', error);
       }
 }
-module.exports={getVocabLesson, getVocabinLesson, getVocabs, setAlarmVocab, getAlarmVocab, updateAlarmVocab}
+const addVocabLesson = async(req,res)=>{
+  const myCollection = collection(firestore, 'VocabLesson');
+  try{
+    const data = req.body; 
+    await addDoc(myCollection, data)
+    .then((docRef) => {
+      const d = doc(myCollection, docRef.id);
+      // updateDoc(d, {postId:docRef.id});
+      res.json({ message: 'Data post successfully', TopicId:docRef.id});
+    })
+    .catch((error) => {
+      console.error('Error adding document: ', error);
+    });
+  }
+  catch(error){
+      console.error("Error addpost: ", error);
+  }
+}
+const addVocab = async(req,res)=>{
+  const myCollection = collection(firestore, 'Vocabulary');
+  try{
+    const data = req.body; 
+    await addDoc(myCollection, data)
+    .then((docRef) => {
+      res.send({ message: 'Data post successfully'});
+    })
+    .catch((error) => {
+      console.error('Error adding document: ', error);
+    });
+  }
+  catch(error){
+      console.error("Error addpost: ", error);
+  }
+}
+const updateVocab= async(req,res)=>{
+  const myCollection = collection(firestore,'Vocabulary');
+  const docRef = doc(myCollection, req.params.vocabId);
+  try {
+      await updateDoc(docRef, req.body);
+      console.log('Document successfully updated!');
+      res.send({ message: 'Document successfully updated!' });
+    } catch (error) {
+      console.error('Error updating document: ', error);
+    }
+}
+const deleteVocab = async (req, res) => {
+  try {
+    const documentRef = db.collection('Vocabulary').doc(req.params.vocabId);
+    await documentRef.delete();
+    console.log('Document deleted successfully.');
+  } catch (error) {
+    console.log('Error deleting document:', error);
+  }
+}
+const updateTopic= async(req,res)=>{
+  const myCollection = collection(firestore,'VocabLesson');
+  const docRef = doc(myCollection, req.params.topicId);
+  try {
+      await updateDoc(docRef, req.body);
+      console.log('Document successfully updated!');
+      res.send({ message: 'Document successfully updated!' });
+    } catch (error) {
+      console.error('Error updating document: ', error);
+    }
+}
+const deleteTopic = async (req, res) => {
+  try {
+    const documentRef = db.collection('VocabLesson').doc(req.params.topicId);
+    await documentRef.delete();
+    const myCollection = collection(firestore, 'Vocabulary');
+         const querySnapshot = await getDocs(myCollection);
+         querySnapshot.docs.map(async (doc) => {
+          if(doc.data().TopicId == req.params.topicId){
+            const documentRef1 = db.collection('Vocabulary').doc(doc.id);
+            await documentRef1.delete();
+          }
+           });
+    console.log('Document deleted successfully.');
+  } catch (error) {
+    console.log('Error deleting document:', error);
+  }
+}
+module.exports={getVocabLesson, getVocabinLesson, getVocabs, setAlarmVocab, getAlarmVocab, updateAlarmVocab, 
+  addVocabLesson, addVocab, updateVocab, deleteVocab, updateTopic, deleteTopic}

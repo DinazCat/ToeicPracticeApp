@@ -247,8 +247,9 @@ const filterOnlyhashtag = async(req,res)=>{
     const Collection = collection(firestore, 'Posts');
   const querySnapshot = await getDocs(Collection);
   const list = querySnapshot.docs.map((doc) => {
+    const dateSeconds = moment.unix(doc.data().postTime.seconds);
     const data = doc.data();
-    return { ...data };
+    return { ...data, postTime:dateSeconds.format('DD-MM-YYYY HH:mm')};
   });
   const filteredPosts = list.filter(function(post) {
    return post.hashtag===req.params.hashtag
@@ -453,6 +454,43 @@ const deletePost = async (req, res) => {
     console.log('Error deleting document:', error);
   }
 }
+const getPosts = async (req,res)=>{
+  const now = new Date();
+
+const day = now.getDate()+'';
+const month = (now.getMonth() + 1)+'';  // Tháng bắt đầu từ 0, nên cần +1
+const year = now.getFullYear()+'';
+    try {
+      db.collection('Posts')
+      .orderBy('postTime.seconds', 'desc')
+      .get()
+      .then((querySnapshot)=>{
+           let list = []
+           const list2 = querySnapshot.docs.map((doc) => {
+            const data = doc.data();
+            const dateSeconds = moment.unix(doc.data().postTime.seconds);
+            const compare = dateSeconds.format('DD-MM-YYYY').split('-');
+             if(compare[0]==day&&compare[1]==month&&compare[2]==year)
+             {
+              list.push({ ...data, postTime:dateSeconds.format('DD-MM-YYYY HH:mm')})
+             }
+            return { ...data, postTime:dateSeconds.format('DD-MM-YYYY HH:mm')};
+          });
+          // for(let i = 0; i < list2.length;i++){
+
+          // }
+          res.json({success:true, allP:list2, todayP:list});
+        })
+    } catch (e) {
+      console.log(e);
+      res.json({
+        success: false,
+        message: "something went wrong when get data from getVocabinLesson",
+      });
+      return [];
+    }
+
+ }
 module.exports={addPost, uploadVideo, updatePost, addComment, getOneComment, addNotification,
    deleteNotification,updateNotification,filterBoth,filterOnlyPost,filterOnlyhashtag, pushSavedPost, getSavedPost,
- deletePost}
+ deletePost, getPosts}
