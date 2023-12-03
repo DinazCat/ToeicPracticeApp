@@ -127,7 +127,61 @@ const updateQuestion = async(part,id, data) => {
         console.error('error: ', error.message);
     }
 }
+// router.post('/deleteTopic/:topicId', deleteTopic)
+// router.delete('/deleteVocab/:vocabId', deleteVocab)
+// router.put('/updateVocab/:vocabId', updateVocab)
+// router.put('/updateTopic/:topicId', updateTopic)
+const deleteTopic = async(topicId)=>{
+    try{
+         await client.delete('/deleteTopic/'+topicId)
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+  }
+  const deleteVocab = async(id)=>{
+    try{
+        await client.delete('/deleteVocab/'+id)    
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const updateVocab = async(id, data) => {
+    const endpoint = '/updateVocab/' + id;
+    try {
+        const response = await client.put(endpoint, data);
+      } catch (error) {
+        console.error('error: ', error.message);
+    }
+}
+const updateTopic = async(id, data) => {
+    const endpoint = '/updateTopic/' + id;
+    try {
+        const response = await client.put(endpoint, data);
+      } catch (error) {
+        console.error('error: ', error.message);
+    }
+}
+const getVocabinLesson = async(TopicId)=>{
+    const endpoint = '/VocabinLesson/'+TopicId
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.vocabs
+        }
+        else{
+            console.log("not get")
+        }
+        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+
 export default {addQuestion, countQuestion, getVocabLesson, addVocabLesson, addVocab, getPost, updatePost, deletePost,
-     getAllQuestion,deleteQuestion, updateQuestion}
+     getAllQuestion,deleteQuestion, updateQuestion, deleteTopic,deleteVocab,updateTopic,updateVocab, getVocabinLesson}
 
 

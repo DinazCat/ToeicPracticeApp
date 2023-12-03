@@ -9,6 +9,7 @@ import Forum from './pages/Forum';
 import ReadPdf from './pages/ReadPdf';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import QuestionPage from './pages/QuestionPage';
+import VocabPage from './pages/VocabPage';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/Forum" exact element={<Forum/>} />
           <Route path="/ReadPdf" exact element={<ReadPdf/>} />
           <Route path="/QuestionPage" exact element={<QuestionPage/>} />
+          <Route path="/VocabPage" exact element={<VocabPage/>} />
         </Routes>
       </Router>
     </div>

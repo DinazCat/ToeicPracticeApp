@@ -21,7 +21,7 @@ const QuestionForm=({index, handleAnswerChange,deleteSelf, item, questionText,an
     <div style={{marginTop:10, backgroundColor:'#E8E8E8'}}>
       <div style={{display:'inline-flex', marginTop:5}}>
         <h3 style={{marginLeft:5}}>{index+1}/</h3>
-      <input type='text' onChange={(e) => {questionText(e.target.value)}} value={item.Q} style={{width:600, marginLeft:5}}></input> 
+      <input type='text' onChange={(e) => {questionText(e.target.value)}} value={item.Q} style={{width:500, marginLeft:5}}></input> 
       </div>
         <div style={{display:'inline-flex', marginLeft:5}}>
         <button className={(item.A[0].status?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(0)}}>A</button>
@@ -39,7 +39,7 @@ const QuestionForm=({index, handleAnswerChange,deleteSelf, item, questionText,an
         <button className={(item.A[3].status?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(3)}}>D</button>
         <input type='text' onChange={(e) =>{answerText(3,e.target.value)}} value={item.A[3].script}  id='TR'></input> 
         </div>
-        {(flag!=='see')&&<button onClick={() => {deleteSelf(index)}} style={{position:'absolute', marginLeft:300}}>Delete</button>}
+        {(flag!=='see')&&<button onClick={() => {deleteSelf(index)}} style={{ marginLeft:'90%'}}>Delete</button>}
       </div>
   )
 }
