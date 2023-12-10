@@ -58,7 +58,7 @@ const SmallHistoryCard = ({display,click}) => {
      {display.Part=='S4'&& <Image  style={{width:'15%', height:40,}} source={require("../assets/microphone.png")} resizeMode='contain'/>}
      {display.Part=='S5'&& <Image  style={{width:'15%', height:40,}} source={require("../assets/microphone.png")} resizeMode='contain'/>}
       <View style={{flexDirection:'row', height:40, justifyContent:'space-between', alignItems:'center', width:'80%', borderBottomColor:'black', borderBottomWidth:1}}>
-      <Text style={{fontSize:16, color:'black'}}>{display.PartName}</Text>
+      <Text style={{fontSize:16, color:'black', marginLeft: 5, fontWeight: '500'}}>{display.PartName}</Text>
       {showPercent&&<Text style={AppStyle.button.buttonText}>{parseInt(parseInt(score)*100/parseInt(quantity1))}%</Text>}
       </View>
     </TouchableOpacity>

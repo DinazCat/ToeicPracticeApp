@@ -411,6 +411,32 @@ const deletePost = async(id)=>{
         console.log('error: ', error.message)
     }
 }
+const getAllTest = async ()=>{
+    try{
+        const response = await client.get('/Tests')
+        if(response.data.success){
+            return response.data.tests
+        }
+        else{
+            console.log("not get")
+        }      
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+const uploadTestHistory = async (data) => {
+    data.UserId = auth().currentUser.uid;
+    const endpoint = "/Test/TestHistory/" + auth().currentUser.uid + "/upload";
+    try{
+      const response = await client.post(endpoint, data)
+      console.log(response.data.message)      
+    }
+    catch(error){
+      console.log('error: ', error.message)
+    }
+}
 export default {
     getVocabLesson,
     getVocabinLesson,
@@ -444,4 +470,6 @@ export default {
     savePost,
     getsavePost,
     deletePost,
+    getAllTest,
+    uploadTestHistory
 }

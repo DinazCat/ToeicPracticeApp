@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 import {DrawerItemList, createDrawerNavigator} from '@react-navigation/drawer';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SettingScreen from '../screens/SettingScreen';
-import Test from '../screens/Test';
+import TestStack from './TestStack';
 import VocabStack from './VocabStack';
 import HomeStack from './HomeStack';
 import ForumStack from './ForumStack';
@@ -47,7 +47,7 @@ function DrawerNavigator() {
         }}
         
       />
-      <Drawer.Screen name="Test" component={Test}
+      <Drawer.Screen name="Test" component={TestStack}
        options={{
         drawerLabel: 'Test', 
         drawerIcon: () => (

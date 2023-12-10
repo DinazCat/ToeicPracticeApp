@@ -10,15 +10,14 @@ import {
 import React, {useState, useEffect} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import DropDownPicker from 'react-native-dropdown-picker';
-import firestore from '@react-native-firebase/firestore';
-import * as Progress from 'react-native-progress';
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
-import QuestionScreen from '../screens/QuestionScreen';
 import Api from '../api/Api'
 import SmallHistoryCard from '../components/SmallHistoryCard';
+import HistoryTestCard from '../components/HistoryTestCard';
 const HistoryScreen = ({navigation,route}) => {
-  const {list} = route.params
+  const [selectedTab, setSelectedTab] = useState(1);
+  const {list, listTest} = route.params
   return (
       <View style={styles.container}>
           <ImageBackground source={require('../assets/bg8.png')} style={{ flex: 1, resizeMode: 'cover' }}>
@@ -36,6 +35,18 @@ const HistoryScreen = ({navigation,route}) => {
           Practice History
         </Text>
       </View>
+      <View style={{width: '90%', height: 40, flexDirection: 'row',justifyContent: 'space-between', alignItems: 'center'}}>
+        <TouchableOpacity style={[styles.historyButton, {marginLeft: '5%'}]}
+        onPress={() => {setSelectedTab(1)}}>
+          <Text style={[AppStyle.button.buttonText, {color: selectedTab == 1 ? PRIMARY_COLOR : '#333'}]}>Practice</Text>
+        </TouchableOpacity>
+        <View style={{width: 1, height: 30, backgroundColor: 'black', marginHorizontal: 15}} />
+        <TouchableOpacity style={styles.historyButton}
+        onPress={() => {setSelectedTab(2)}}>
+          <Text style={[AppStyle.button.buttonText, {color: selectedTab == 2 ? PRIMARY_COLOR : 'black'}]}>Test</Text>
+        </TouchableOpacity>
+      </View>
+      {selectedTab == 1 &&
         <FlatList
           data={list}
           renderItem={({item, index}) => {
@@ -73,8 +84,29 @@ const HistoryScreen = ({navigation,route}) => {
               );
             }
           }}/>
-        </ImageBackground>     
-        
+        }  
+
+        {selectedTab==2 && (
+              <FlatList
+              data={listTest}
+              renderItem={({item, index}) => {
+                return (
+                  <HistoryTestCard
+                    item={item}
+                    click={() => {
+                      navigation.push('TestResult', {
+                        History: item.History,
+                        questionList: item.Questions,
+                        testHistory: item,
+                      })
+                    }}                     
+                  />)
+                }
+              }
+              />
+            )}
+
+        </ImageBackground>            
       </View>
     )
   }
@@ -89,5 +121,12 @@ const styles = StyleSheet.create({
         backgroundColor:'#990000',
         justifyContent: 'center',
         alignItems: 'center',
-    },})
+    },
+    historyButton:{
+      height:30,
+      width: '45%',
+      borderBottomColor:'#000',
+      borderBottomWidth:1
+    },
+})
 export default HistoryScreen

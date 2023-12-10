@@ -39,7 +39,7 @@ import {
   const {width} = Dimensions.get('window');
   const ReviewQuestion = ({navigation, route}) => {
     const scrollX = useRef(new Animated.Value(0)).current;
-    const {questionList,indication,History,part,isMiniTest} = route.params;
+    const {questionList,indication,History,part,isMiniTest, isTest} = route.params;
     const [soundL, setsoundL] = useState(null);
     const [ItemIndex, setItemIndex] = useState(0);
     // const [oldIndex, setoldIndex] = useState(0);
@@ -65,19 +65,23 @@ import {
               if(isMiniTest){
                 if(i==4) {setloading(true);}
               }
+              else if (isTest){
+                setloading(true);
+              }
               else{
                 if(i==questionList.length-1) {setloading(true);}
               }     
             }
           });
           list.push(sound);
-        }     
+        }
+        else {setloading(true);}     
       }
       setsoundL(list); 
     };
   
     useEffect(() => {
-      if(isMiniTest || part=='L1'||part=='L2'||part=='L3'||part=='L4')
+      if(isMiniTest || isTest || part=='L1'||part=='L2'||part=='L3'||part=='L4')
         createsound();
       else setsoundL('-1')
     }, []);
@@ -258,7 +262,10 @@ import {
               fontSize: 20,
               marginLeft: 15,
             }}>
-            Question {ItemIndex + 1}
+            Question {History[0].Number ? 
+            !Array.isArray(History[0].Number) ? History[0].Number + 1
+            : `${History[0].Number[0] + 1}-${History[0].Number[History[0].Number.length - 1] + 1}`
+            : ItemIndex + 1}
           </Text>
           <FontAwesome
             name="heart"
@@ -294,6 +301,8 @@ import {
               showsHorizontalScrollIndicator={false}
               scrollEventThrottle={16}
               ref={flatListRef}
+              windowSize={10} 
+              initialNumToRender={5} 
               onScrollToIndexFailed={info => {
                 const wait = new Promise(resolve => setTimeout(resolve, 700));
                 wait.then(() => {
@@ -340,6 +349,8 @@ import {
               showsHorizontalScrollIndicator={false}
               scrollEventThrottle={16}
               ref={flatListRef}
+              windowSize={10} 
+              initialNumToRender={5} 
               onScrollToIndexFailed={info => {
                 const wait = new Promise(resolve => setTimeout(resolve, 700));
                 wait.then(() => {

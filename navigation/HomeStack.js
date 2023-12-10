@@ -3,9 +3,7 @@ import {View, Image, ActivityIndicator, Text} from "react-native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from '../screens/Home';
 import PartFormat from '../components/PartFormat';
-import Test from '../screens/Test';
 import InPartCard from '../components/InPartCard';
-import InTestCard from '../components/InTestCard';
 import CompleteCard from '../components/CompleteCard';
 import CompleteCard2 from '../components/CompleteCard2';
 import QuestionScreen from '../screens/QuestionScreen';
@@ -17,9 +15,14 @@ import { AuthContext } from '../navigation/AuthProvider';
 import firestore from '@react-native-firebase/firestore';
 import Api from '../api/Api';
 import ResultTable from '../components/ResultTable';
+import TestResultScreen from '../screens/TestResultScreen';
 import ReviewQuestion from '../screens/ReviewQuestion';
 import HistoryScreen from '../screens/HistoryScreen';
 import AddPostScreen from '../screens/AddPostScreen';
+import Test from '../screens/Test';
+import TestQuestions from '../screens/TestQuestions';
+import CompleteTestCard from '../components/CompleteTestCard';
+import InTestCard from '../components/InTestCard';
 
 const Stack = createNativeStackNavigator();
 export default function HomeStack() {
@@ -83,9 +86,12 @@ export default function HomeStack() {
             <Stack.Screen name='Game' component={Game} options={{ header: () => null }}/>
             <Stack.Screen name='GameScreen' component={GameScreen} options={{ header: () => null }}/>
             <Stack.Screen name='ResultTable' component={ResultTable} options={{ header: () => null }}/>
+            <Stack.Screen name='TestResult' component={TestResultScreen} options={{ header: () => null }}/>
             <Stack.Screen name='ReviewQuestion' component={ReviewQuestion} options={{ header: () => null }}/>
             <Stack.Screen name='HistoryScreen' component={HistoryScreen} options={{ header: () => null }}/>
-            <Stack.Screen name="AddPost" component={AddPostScreen} options={{ header: () => null }} />  
+            <Stack.Screen name="AddPost" component={AddPostScreen} options={{ header: () => null }} />
+            <Stack.Screen name='TestQuestions' component={TestQuestions} options={{ header: () => null }}/>
+            <Stack.Screen name='CompleteTestCard' component={CompleteTestCard} options={{ header: () => null }}/>  
         </Stack.Navigator>
     );
   };

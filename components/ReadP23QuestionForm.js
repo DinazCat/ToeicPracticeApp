@@ -16,17 +16,25 @@ import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import QuestionCard from './QuestionCard';
 const {width} = Dimensions.get('window');
-const ReadP23QuestionForm = ({item, part,click,flag, check}) => {
-
+const ReadP23QuestionForm = React.memo(({item, part,click,flag, check}) => {
+  function isUrl(str) {
+    const urlRegex = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
+  
+    return urlRegex.test(str);
+  }
   return (
     <Animated.View style={styles.container}>
       <View style={styles.box}>
         {part == 'R3' && (
           <ScrollView>
+            {isUrl(item.Paragraph) ?
+            <Image  source={{uri: item.Paragraph}} style={{minHeight: 250, width:"88%", alignSelf:'center', marginTop:'5%', resizeMode: 'contain'}}/>
+            :
             <Text
               style={[styles.answerLong, {marginBottom: 15, marginTop: 10}]}>
               {item.Paragraph}
             </Text>
+            }
             <FlatList
               data={item.Question}
               renderItem={({item, index}) => (
@@ -70,7 +78,7 @@ const ReadP23QuestionForm = ({item, part,click,flag, check}) => {
       </View>
     </Animated.View>
   );
-};
+});
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
@@ -86,7 +94,7 @@ const styles = StyleSheet.create({
     flexDirection:'column',width:'90%', backgroundColor:card_color, marginTop:"5", height:300,borderRadius:15
   },
   box:{
-    flexDirection:'column',width:'90%', backgroundColor:card_color, alignSelf:'center', marginTop:"5%", height:600,borderWidth: 1,
+    flexDirection:'column',width:'90%', backgroundColor:card_color, alignSelf:'center', marginTop:"5%", height:'95%',borderWidth: 1,
     borderColor: '#CFCFCF', borderRadius:15,
   },
   answerboxStyle:{

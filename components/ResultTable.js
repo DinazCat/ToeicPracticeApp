@@ -24,14 +24,10 @@ useEffect(() => {
   for(let i = 0; i < History.length; i++){
     if(Array.isArray(History[i].Select)){
       const sum = History[i].Select.filter(number => number === -1).length
-      // const sum1 = sum+unanswered
-      // setUnanswered(sum1)
       unAnswers = unAnswers + sum;
     }
   else{
     if(History[i].Select == -1){
-      // const sum1 = 1+unanswered
-      // setUnanswered(sum1)
       unAnswers= unAnswers + 1;
     }
   }

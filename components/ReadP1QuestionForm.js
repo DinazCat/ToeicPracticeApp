@@ -15,7 +15,7 @@ import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import QuestionCard from './QuestionCard';
 const {width} = Dimensions.get('window');
-const ReadP1QuestionForm = ({item}) => {
+const ReadP1QuestionForm = React.memo(({item}) => {
   return (
     <Animated.View style={styles.container}>
      <View style={styles.box}>
@@ -24,7 +24,7 @@ const ReadP1QuestionForm = ({item}) => {
      </View>
     </Animated.View>
   );
-};
+});
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',

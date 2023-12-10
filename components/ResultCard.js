@@ -12,10 +12,9 @@ import AppStyle from '../theme';
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import { useNavigation } from '@react-navigation/native';
 
 const ResultCard=({ defaultanswer, useranswer, question, id, click})=> {
-// const navigation = useNavigation();
+
 return (
   <TouchableOpacity onPress={click} >
     <View style={styles.AnswersWrapper}>
@@ -34,7 +33,7 @@ return (
           style={{color: 'red', fontSize: 20,  marginLeft:10,width:'10%'}}
         />
         }
-        <Text style={{color:'black', fontSize:16, fontWeight:'400', width: 95 }}> Question {question+1}</Text>
+        <Text style={{color:'black', fontSize:16, fontWeight:'400', width: 100 }}> Question {question+1}</Text>
         <View style={{flexDirection:'row', alignItems:'center', justifyContent:"space-evenly", width:'65%'}}>
           <TouchableOpacity style={[styles.answerboxStyle,{ backgroundColor:(defaultanswer==0)?PRIMARY_COLOR:(useranswer==0)?'red':'white'}]}>
               <Text style={styles.answertext}>A</Text>

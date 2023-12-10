@@ -1,6 +1,7 @@
 import { View, Text,StyleSheet, TouchableOpacity, Image, ScrollView,SafeAreaView, StatusBar,FlatList } from 'react-native'
 import React, { useState, useEffect } from 'react';
 import SmallHistoryCard from '../components/SmallHistoryCard'
+import HistoryTestCard from '../components/HistoryTestCard';
 import AppStyle from '../theme'
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import { Header } from 'react-native/Libraries/NewAppScreen'
@@ -9,16 +10,23 @@ import CustomHeader from '../components/CustomHeader'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import socketServices from '../api/socketService';
+
+
  const Home=({navigation})=> {
   const [savedVocab, setsavedVocab] = useState(null)
   const [pHistoryList, setPHistoryList] = useState(null);
+  const [testHistories, setTestHistories] = useState(null);
+  const [selectedTab, setSelectedTab] = useState(1);
   useEffect(() => {
     socketServices.initializeSocket()
     socketServices.emit('UserId',auth().currentUser.uid)
-      }, []);
+    }, []);
   useEffect(() => {
     socketServices.on(auth().currentUser.uid+'PHistorychange',(data) => {
       setPHistoryList(data)
+    })
+    socketServices.on(auth().currentUser.uid+'TestHistoryChange',(data) => {
+      setTestHistories(data)
     })
       }, []);
   const getSavedVocab= async()=>{
@@ -92,7 +100,7 @@ import socketServices from '../api/socketService';
             </View>
           </View>
           {/* tests */}
-          <Text style={AppStyle.textstyle.parttext}>Tests</Text>
+          <Text style={AppStyle.textstyle.parttext}>Test</Text>
           <View
             style={[
               AppStyle.viewstyle.column_view,
@@ -116,15 +124,16 @@ import socketServices from '../api/socketService';
                   ]}>
                   Test 1
                 </Text>
-                <Text style={AppStyle.textstyle.normaltext}>Time: 120 m</Text>
+                <Text style={AppStyle.textstyle.normaltext}>Time: 120m</Text>
                 <Text style={AppStyle.textstyle.normaltext}>Question: 200</Text>
-                <TouchableOpacity
+                <TouchableOpacity onPress={() => navigation.navigate('Test')}
                   style={[AppStyle.button.button1, {marginTop: 5}]}>
                   <Text style={AppStyle.button.button1_Text}>Begin</Text>
                 </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity style={{marginBottom: 10}}>
+            <TouchableOpacity style={{marginBottom: 10}}
+            onPress={() => navigation.navigate('Test')}>
               <Text style={{color: '#0000FF', textDecorationLine: 'underline'}}>
                 See more
               </Text>
@@ -141,16 +150,18 @@ import socketServices from '../api/socketService';
                 flexDirection: 'row',
                 justifyContent: 'space-between',
               }}>
-              <TouchableOpacity style={styles.historyButton}>
+              <TouchableOpacity style={styles.historyButton}
+              onPress={() => {setSelectedTab(1)}}>
                 <Text style={AppStyle.button.buttonText}>Practice</Text>
               </TouchableOpacity>
               <View style={{width: 1, height: 30, backgroundColor: 'black'}} />
-              <TouchableOpacity style={styles.historyButton}>
+              <TouchableOpacity style={styles.historyButton}
+              onPress={() => {setSelectedTab(2)}}>
                 <Text style={AppStyle.button.buttonText}>Test</Text>
               </TouchableOpacity>
             </View>
 
-            {pHistoryList != null && (
+            {selectedTab==1 && pHistoryList != null && (
               <FlatList
                 data={pHistoryList.slice(0, 3)}
                 renderItem={({item, index}) => {
@@ -191,6 +202,26 @@ import socketServices from '../api/socketService';
               />
             )}
 
+            {selectedTab==2 && testHistories != null && (
+              <FlatList
+              data={testHistories.slice(0, 3)}
+              renderItem={({item, index}) => {
+                return (
+                  <HistoryTestCard
+                    item={item}
+                    click={() => {
+                      navigation.push('TestResult', {
+                        History: item.History,
+                        questionList: item.Questions,
+                        testHistory: item,
+                      })
+                    }}                     
+                  />)
+                }
+              }
+              />
+            )}
+
             <View
               style={{
                 flexDirection: 'row',
@@ -202,6 +233,7 @@ import socketServices from '../api/socketService';
                 onPress={() => {
                   navigation.push('HistoryScreen', {
                     list: pHistoryList ? pHistoryList : [],
+                    listTest: testHistories ? testHistories : [],
                   });
                 }}>
                 <Text style={AppStyle.button.buttonText}>See more</Text>

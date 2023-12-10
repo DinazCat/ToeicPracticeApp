@@ -7,71 +7,47 @@ import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import Api from '../api/Api';
 
 const CompleteTestCard = ({navigation,route})=> {
-    const {quantity,answer, sign, questionL, partName, isFromPL, isMiniTest, DetailQty} = route.params
+    const {answer, sign, questionL, isFromPL, isMiniTest, testHistory} = route.params
     const [reviewList, setReviewList] = useState(null)
     const [score, setScore] = useState(0)
-    const [quantity1, setQuantity1] = useState(route.params.quantity)
+    const [quantity, setQuantity] = useState(route.params.quantity)
+    const [message, setMessage] = useState('')
 
     const SetScore = ()=>{
-      let score = 0 , sum =0;
-      for(let i = 0 ; i < questionL.length; i++){
-        if(questionL[i].part=='L1'||questionL[i].part=='L2'||questionL[i].part=='R1'){
-          if(answer[i].Select==answer[i].Default){
-            score = score + 1;
-          }
-          sum++;
-        }
-        else{
-          for(let j = 0; j < answer[i].Default.length; j++){
-            if(answer[i].Select[j]==answer[i].Default[j]){
+      if(isMiniTest) {
+        let score = 0 , sum =0;
+        for(let i = 0 ; i < questionL.length; i++){
+          if(questionL[i].part=='L1'||questionL[i].part=='L2'||questionL[i].part=='R1'){
+            if(answer[i].Select==answer[i].Default){
               score = score + 1;
             }
             sum++;
-          }            
+          }
+          else{
+            for(let j = 0; j < answer[i].Default.length; j++){
+              if(answer[i].Select[j]==answer[i].Default[j]){
+                score = score + 1;
+              }
+              sum++;
+            }            
+          }
         }
+        setScore(score);
+        setQuantity(sum);
+        if(score < 12) {setMessage('You need to try harder!')}
+        else {setMessage('Congratulations!')}
       }
-      setScore(score);
-      setQuantity1(sum)
+      else {
+        setScore(testHistory.Correct);
+        setQuantity(200);
+        if(score < 100) {setMessage('You need to try harder!')}
+        else {setMessage('Congratulations!')}
+      }
     }
 
     const setReview= async()=>{
       if(questionL){
         setReviewList(questionL);
-      }
-      else {
-        const list=[]
-        for(let i = 0; i < questionL.length; i++)
-        {
-          if(questionL[i].part=='L1'){
-            const data = await Api.getOneQuestion('ListenPart1',questionL[i].Qid)  
-            list.push({...data, part: questionL[i].part})
-          }
-          else if(questionL[i].part=='L2'){
-            const data = await Api.getOneQuestion('ListenPart2',questionL[i].Qid)
-            list.push({...data, part: questionL[i].part})
-          }
-          else if(questionL[i].part=='L3'){
-            const data = await Api.getOneQuestion('ListenPart3',questionL[i].Qid)
-            list.push({...data, part: questionL[i].part})
-          }
-          else if(questionL[i].part=='L4'){
-            const data = await Api.getOneQuestion('ListenPart4',questionL[i].Qid)
-            list.push({...data, part: questionL[i].part})
-          }
-          else if(questionL[i].part=='R1'){
-            const data = await Api.getOneQuestion('ReadPart1',questionL[i].Qid)
-            list.push({...data, part: questionL[i].part})
-          }
-          else if(questionL[i].part=='R2'){
-            const data = await Api.getOneQuestion('ReadPart2',questionL[i].Qid)
-            list.push({...data, part: questionL[i].part})
-          }
-          else if(questionL[i].part=='R3'){
-            const data = await Api.getOneQuestion('ReadPart3',questionL[i].Qid)
-            list.push({...data, part: questionL[i].part})
-          }
-        }
-        setReviewList(list);
       }
     }
     
@@ -83,7 +59,7 @@ const CompleteTestCard = ({navigation,route})=> {
     const onContinue = () => {
       if(isMiniTest){
         let currentLevel = 0;
-        const correctPer = score / quantity1;
+        const correctPer = score / quantity;
         if(correctPer >= 0 && correctPer < 0.2){
           currentLevel = 0;
         }
@@ -98,6 +74,7 @@ const CompleteTestCard = ({navigation,route})=> {
         }
         navigation.navigate('PracticePlanTime', {targetLevel: route.params.targetLevel, currentLevel: currentLevel});
       }
+      else navigation.navigate('Test');
     }
    
     const onShowAnswer = () =>{
@@ -106,8 +83,15 @@ const CompleteTestCard = ({navigation,route})=> {
           History: answer,
           questionList: reviewList,
           score:score,
-          quantity:quantity1,
+          quantity:quantity,
           isMiniTest: route.params.isMiniTest
+        })
+      }
+      else{
+        navigation.push('TestResult', {
+          History: answer,
+          questionList: reviewList,
+          testHistory: testHistory,
         })
       }
     }
@@ -138,23 +122,15 @@ const CompleteTestCard = ({navigation,route})=> {
               backgroundColor: 'white',
             }}>
             <Text
-              style={{
-                color: 'black',
-                fontWeight: '500',
-                fontSize: 25,
-                marginLeft: 5,
-              }}>
-              Congratulations!
+              style={{color: 'black', fontWeight: '500', fontSize: 30, marginLeft: 5, marginBottom: 5}}>
+              {message}
             </Text>
-            <Text style={[styles.TextFont, {fontWeight: '400'}]}>
+            <Text style={[styles.TextFont, {fontWeight: '400', fontSize: 20}]}>
               You have completed the test
             </Text>
-            {/* <Text style={[styles.TextFont, {fontWeight: '400'}]}>
-              {skillText+' '}
-              <Text style={[styles.TextFont, {fontWeight: '300'}]}>
-                {partName}
-              </Text>
-            </Text> */}
+            <Text style={[styles.TextFont, {fontWeight: 'bold', color: PRIMARY_COLOR}]}>
+                {testHistory.TestName}
+            </Text>
           </View>
           <Text
             style={{
@@ -164,7 +140,7 @@ const CompleteTestCard = ({navigation,route})=> {
               fontWeight: '500',
               color: 'black',
             }}>
-            Result: {score}/{quantity1}
+            Result: {score}/{quantity}
           </Text>
           <View style={styles.boxstyle}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -172,11 +148,11 @@ const CompleteTestCard = ({navigation,route})=> {
                 Correct rate:
               </Text>
               <Text style={[styles.TextFont, {fontWeight: '400'}]}>
-                {parseInt((score * 100) / quantity1)}%
+                {parseInt((score * 100) / quantity)}%
               </Text>
             </View>
             <Progress.Bar
-              progress={score / quantity1}
+              progress={score / quantity}
               width={250}
               height={10}
               style={{height: 10}}
@@ -200,8 +176,6 @@ const CompleteTestCard = ({navigation,route})=> {
                 onPress={() =>
                   navigation.push('QuestionScreen', {
                     questionList: reviewList,
-                    // part: part,
-                    // partName: partName,
                     sign: 'noMax',
                   })
                 }>
@@ -211,7 +185,7 @@ const CompleteTestCard = ({navigation,route})=> {
               <TouchableOpacity
                 style={[AppStyle.button.button2]}
                 onPress={onContinue}>
-                <Text style={AppStyle.button.button2_Text}>Continue</Text>
+                <Text style={AppStyle.button.button2_Text}>{isMiniTest ? 'Continue': 'Go Back'}</Text>
               </TouchableOpacity>
             )}
           </View>

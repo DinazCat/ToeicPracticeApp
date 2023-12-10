@@ -636,6 +636,8 @@ const gettime = ()=>{
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             scrollEventThrottle={16}
+            windowSize={10} 
+            initialNumToRender={5} 
             onScroll={Animated.event(
               [
                 {
@@ -703,6 +705,8 @@ const gettime = ()=>{
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             scrollEventThrottle={16}
+            windowSize={10} 
+            initialNumToRender={5} 
             onScroll={Animated.event(
               [
                 {

@@ -31,7 +31,7 @@ const {width} = Dimensions.get('window');
 const TestQuestions = ({navigation, route}) => {
 const {user} = useContext(AuthContext);
 const scrollX = useRef(new Animated.Value(0)).current;
-const {questionList, numberofQuestion, isFromPL, isMiniTest} = route.params;
+const {questionList, isFromPL, isMiniTest, testName} = route.params;
 const [soundL, setsoundL] = useState(null);
 const [ItemIndex, setItemIndex] = useState(0);
 const [OpenModal, setOpenModal] = useState(false);
@@ -39,7 +39,7 @@ const [ExplainButton, setExplainButton] = useState('1');
 const [loading, setloading] = useState(false);
 const [buttonTitle, setButtonTitle] = useState('Submit');
 const [history, setHistory] = useState([]);
-const [timeRemaining, setTimeRemaining] = useState(720); 
+const [timeRemaining, setTimeRemaining] = useState(7200); 
 
 
 const list = [];
@@ -52,7 +52,12 @@ const createsound = () => {
           return;
         }
         else{
-          if(isMiniTest && i==4) {setloading(true);}
+          if(isMiniTest) {
+            if(i==4) {setloading(true)}
+          }
+          else{
+            if(i==53) {setloading(true)}
+          }
         }
       });
       list.push(sound);  
@@ -65,20 +70,94 @@ const createsound = () => {
   setsoundL(list);
 };
 
+const getDate = () => {
+  const currentDate = new Date();
+  const currentDay = currentDate.getDate(); 
+  const currentMonth = currentDate.getMonth() + 1; 
+  const currentYear = currentDate.getFullYear(); 
+  const currentHours = currentDate.getHours(); 
+  const currentMinutes = currentDate.getMinutes();
+  const date = currentDay+'/'+currentMonth+'/'+currentYear+', '+currentHours+':'+currentMinutes
+  return date 
+}
+
+const timeFormat = (totalSeconds) => {
+  let hours = Math.floor(totalSeconds / 3600);
+  let minutes = Math.floor((totalSeconds % 3600) / 60);
+  let seconds = totalSeconds % 60;
+  let time = `${hours}:${minutes.toLocaleString('en-US', { minimumIntegerDigits: 2 })}:${seconds.toLocaleString('en-US', { minimumIntegerDigits: 2 })}`;
+  return time;
+}
+
 const onSubmit = async() =>{
+  console.log('onsubmit');
   if (questionList[ItemIndex].Audio && soundL[ItemIndex].isPlaying()) {
     soundL[ItemIndex].stop();
   }
-  const updatedHistory = history.map((history, index) => ({
+  const answers = history.map((history, index) => ({
     ...history,
     part: questionList[index].part,
   }));
-  //console.log(updatedHistory);
-  navigation.navigate('CompleteTestCard', {quantity:questionList.length,answer:updatedHistory,sign:'QuestionScreen', isFromPL: route.params.isFromPL, isMiniTest: route.params.isMiniTest, questionL:questionList, targetLevel: route.params.targetLevel})
+
+  // console.log(answers);
+
+  if(isMiniTest)
+    navigation.navigate('CompleteTestCard', {quantity:questionList.length,answer:answers,sign:'QuestionScreen', isFromPL: route.params.isFromPL, isMiniTest: route.params.isMiniTest, questionL:questionList, targetLevel: route.params.targetLevel})
+  else {
+    const date = getDate();
+    let completiontime = timeFormat(7200-timeRemaining);
+    let unAnswers = 0;
+    const corrects = Array.from({ length: 7 }, () => 0);
+    for(let i = 0 ; i < questionList.length; i++){
+      if(questionList[i].part=='L1'||questionList[i].part=='L2'||questionList[i].part=='R1'){
+        if(answers[i].Select==answers[i].Default){
+          if(questionList[i].part=='L1') corrects[0] += 1;
+          else if(questionList[i].part=='L2') corrects[1] += 1;
+          else corrects[4] += 1;
+        }
+        else if (answers[i].Select == -1){
+          unAnswers= unAnswers + 1;
+        }
+      }
+      else{
+        for(let j = 0; j < answers[i].Default.length; j++){
+          if(answers[i].Select[j]==answers[i].Default[j]){
+            if(questionList[i].part=='L3') corrects[2] += 1;
+            else if(questionList[i].part=='L4') corrects[3] += 1;
+            else if(questionList[i].part=='R2') corrects[5] += 1;
+            else corrects[6] += 1;
+          }
+          else if (answers[i].Select[j] == -1){
+            unAnswers = unAnswers + 1;
+          }
+        }            
+      }
+    }
+    
+    const sum = corrects.reduce((total, current) => total + current, 0);
+    const data = {
+      Quantity: 200,
+      History: answers,
+      Questions: questionList,
+      Date: date,
+      TestName: testName,
+      CompletionTime: completiontime,
+      Corrects: corrects,
+      Correct: sum,
+      Incorrect: 200 - sum - unAnswers,
+      Unanswer: unAnswers,
+    }
+    //Api.uploadTestHistory(data);
+    navigation.navigate('CompleteTestCard', {answer:answers, sign:'QuestionScreen', questionL:questionList, testHistory: data})
+    //navigation.navigate('CompleteTestCard');
+  }
+
+
 }
 
 useEffect(() => {
   createsound();
+  if(isMiniTest) {setTimeRemaining(720)}
 }, []);
 
 useEffect(() => {
@@ -92,7 +171,7 @@ useEffect(() => {
             soundL[i].stop();
           }       
         }
-      if(index < 5){
+      if(index < soundL.length){
         soundL[index].play(success => {
           if (success) {
             console.log('successfully finished playing');
@@ -136,14 +215,13 @@ useEffect(() => {
     intervalId = setInterval(() => {
       setTimeRemaining((prevTime) => {
         if (prevTime === 0) {
-          clearInterval(intervalId);
-          
+          clearInterval(intervalId);        
           onSubmit();
           return 0;
         }
         return prevTime - 1;
       });
-    }, 1200);
+    }, 1500);
   } else {
     clearInterval(intervalId);
   }
@@ -214,7 +292,7 @@ return (
 
       <View style={{flex: 1}} />
       <Text style={{color: 'white', fontSize: 20, marginRight: '5%',}}>
-        {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toLocaleString('en-US', { minimumIntegerDigits: 2 })}
+        {timeFormat(timeRemaining)}
       </Text>
       { buttonTitle == 'Explain' ? (
       <TouchableOpacity onPress={() => setOpenModal(true)}>
@@ -255,6 +333,8 @@ return (
       pagingEnabled
       showsHorizontalScrollIndicator={false}
       scrollEventThrottle={16}
+      windowSize={10} 
+      initialNumToRender={5} 
       onScroll={Animated.event(
         [
           {

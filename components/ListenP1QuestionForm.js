@@ -16,7 +16,7 @@ import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import Sound from 'react-native-sound';
 import dings from '../assets/Part1No1.mp3'
 const {width} = Dimensions.get('window');
-const ListenP1QuestionForm = ({item,list,click,flag, check}) => {
+const ListenP1QuestionForm = React.memo(({item,list,click,flag, check}) => {
   const [sign, setsign] = useState('1');
   const [duration, setduration] = useState('00:00')
   const [position, setPosition] = useState('00:00');
@@ -191,7 +191,7 @@ const ListenP1QuestionForm = ({item,list,click,flag, check}) => {
       </View>
     </Animated.View>
   );
-};
+});
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
