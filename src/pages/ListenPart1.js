@@ -199,9 +199,9 @@ const temp = trueIndex !== -1 ? trueIndex : null;
      </label>
       </>
   }
-      {(flag==='Test')&&<button onClick={handleSubmit}>Add</button>}
-{(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
-{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
+  {(flag==='Test')&&<button onClick={handleSubmit}>Add</button>}
+  {(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
+  {(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
     </div>
   );
 }

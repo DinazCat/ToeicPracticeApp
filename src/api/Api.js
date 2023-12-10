@@ -56,8 +56,8 @@ const addVocabLesson = async(data)=>{
 }
 const addVocab = async(data)=>{
   try{
-      const response = await client.post('/addVocab',data)
-          return response.data 
+        const response = await client.post('/addVocab',data)
+            return response.data 
   }
   catch(error){
       console.log('error: ', error.message)
@@ -127,10 +127,7 @@ const updateQuestion = async(part,id, data) => {
         console.error('error: ', error.message);
     }
 }
-// router.post('/deleteTopic/:topicId', deleteTopic)
-// router.delete('/deleteVocab/:vocabId', deleteVocab)
-// router.put('/updateVocab/:vocabId', updateVocab)
-// router.put('/updateTopic/:topicId', updateTopic)
+
 const deleteTopic = async(topicId)=>{
     try{
          await client.delete('/deleteTopic/'+topicId)
@@ -180,8 +177,65 @@ const getVocabinLesson = async(TopicId)=>{
         return [];
     }
 }
+const addTest = async (data) => {
+    const endpoint = "/Test/add";
+    try{
+      const response = await client.post(endpoint, data)
+      console.log(response.data.message)      
+    }
+    catch(error){
+      console.log('error: ', error.message)
+    }
+}
+const deleteTest = async(id)=>{
+    try{
+        await client.delete('/Test/delete/'+id)    
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const updateTest = async(id, data) => {
+    const endpoint = '/Test/update/' + id;
+    try {
+        const response = await client.put(endpoint, data);
+      } catch (error) {
+        console.error('error: ', error.message);
+    }
+}
+const getAllTest = async (part)=>{
+    try{
+        const response = await client.get('/Tests')
+        if(response.data.success){
+            return response.data.tests
+        }
+        else{
+            console.log("not get")
+        }      
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+const getUsers = async (part)=>{
+    try{
+        const response = await client.get('/Users')
+        if(response.data.success){
+            return response.data.users
+        }
+        else{
+            console.log("not get")
+        }      
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
 
 export default {addQuestion, countQuestion, getVocabLesson, addVocabLesson, addVocab, getPost, updatePost, deletePost,
-     getAllQuestion,deleteQuestion, updateQuestion, deleteTopic,deleteVocab,updateTopic,updateVocab, getVocabinLesson}
+    getAllQuestion,deleteQuestion, updateQuestion, deleteTopic,deleteVocab,updateTopic,updateVocab, getVocabinLesson,
+    addTest, updateTest, deleteTest, getAllTest, getUsers}
 
 

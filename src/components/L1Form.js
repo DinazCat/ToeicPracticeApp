@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEye, faPen } from '@fortawesome/free-solid-svg-icons';
 const L1Form = ({item, eye, pen, Delete})=>{
     const handleClick = () => {
-        // Xử lý khi người dùng click vào icon
+        
         console.log('Icon clicked!');
       };
     return(

@@ -144,7 +144,7 @@ function ReadPart1({flag, index, complete, item}) {
         <input type='text' onChange={(e) => setTextR3(e.target.value)} value={textR3} id='TR'></input> 
         </div>
         <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((selectedAnswer == 3)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>D</button>
+        <button className={((selectedAnswer == 3)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(3)}}>D</button>
         <input type='text' onChange={(e) => setTextR4(e.target.value)} value={textR4} id='TR'></input> 
         </div>
       </div>

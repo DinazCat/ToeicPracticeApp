@@ -17,5 +17,42 @@
     background-color:white;
     color: rgb(1, 68, 44);
     text-decoration: underline;
-    font-size: medium;
+    font-size: 15px;
+}
+.testitem-wrapper {
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    padding: 16px; 
+    background-color: #fff; 
+    display: block;
+    width: 200px;
+  }
+  
+.testitem-wrapper:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+}
+.text-dark {
+    color: #333; /* Màu chữ tối */
+}
+  
+.testitem-info {
+    font-size: 14px; /* Kích thước chữ của thông tin */
+    color: #888; /* Màu chữ nhạt */
+}
+.Qicon{
+    margin-left: 5px;
+}
+.testname-wrapper{
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    background-color: #fff; 
+    padding-right: 40px;
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); 
+    grid-gap: 10px; 
+    overflow: hidden;
 }
