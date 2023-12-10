@@ -94,6 +94,25 @@ io.on('connection', (socket) => {
         }
       } 
     })
+    //realtime cho TestHistory
+    db.collection('TestHistory')
+    //.where('UserId', '==', userId)
+    .onSnapshot((querySnapshot) => {
+      const dataList = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data) {
+          data.Id = doc.id;
+          dataList.push(data);
+        }
+      });
+  
+      if (dataList.length > 0) {
+        const name = userId + 'TestHistoryChange';
+        io.emit(name, dataList);
+      }
+    });
      //realtime cho posts in forum
   db.collection('Posts')
   .orderBy('postTime.seconds', 'desc')

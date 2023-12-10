@@ -7,20 +7,21 @@ const {getQuestion, pushPracticeHistory, getOneQuestion, addQuestion, countQuest
 const {uploadPracticePlan, getPracticePlan, updatePracticePlan} = require('../controllers/PracticePlan')
 const {addPost, updatePost, addComment, getOneComment, addNotification, deleteNotification, updateNotification,
      filterOnlyPost,filterOnlyhashtag,filterBoth, pushSavedPost, getSavedPost, deletePost, getPosts}=require('../controllers/Post')
+const {addTest, getAllTest, updateTest, deleteTest, uploadTestHistory} = require('../controllers/Test')
 
+//vocab
 router.get('/VocabLessons',getVocabLesson)
 router.get('/VocabinLesson/:TopicId',getVocabinLesson)
 router.get('/Vocabs',getVocabs)
 router.get('/getAlarmVocab/:userId',getAlarmVocab)
 router.post('/alarmVocab/:userId',setAlarmVocab)
 router.put('/updateAlarmVocab/:userId', updateAlarmVocab)
+//user
 router.put('/setUserInfo/:userId', setUserInfo)
 router.put('/updateUser/:userId', updateUser)
 router.put('/updateUserPrivate/:userId', updateUserPrivate)
 router.get('/Users', getAllUsers)
 router.get('/UserData/:userId', getUserData)
-router.post('/uploadAudio', uploadAudio)
-router.post('/uploadPracticeHistory', uploadPracticeHistory)
 //question
 router.get('/Question/:Part/:userId/:number',getQuestion)
 router.post('/PracticeHistory/:userId/:sign',pushPracticeHistory)
@@ -33,6 +34,8 @@ router.delete('/deleteQuestion/:Part/:Qid',deleteQuestion)
 router.post('/ReviewQuestion',getReviewQuestion)
 router.get('/getSavedQuestion/:userId',getSavedQuestion)
 router.put('/updateSavedQuestion/:userId', updateSavedQ)
+router.post('/uploadAudio', uploadAudio)
+router.post('/uploadPracticeHistory', uploadPracticeHistory)
 //PracticePlan
 router.post('/PracticePlan/:userId/add', uploadPracticePlan)
 router.get('/PracticePlan/:userId', getPracticePlan)
@@ -59,4 +62,10 @@ router.delete('/deleteTopic/:topicId', deleteTopic)
 router.delete('/deleteVocab/:vocabId', deleteVocab)
 router.put('/updateVocab/:vocabId', updateVocab)
 router.put('/updateTopic/:topicId', updateTopic)
+//test
+router.post('/Test/add', addTest)
+router.get('/Tests', getAllTest)
+router.put('/Test/update/:testId', updateTest)
+router.delete('/Test/delete/:testId', deleteTest)
+router.post('/Test/TestHistory/:userId/upload', uploadTestHistory)
 module.exports = router
