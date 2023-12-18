@@ -1,6 +1,7 @@
 const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc, query,where} = require('firebase/firestore');
-const {firebase,db}= require('../config')
+const {firebase,db, admin}= require('../config')
 const firestore = getFirestore(firebase);
+const {uploadImage} = require('./User')
 
 const getMaxquestion = async (userId, Part)=>{
     const myCollection = collection(firestore, 'Users');
@@ -277,11 +278,47 @@ const get1PHistory = async(list)=>{
   }
   return dataList;
  }
+ const uploadAudio= async(audio)=> {
+  try {
+    // Lưu file âm thanh MP3 vào Firebase Storage
+    const bucket = admin.storage().bucket();
+    const destinationFileName = 'audios/'+audio+'.pdf';
+    await bucket.upload(audio, {
+      destination: destinationFileName,
+      metadata: {
+        contentType: 'audio/mpeg', // Định dạng MIME của file MP3
+      },
+    });
+
+    // Lấy URL của file sau khi upload thành công
+    const file = bucket.file(destinationFileName);
+    const [url] = await file.getSignedUrl({
+      action: 'read',
+      expires: '03-09-2491' // Thời gian URL hết hạn
+    });
+
+    return url;
+  } catch (error) {
+    console.error('Error uploading file to Firebase Storage:', error);
+    throw error;
+  }
+}
 
  const addQuestion = async (req, res) => {
   try {
+    const data = req.body;
+    if(data.Image.startsWith('uploads')){
+      await uploadImage(data.Image).then((x)=>{
+        data.Image = x      
+      })
+    }
+    if(data.Audio.startsWith('uploads')){
+      await uploadAudio(data.Audio).then((x)=>{
+        data.Audio = x      
+      })
+    }
     const myCollection = collection(firestore, req.params.Part);
-    await addDoc(myCollection, req.body);
+    await addDoc(myCollection, data);
     console.log("Document successfully add!");
     res.send({ message: 'Question added successfully' });
   } catch (error) {

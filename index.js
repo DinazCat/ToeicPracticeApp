@@ -122,7 +122,9 @@ io.on('connection', (socket) => {
     querySnapshot.forEach(doc =>{
       const dateSeconds = moment.unix(doc.data().postTime.seconds);
       const data = {...doc.data(),postTime:dateSeconds.format('DD-MM-YYYY HH:mm')}
-      list.push(data)
+      if(data.Allow == true){
+        list.push(data)
+      }
       if(doc.data().userId == userId){
         list2.push(data)
       }
@@ -179,6 +181,13 @@ app.post('/upload', upload.single('image'), (req, res) => {
   console.log(file);
   
   res.json({ message: 'Image uploaded successfully',photo:file.path });
+});
+app.post('/uploadaudio', upload.single('audio'), (req, res) => {
+  // Do something with the uploaded image
+  const file = req.file;
+  console.log(file);
+  
+  res.json({ message: 'Audio uploaded successfully',audio:file.path });
 });
 app.post('/uploadvideo', upload.single('video'), (req, res) => {
   // Do something with the uploaded image
