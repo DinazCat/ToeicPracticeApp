@@ -4,23 +4,42 @@ import "../styles/AddQuestion.css";
 import api from '../api/Api';
 import client from '../api/client';
 import axios from 'axios';
+import upload from '../api/upload';
 function WritePart1({item,complete,flag}) {
   const [imageFile, setImageFile] = useState(item?.Picture||null);
+  const [imageFile1, setImageFile1] = useState(null);
   const [word, setWord] = useState(item?.SugesstedWord);
   const [sampleAnswer, setSampleAnswer] = useState(item?.Explain?.SampleAnswer||'');
   const [tip, setTip] = useState(item?.Explain?.Tips||'');
 
   const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]);
+    setImageFile1(e.target.files[0]);
   };
 
 
   const handleSubmit = async () => {
-    
+    let image=imageFile;
+    if(imageFile1!=null){
+      try{
+        const formData = new FormData();
+        formData.append('image', imageFile1); 
+        const response = await axios.post(upload.upImage, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        image = response.data.photo
+        console.log(image)
+      }
+      catch(e)
+      {
+      }  
+  }
    
     if(flag==='submit'){
+     
       let data = {
-        Picture: imageFile,
+        Picture: image,
         SugesstedWord:word,
         Explain: {
           SampleAnswer: sampleAnswer,
@@ -31,8 +50,9 @@ function WritePart1({item,complete,flag}) {
       await api.addQuestion('WritePart1', data);
     }
     else if(flag==='fix'){
+
       let data = {
-        Picture: imageFile,
+        Picture: image,
         SugesstedWord:word,
         Explain: {
           SampleAnswer: sampleAnswer,

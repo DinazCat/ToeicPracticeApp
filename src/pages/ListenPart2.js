@@ -4,9 +4,11 @@ import "../styles/AddQuestion.css";
 import api from '../api/Api';
 import client from '../api/client';
 import axios from 'axios';
+import upload from '../api/upload';
 function ListenPart2({flag, index, complete, item}) {
   const [audioFile, setAudioFile] = useState(item?.Audio||null);
   const [imageFile, setImageFile] = useState(null);
+  const [audioFile1, setAudioFile1] = useState(null);
   const [question, setQuestion] = useState('');
   const [selectedAnswer, setSelectedAnswer] = useState(item?.Answer?.findIndex(function(item1) {
     return item1.status === true;
@@ -24,9 +26,9 @@ function ListenPart2({flag, index, complete, item}) {
     const selectedAudio = e.target.files[0];
   
     if (selectedAudio) {
-      setAudioFile(selectedAudio);
+      setAudioFile1(selectedAudio);
     } else {
-      setAudioFile(null);
+      setAudioFile1(null);
     }
   };
 
@@ -53,21 +55,26 @@ function ListenPart2({flag, index, complete, item}) {
             script:text[i]
         });
     }
-
-    // const formData = new FormData();
-    // formData.append('image', {
-    //   uri: imageFile.uri,
-    //   name: 'image.jpg',
-    //   type: 'image/jpg',
-    // });   
-    
-    const formData1 = new FormData();
-    formData1.append('audio', audioFile);
-
-    console.log(audioFile);
+let audio = audioFile
+    if(audioFile1!=null){
+      try{
+        const formData = new FormData();
+        formData.append('audio', audioFile1); 
+        const response = await axios.post(upload.upAudio, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        audio = response.data.audio
+        console.log(audio)
+      }
+      catch(e)
+      {
+      }  
+  }
     if(flag==='submit'){
       let data = {
-        Audio: audioFile,
+        Audio: audio,
         Answer: answerL,
         Explain: {
           script: script,
@@ -81,7 +88,7 @@ function ListenPart2({flag, index, complete, item}) {
     }
     else if(flag==='fix') {
       let data = {
-        Audio: audioFile,
+        Audio: audio,
         Answer: answerL,
         Explain: {
           script: script,
@@ -94,7 +101,7 @@ function ListenPart2({flag, index, complete, item}) {
     }
     else if(flag==='Test'){
       let data = {
-        Audio: audioFile,
+        Audio: audio,
         Answer: answerL,
         Explain: {
           script: script,

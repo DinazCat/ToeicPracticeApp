@@ -5,9 +5,12 @@ import api from '../api/Api';
 import client from '../api/client';
 import axios from 'axios';
 import { Flag } from '@mui/icons-material';
+import upload from '../api/upload';
 function ListenPart1({flag, index, complete, item}) {
   const [audioFile, setAudioFile] = useState(item?.Audio||'');
   const [imageFile, setImageFile] = useState(item?.Image ||'');
+  const [audioFile1, setAudioFile1] = useState(null);
+  const [imageFile1, setImageFile1] = useState(null);
   const [question, setQuestion] = useState('');
   const trueIndex = item?.Answer?.findIndex(value => value === true);
 const temp = trueIndex !== -1 ? trueIndex : null;
@@ -20,14 +23,15 @@ const temp = trueIndex !== -1 ? trueIndex : null;
     const selectedAudio = e.target.files[0];
   
     if (selectedAudio) {
-      setAudioFile(selectedAudio);
+      setAudioFile1(selectedAudio);
     } else {
-      setAudioFile(null);
+      setAudioFile1(null);
     }
   };
 
   const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]);
+   
+     setImageFile1(e.target.files[0]);
   };
 
   const handleAnswerChange = (e) => {
@@ -51,27 +55,46 @@ const temp = trueIndex !== -1 ? trueIndex : null;
       }
       else answerL.push(false);
     }
-
-    // const formData = new FormData();
-    // formData.append('image', {
-    //   uri: imageFile.uri,
-    //   name: 'image.jpg',
-    //   type: 'image/jpg',
-    // });   
-    
-    const formData1 = new FormData();
-    formData1.append('audio', audioFile);
-
-    console.log(audioFile);
-
-  
-
-    // const response = await axios.post('http://192.168.1.103:3000/api/Question/uploadAudio', formData1);
+    let image=imageFile;
+    let audio = audioFile;
+    if(imageFile1!=null){
+      try{
+        const formData = new FormData();
+        formData.append('image', imageFile1); 
+        const response = await axios.post(upload.upImage, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        image = response.data.photo
+        console.log(image)
+      }
+      catch(e)
+      {
+      }  
+  }
+  if(audioFile1!=null){
+    try{
+      const formData = new FormData();
+      formData.append('audio', audioFile1); 
+      const response = await axios.post(upload.upAudio, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      audio = response.data.audio
+      console.log(audio)
+    }
+    catch(e)
+    {
+    }  
+}
     if(flag==='submit')
     {
+
       let data = {
-        Audio: audioFile,
-        Image: imageFile,
+        Audio: audio,
+        Image: image,
         Answer: answerL,
         Explain: {
           script: script,
@@ -85,8 +108,8 @@ const temp = trueIndex !== -1 ? trueIndex : null;
     }
     else if(flag==='Test') {
       let data = {
-        Audio: audioFile,
-        Image: imageFile,
+        Audio: audio,
+        Image: image,
         Answer: answerL,
         Explain: {
           script: script,
@@ -99,8 +122,8 @@ const temp = trueIndex !== -1 ? trueIndex : null;
     }
     else if(flag==='fix') {
       let data = {
-        Audio: audioFile,
-        Image: imageFile,
+        Audio: audio,
+        Image: image,
         Answer: answerL,
         Explain: {
           script: script,
