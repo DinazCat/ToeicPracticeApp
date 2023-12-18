@@ -16,7 +16,7 @@ import WriteP1QuestionForm from '../components/WriteP1QuestionForm';
 import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
 
 
-const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress,editright}) => {  
+const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress,editright, Remove}) => {  
   const navigation = useNavigation();
   const [levelsource, setLevelSource] = useState(require('../assets/Lv0.png'))
   const [Allow, SetAllow] = useState(false);
@@ -128,30 +128,38 @@ const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress,editright}
           await Api.deletePost(item.postId)
         },
       },
-      {
-        title:'Edit',
-        action:()=>{
-          setvisible(false)
-        },
-      }
+      // {
+      //   title:'Edit',
+      //   action:()=>{
+      //     setvisible(false)
+      //   },
+      // }
     ];
     const options2 = [
       {
-        title:'Save',
+        title:(EditRight!='unsave')?'Save':'unSave',
         action:async ()=>{
+          if(EditRight=='unsave'){
+            setvisible(false)
+            Alert.alert('Success!', "You have successfully removed the post from the list");
+            // await Api.savePost(item.postId)
+            Remove()
+          }
+          else{
           setvisible(false)
           Alert.alert('Success!', "Post save successfully");
           await Api.savePost(item.postId)
+          }
         },
       }
     ]
 
     return(
       <View style={{flexDirection:'row'}}>
-       {(visible && Allow && EditRight)? <View style = {styles.popup}>
+       {(visible && Allow && EditRight==true)? <View style = {styles.popup}>
             {
               options.map((op,i)=>(
-                <TouchableOpacity  style={[styles.popupitem,{borderBottomWidth:i===options.length-1?0:1}]} key={i} onPress={op.action}>
+                <TouchableOpacity  style={[styles.popupitem]} key={i} onPress={op.action}>
                   <Text>{op.title}</Text>
                 </TouchableOpacity>
               ))

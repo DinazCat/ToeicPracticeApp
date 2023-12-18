@@ -41,18 +41,44 @@ const {width} = Dimensions.get('window');
 const QuestionScreen = ({navigation, route}) => {
   const {user} = useContext(AuthContext);
   const scrollX = useRef(new Animated.Value(0)).current;
-  const {questionList, part, partName, sign, numberofQuestion, isFromPL} = route.params;
+  const {questionList, part, partName, sign, numberofQuestion, isFromPL,isExplain} = route.params;
   const [soundL, setsoundL] = useState(null);
   const [ItemIndex, setItemIndex] = useState(0);
   const [OpenModal, setOpenModal] = useState(false);
   const [ExplainButton, setExplainButton] = useState('1');
   const [loading, setloading] = useState(false);
-  const [buttonTitle, setButtonTitle] = useState('Submit')
+  const [buttonTitle, setButtonTitle] = useState(isExplain||'Submit')
+  const [isSaved, setIsSaved] = useState(false);
+  const [SavedQ, setSavedQ] = useState([]);
   const [recordingsList, setRecordingsList] = useState([]);
   const [history, setHistory] = useState([]);
   const recordsRef = useRef([]);
   const answersRef = useRef([]);
-
+  const saveQuestion=async(id)=>{
+   
+    const data= await Api.getSavedQuestion()
+      if(data!='-1'){
+        const foundItem = data.find(item => item.Id === id);
+        if(!foundItem){
+          const list = [...data];
+          list.push({Id:id,Part:part});
+          setSavedQ(list)
+          setIsSaved(true)
+          await Api.updateSavedQuestion({SavedQuestion:list})
+        }
+        else{
+          const filteredData = data.filter(i => i.Id!== id);
+          const list = [...filteredData];
+          setSavedQ(list)
+          setIsSaved(false)
+          await Api.updateSavedQuestion({SavedQuestion:list})
+        }
+      }
+      else{
+        setSavedQ([id])
+        await Api.setUserInfo({SavedQuestion:[{Id:id,Part:part}]})
+      }
+  }
   const list = [];
   const createsound = () => {
     for (let i = 0; i < questionList.length; i++) {
@@ -370,16 +396,28 @@ const gettime = ()=>{
       }
     }    
   }
-
+  useEffect(()=>{
+    if(buttonTitle == 'Explain'){
+      setIsSaved(true)
+    }
+  },[]);
   useEffect(() => {
     if(part=='L1'||part=='L2'||part=='L3'||part=='L4')
     createsound();
   else setsoundL('-1')
   }, []);
   useEffect(() => {
-    scrollX.addListener(({value}) => {
+    scrollX.addListener(async ({value}) => {
       const index = Math.round(value / width);
       setItemIndex(index);
+      const data= await Api.getSavedQuestion()
+      const foundItem = data.find(item => item.Id === questionList[index].Id);
+      if(foundItem){
+        setIsSaved(true)
+      }
+      else {
+        setIsSaved(false)
+      }
       if(loading && (part=='L1'||part=='L2'||part=='L3'||part=='L4')){
       for(let i = 0; i < soundL.length; i++)
           {
@@ -423,6 +461,7 @@ const gettime = ()=>{
     setHistory(list)
   },[])
   const showAlert = () => {
+    if(buttonTitle != 'Explain')
     Alert.alert(
       'Hey!',
       'If you leave, your training progress will not be saved.',
@@ -442,6 +481,7 @@ const gettime = ()=>{
       ],
       { cancelable: false }
     );
+    else  navigation.goBack()
   }
   const showAlert2 = () => {
     Alert.alert(
@@ -592,12 +632,13 @@ const gettime = ()=>{
           }}>
           Question {ItemIndex + 1}
         </Text>
+        <TouchableOpacity  style={{marginLeft: '3%'}} onPress={()=>{saveQuestion(questionList[ItemIndex].Id)}}>
         <FontAwesome
           name="heart"
-          color="white"
+          color={(isSaved)?'red':"white"}
           size={20}
-          style={{marginLeft: '3%'}}
         />
+        </TouchableOpacity>
         <View style={{flex: 1}} />
         { buttonTitle == 'Explain' ? (
         <TouchableOpacity onPress={() => setOpenModal(true)}>

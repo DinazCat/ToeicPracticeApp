@@ -15,7 +15,6 @@ import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Api from '../api/Api'
-import socketServices from '../api/socketService';
 const VocabCard =({display, soundItem, showExample})=> {
 const [Save, setSave] = useState(false);
 const [alarm, setAlarm] = useState(false);
@@ -38,31 +37,37 @@ const checkSave= async()=>{
     console.log(e);
   }
 }
-useEffect(() => {
-  //getVocabLesson()
-  socketServices.initializeSocket()
-    }, []);
+
 useEffect(() => {
   checkSave()
   checkAlarm()
 }, []);
 const checkAlarm = async()=>{
+  // try{
+  //   const data = await Api.getAlarmVocab()
+  //   const foundItem = data.find(item => item.Id === display.Id);
+  //   if(foundItem) setAlarm(true);
+  // }
+  // catch(e){
+  //   console.log(e);
+  // }
   try{
-    // const data = await Api.getAlarmVocab()
-    // const foundItem = data.find(item => item.Id === display.Id);
-    // if(foundItem) setAlarm(true);
-    socketServices.on(auth().currentUser.uid+'Alarmchange',(data) => {
-      // console.log("updated alarm with socket"+data)
-      if(data?.length>0){
-      const foundItem = data.find(item => item.Id === display.Id);
-      if(foundItem) setAlarm(true);
-      }
-      else setAlarm(false)
-    })
-  }
-  catch(e){
-    console.log(e);
-  }
+    await firestore()
+     .collection('Users')
+     .doc(auth().currentUser.uid)
+     .get()
+     .then(doc => {
+       if(doc.exists){
+       const list = doc.data().vocabAlarms||[];
+       if(list)
+       for(let i = 0; i < list.length; i++){
+         if(list[i].Id == display.Id) setAlarm(true);
+       }
+     }
+     });    
+   } catch(e){
+     console.log(e);
+   }
 }
 
 

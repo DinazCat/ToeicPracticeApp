@@ -47,11 +47,37 @@ import {
     const [ExplainButton, setExplainButton] = useState('1');
     const [loading, setloading] = useState(false);
     const flatListRef = useRef();
+    const [isSaved, setIsSaved] = useState(false);
+    const [SavedQ, setSavedQ] = useState([]);
     // const [Click, setClick] = useState(false);
     // const navigation1 = useNavigation();
     // const [Score, setScore] = useState(0);
     // const [history, setHistory] = useState([]);
+    const saveQuestion=async(id)=>{
 
+      const data= await Api.getSavedQuestion()
+        if(data!='-1'){
+          const foundItem = data.find(item => item.Id === id);
+          if(!foundItem){
+            const list = [...data];
+            list.push({Id:id,Part:part});
+            setSavedQ(list)
+            setIsSaved(true)
+            await Api.updateSavedQuestion({SavedQuestion:list})
+          }
+          else{
+            const filteredData = data.filter(i => i.Id!== id);
+            const list = [...filteredData];
+            setSavedQ(list)
+            setIsSaved(false)
+            await Api.updateSavedQuestion({SavedQuestion:list})
+          }
+        }
+        else{
+          setSavedQ([id])
+          await Api.setUserInfo({SavedQuestion:[{Id:id,Part:part}]})
+        }
+    }
     const list = [];
     const createsound = () => {
       for (let i = 0; i < questionList.length; i++) {
@@ -86,9 +112,17 @@ import {
       else setsoundL('-1')
     }, []);
     useEffect(() => {
-      scrollX.addListener(({value}) => {
+      scrollX.addListener(async ({value}) => {
         const index = Math.round(value / width);
         setItemIndex(index);
+        const data= await Api.getSavedQuestion()
+        const foundItem = data.find(item => item.Id === questionList[index].Id);
+        if(foundItem){
+          setIsSaved(true)
+        }
+        else {
+          setIsSaved(false)
+        }
         if(loading && (isMiniTest || part=='L1'||part=='L2'||part=='L3'||part=='L4')){
           for(let i = 0; i < soundL.length; i++)
             {
@@ -114,7 +148,7 @@ import {
       flatListRef.current.scrollToIndex({ index: indication, animated: true });
     }
     },[loading])
-    useEffect(()=>{
+    useEffect( ()=>{
       if(soundL=='-1')
         flatListRef.current.scrollToIndex({ index: indication, animated: true });
       },[])
@@ -267,12 +301,13 @@ import {
             : `${History[0].Number[0] + 1}-${History[0].Number[History[0].Number.length - 1] + 1}`
             : ItemIndex + 1}
           </Text>
-          <FontAwesome
-            name="heart"
-            color="white"
-            size={20}
-            style={{marginLeft: '3%'}}
-          />
+          <TouchableOpacity style={{marginLeft: '3%'}} onPress={()=>{saveQuestion(questionList[ItemIndex].Id)}}>
+        <FontAwesome
+          name="heart"
+          color={(isSaved)?'red':"white"}
+          size={20}
+        />
+        </TouchableOpacity>
           <View style={{flex: 1}} />
         <TouchableOpacity onPress={() => setOpenModal(true)}>
           <Text

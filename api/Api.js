@@ -437,6 +437,42 @@ const uploadTestHistory = async (data) => {
       console.log('error: ', error.message)
     }
 }
+const getReviewQuestion = async(data)=>{
+    try{
+        const response = await client.post('/ReviewQuestion',data)
+            return response.data.questionL    
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+}
+const getSavedQuestion = async()=>{
+    const endpoint = "/getSavedQuestion/" + auth().currentUser.uid
+    try{
+        const response = await client.get(endpoint)
+        if(response.data.success){
+            return response.data.savedQuestion
+        }
+        else{
+            console.log("not get")
+        }
+        
+    }
+    catch(error){
+        console.log('error: ', error.message)
+        return [];
+    }
+}
+const updateSavedQuestion = async(data)=>{
+    const endpoint = "/updateSavedQuestion/" + auth().currentUser.uid
+    try{
+        const response = await client.put(endpoint, data)
+    }
+    catch(error){
+        console.log('error: ', error.message)
+    }
+
+}
 export default {
     getVocabLesson,
     getVocabinLesson,
@@ -471,5 +507,8 @@ export default {
     getsavePost,
     deletePost,
     getAllTest,
-    uploadTestHistory
+    uploadTestHistory,
+    getReviewQuestion,
+    getSavedQuestion,
+    updateSavedQuestion
 }

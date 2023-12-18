@@ -106,7 +106,7 @@ const InVocabLessonCard = ({navigation,route}) => {
            {vocabs&&<Text style={{fontSize: 18, marginLeft: 5, color: 'black',fontWeight: '400',}}>{vocabs[i]?vocabs[i].Example:'i'}</Text>}
           </View>
           </View>
-        </Modal>
+          </Modal>
       )
     }
     const saveAlarm=async()=>{

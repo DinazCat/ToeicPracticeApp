@@ -37,47 +37,43 @@ const CompleteCard=({navigation,route})=> {
   
   }
   const setReview= async()=>{
-    const list=[]
+    const listId=[]
+    let changePart = '';
     console.log(questionL.length)
-    for(let i = 0; i < questionL.length; i++)
-    {
-      if(part=='L1'){
-        const data = await Api.getOneQuestion('ListenPart1',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Listening')
-      }
-      else if(part=='L2'){
-        const data = await Api.getOneQuestion('ListenPart2',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Listening')
+    for(let i = 0; i < questionL.length; i++){
+      listId.push(questionL[i].Qid)
+    }
+    if(part=='L1'){
+    changePart = 'ListenPart1'
+    setSkillText('Listening')
+    }
+    else if(part=='L2'){
+      changePart = 'ListenPart2'
+      setSkillText('Listening')
       }
       else if(part=='L3'){
-        const data = await Api.getOneQuestion('ListenPart3',questionL[i].Qid)
-        list.push(data)
+        changePart = 'ListenPart3'
         setSkillText('Listening')
-      }
-      else if(part=='L4'){
-        const data = await Api.getOneQuestion('ListenPart4',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Listening')
-      }
-      else if(part=='R1'){
-        const data = await Api.getOneQuestion('ReadPart1',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Reading')
-      }
-      else if(part=='R2'){
-        const data = await Api.getOneQuestion('ReadPart2',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Reading')
-      }
-      else if(part=='R3'){
-        const data = await Api.getOneQuestion('ReadPart3',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Reading')
-      }
-    }
-    setReviewList(list) 
+        }
+        else if(part=='L4'){
+          changePart = 'ListenPart4'
+          setSkillText('Listening')
+          }
+          else if(part=='R1'){
+            changePart = 'ReadPart1'
+            setSkillText('Reading')
+            }
+            else if(part=='R2'){
+              changePart = 'ReadPart2'
+              setSkillText('Reading')
+              }
+              else if(part=='R3'){
+                changePart = 'ReadPart3'
+                setSkillText('Reading')
+                }
+
+    const data = await Api.getReviewQuestion({Part:changePart,listQ:listId})
+    setReviewList(data) 
   }
   const continuePractice = async()=>{
     if(part=='L1'){

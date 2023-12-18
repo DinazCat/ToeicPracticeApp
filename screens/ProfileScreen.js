@@ -61,31 +61,44 @@ const ProfileScreen = ({navigation, route}) => {
     const data = await Api.filterOnlyPost(auth().currentUser.uid,'Liked')
     setLikes(data)
   }
-//   const posts =[
-//     {
-//       postId: 1,
-//       userName: 'Cát Tường',
-//       postTime: 'Wed October 28 2023 at 5.14.50 PM',
-//       cate: 'Study Resources', 
-//       topic: 'Chia sẻ tài liệu TOEIC mới nhất 10/2023',
-//       postImg: 'https://www.tailieuielts.com/wp-content/uploads/2020/12/Seperti-apa-sih-TOEICThumbnails-1024x585-1.jpg',   
-//     },
-// ];
-// const likes=[
-//     {
-//       postId: 2,
-//       userName: 'Cát Tường',
-//       postTime: 'Wed October 28 2023 at 5.14.50 PM',
-//       cate: 'Review Exam Experiences',
-//       topic: 'Review đề thi IDP 12/10/2023',
-//       postImg: 'https://www.tailieuielts.com/wp-content/uploads/2020/12/Seperti-apa-sih-TOEICThumbnails-1024x585-1.jpg',   
-//     }
-//   ]
+  const PopupMenu = () =>{
+    const[visible,setvisible] = useState(false);
+    const options = [
+      {
+        title:'Saved',
+        action:()=>{
+          navigation.push('SavedPostScreen')
+        },
+
+      },
+    ];
+
+    return(
+      <View style={{flexDirection:'row'}}>
+       {visible&& <View style = {styles.popup}>
+            {
+              options.map((op,i)=>(
+                <TouchableOpacity  style={[styles.popupitem,{borderBottomWidth:i===options.length-1?0:1}]} key={i} onPress={op.action}>
+                  <Text>{op.title}</Text>
+                </TouchableOpacity>
+              ))
+            }
+          </View>}
+       <TouchableOpacity style={styles.MenuButton} onPress={()=>setvisible(!visible)}>
+            <Icon name={'bars'} style={{fontSize:20}}  color={'#000'}/>
+        </TouchableOpacity>
+      </View>
+    )
+  }
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}}
       showsVerticalScrollIndicator={false}>
+              <View style={{flexDirection:'row',}}>
+            <View style={{flex:1}}/>
+          {(auth().currentUser.uid ===  userId ) && <PopupMenu/>}
+          </View>
       <View>
         <Image
           style={styles.userImg}
@@ -318,4 +331,27 @@ const styles = StyleSheet.create({
       borderRadius: 20,
       marginLeft: 10,
   },
+  MenuButton:{
+    color: 'black', 
+    fontSize: 40, 
+    padding: 10,
+    alignSelf:"center",
+  },
+  popup:{
+    borderRadius:8,
+    borderColor:'#333',
+    borderWidth:1,
+    backgroundColor:'#fff',
+    width:62,
+    height:35,
+    textAlign:'center',
+  },
+  popupitem:
+  {
+    borderBottomColor:'black', 
+    alignItems:'center', 
+    width:60, 
+    alignSelf:'center',
+    paddingVertical:5
+  }
 })

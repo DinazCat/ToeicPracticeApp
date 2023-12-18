@@ -72,11 +72,11 @@ return (
       <TouchableOpacity style={styles.buttonstyle} onPress={()=> navigation.push('GameScreen', {vocabList:vocabList,game:'1',vocabs:Vocabs})}>
       <Text style={styles.buttonText}>Select word</Text>
     </TouchableOpacity>
-    <TouchableOpacity style={styles.buttonstyle}>
+    <TouchableOpacity style={styles.buttonstyle} onPress={()=> navigation.push('GameScreen', {vocabList:vocabList,game:'2',vocabs:Vocabs})}>
       <Text style={styles.buttonText}>Match words with meanings</Text>
     </TouchableOpacity>
-    <TouchableOpacity style={styles.buttonstyle}>
-      <Text style={styles.buttonText}>Listen to seclet</Text>
+    <TouchableOpacity style={styles.buttonstyle} onPress={()=> navigation.push('GameScreen', {vocabList:vocabList,game:'3',vocabs:Vocabs})}>
+      <Text style={styles.buttonText}>Listen to select</Text>
     </TouchableOpacity>
     </>}
     

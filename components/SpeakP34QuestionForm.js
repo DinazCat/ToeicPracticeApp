@@ -8,6 +8,8 @@ import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFetchBlob from 'rn-fetch-blob';
 import { AuthContext } from '../navigation/AuthProvider';
+import Sound from 'react-native-sound';
+import LottieView from 'lottie-react-native';
 
 const {width} = Dimensions.get('window');
 const audioRecorderPlayer = new AudioRecorderPlayer();
@@ -26,6 +28,7 @@ const SpeakP34QuestionForm = ({item, onRecordComplete,flag, check}) => {
   const [durations, setDurations] = useState(['00:00', '00:00', '00:00']);
   const [positions, setPositions] = useState([0, 0, 0]);
   const [audio, setAudio] = useState();
+  const [loading, setLoading] = useState(false);
 
   const getPermissions = async () => {
     //const atLeastAndroid13 = Platform.OS === 'android' && Platform.Version >= 33;
@@ -53,10 +56,36 @@ const SpeakP34QuestionForm = ({item, onRecordComplete,flag, check}) => {
       console.log('permission granted')
     }
   };
+  const getAudioTimeString=(seconds)=>{
+    const m = parseInt(seconds%(60*60)/60);
+    const s = parseInt(seconds%60);
+
+    return ( (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s));
+  }
+  const getDuration = async(list)=>{
+    const x = durations.slice();
+    for(let i = 0; i < 3; i++){
+      const sound = new Sound(list[i], null, error => {
+        if (error) {
+          console.log('failed to load the sound', error);
+          return;
+        }
+        else{
+          x[i]=getAudioTimeString(sound.getDuration())
+          if(i==2){
+            setDurations(x)
+          setLoading(true)
+        }
+        }
+      });
+    }
+
+  }
   useEffect(()=>{
     if(flag != 'QuestionScreen'){
       const list = [check.record0, check.record1, check.record2];
       setRecordings(list)
+      getDuration(list)
     }
   },[])
 
@@ -230,6 +259,9 @@ const SpeakP34QuestionForm = ({item, onRecordComplete,flag, check}) => {
   )}
   return (
     <Animated.View style={styles.container}>
+      { (!loading) ? 
+            <LottieView source={require('../assets/animation_lnu2onmv.json')} autoPlay loop style={{flex: 1, width:100, height:100, alignSelf:'center'}}/>
+            :
       <ScrollView>     
       <Text style={{color:'black', fontWeight:'500',fontSize:20,textAlign:'left',marginTop:'5%', marginLeft:"5%"}}>Respond to Questions</Text>
       <View style={{backgroundColor: card_color, width: '98%', marginTop: 10}}>
@@ -240,7 +272,7 @@ const SpeakP34QuestionForm = ({item, onRecordComplete,flag, check}) => {
       <QuestionForm question={item.Question[1]} index={1}/>
       <QuestionForm question={item.Question[2]} index={2}/>
       <View style={{height:50}}/>
-      </ScrollView>
+      </ScrollView>}
     </Animated.View>
   );
 };

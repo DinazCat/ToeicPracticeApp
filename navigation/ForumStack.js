@@ -16,6 +16,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import ChangeGoal from '../screens/ChangeGoal';
 import TestResultScreen from '../screens/TestResultScreen';
 import ReadPDFScreen from '../screens/ReadPDFScreen';
+import SavedPostScreen from '../screens/SavedPostScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +49,8 @@ export default function ForumStack() {
         <Stack.Screen name="TestResult" component={TestResultScreen}
           options={{ header: () => null }} />
           <Stack.Screen name="ReadPDFScreen" component={ReadPDFScreen}
+          options={{ header: () => null }} />
+           <Stack.Screen name="SavedPostScreen" component={SavedPostScreen}
           options={{ header: () => null }} />
       </Stack.Navigator>
     

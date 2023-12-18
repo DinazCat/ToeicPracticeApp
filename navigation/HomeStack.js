@@ -23,6 +23,7 @@ import Test from '../screens/Test';
 import TestQuestions from '../screens/TestQuestions';
 import CompleteTestCard from '../components/CompleteTestCard';
 import InTestCard from '../components/InTestCard';
+import SavedQuestionScreen from '../screens/SavedQuestionScreen';
 
 const Stack = createNativeStackNavigator();
 export default function HomeStack() {
@@ -92,6 +93,7 @@ export default function HomeStack() {
             <Stack.Screen name="AddPost" component={AddPostScreen} options={{ header: () => null }} />
             <Stack.Screen name='TestQuestions' component={TestQuestions} options={{ header: () => null }}/>
             <Stack.Screen name='CompleteTestCard' component={CompleteTestCard} options={{ header: () => null }}/>  
+            <Stack.Screen name="SavedQuestionScreen" component={SavedQuestionScreen} options={{ header: () => null }} /> 
         </Stack.Navigator>
     );
   };

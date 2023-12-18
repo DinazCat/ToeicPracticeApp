@@ -13,7 +13,8 @@ import socketServices from '../api/socketService';
 
 
  const Home=({navigation})=> {
-  const [savedVocab, setsavedVocab] = useState(null)
+  const [savedVocab, setsavedVocab] = useState(0)
+  const [savedQ, setsavedQ] = useState(0)
   const [pHistoryList, setPHistoryList] = useState(null);
   const [testHistories, setTestHistories] = useState(null);
   const [selectedTab, setSelectedTab] = useState(1);
@@ -46,8 +47,21 @@ import socketServices from '../api/socketService';
       console.log(e);
     }
   }
+  const getSavedQuestion = async()=>{
+    // const list = await Api.getSavedQuestion();
+    // setsavedQ(list)
+    try{
+      socketServices.on(auth().currentUser.uid+'savedQ',(data) => {
+        setsavedQ(data)
+      })
+    }
+    catch(e){
+      console.log(e);
+    }
+  }
   useEffect(() => {
     getSavedVocab()
+    getSavedQuestion()
   }, []);
   return (
     <ScrollView>
@@ -269,12 +283,15 @@ import socketServices from '../api/socketService';
             <View style={{width: 1, height: 100, backgroundColor: 'black'}} />
             <View style={styles.boxStorage}>
               <Text style={AppStyle.button.buttonText}>Question</Text>
-              <Text style={styles.StorageText}>0</Text>
+              <Text style={styles.StorageText}>{savedQ.length}</Text>
               <TouchableOpacity
                 style={[
                   AppStyle.button.button1,
                   {marginTop: 5, marginBottom: 3},
-                ]}>
+                ]}
+                onPress={() =>
+                  navigation.push('SavedQuestionScreen', {questionLId: savedQ})
+                }>
                 <Text style={AppStyle.button.button1_Text}>Review</Text>
               </TouchableOpacity>
             </View>

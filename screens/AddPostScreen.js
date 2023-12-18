@@ -159,7 +159,7 @@ const AddPostScreen = ({navigation,route}) => {
             name: 'image.jpg',
             type: 'image/jpg',
           });     
-          const response = await axios.post('http://192.168.1.2:3000/upload', formData);
+          const response = await axios.post('http://192.168.1.6:3000/upload', formData);
           list.push({uri:response.data.photo,type:'img'})
         }
         else if(image[i].type=='video'){
@@ -169,7 +169,7 @@ const AddPostScreen = ({navigation,route}) => {
             name: 'video.mp4',
             type: 'video/mp4',
           });     
-          const response = await axios.post('http://192.168.1.2:3000/uploadvideo', formData);
+          const response = await axios.post('http://192.168.1.6:3000/uploadvideo', formData);
           list.push({uri:response.data.video,type:'video'})
         }
         else if(image[i].type=='pdf'){
@@ -179,7 +179,7 @@ const AddPostScreen = ({navigation,route}) => {
             name: 'file.pdf',
             type: 'application/pdf',
           });     
-          const response = await axios.post('http://192.168.1.2:3000/uploadpdf', formData);
+          const response = await axios.post('http://192.168.1.6:3000/uploadpdf', formData);
           list.push({uri:response.data.filepdf,type:'pdf',name:image[i].filename})
         }
         if(i == image.length-1){
@@ -193,10 +193,11 @@ const AddPostScreen = ({navigation,route}) => {
             userId:auth().currentUser.uid,
             userImg:profileData.userImg,
             userName:profileData.name||profileData.email,
-            hashtag:hashtag
+            hashtag:hashtag,
+            Allow: false
           }
+          Alert.alert('Success!', "Your post has been sent for moderation");
           await Api.addPost(data);
-          Alert.alert('Success!', "Your post have push successfully");
           
         }
       }
@@ -219,9 +220,10 @@ const AddPostScreen = ({navigation,route}) => {
           userId:auth().currentUser.uid,
           userImg:profileData.userImg,
           userName:profileData.name||profileData.email,
-          hashtag:hashtag
+          hashtag:hashtag,
+          Allow: false
         }
-        Alert.alert('Success!', "Your post have push successfully");
+        Alert.alert('Success!', "Your post has been sent for moderation");
         await Api.addPost(data)
       }
       else{
@@ -239,9 +241,10 @@ const AddPostScreen = ({navigation,route}) => {
             userId:auth().currentUser.uid,
             userImg:profileData.userImg,
             userName:profileData.name||profileData.email,
-            hashtag:hashtag
+            hashtag:hashtag,
+            Allow: false
           }
-          Alert.alert('Success!', "Your post have push successfully");
+          Alert.alert('Success!', "Your post has been sent for moderation.");
           await Api.addPost(data)   
         }
       }
@@ -295,7 +298,9 @@ const AddPostScreen = ({navigation,route}) => {
   function RenderCategory(){
     return(
       <Modal visible={OpenModal2} animationType="slide" transparent={true}>
-    <View style={[styles.panel]}>  
+        <View style={{flex:1, flexDirection:'column'}}>
+          <View style={{flex:1}}/>
+    <View style={{height:300}}>  
     <View style={styles.IconContainer}>
           <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={()=>{setOpenModal2(false)}}>
             <Icon
@@ -337,7 +342,7 @@ const AddPostScreen = ({navigation,route}) => {
               )}
             numColumns={2}
           /> */}
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', backgroundColor:'white' }}>
                       <TouchableOpacity
                       style={[styles.panelButton, {backgroundColor:(hashtag!='Q&A')?'#EAABAB':'white'}]}
                       onPress={() => {
@@ -421,279 +426,277 @@ const AddPostScreen = ({navigation,route}) => {
                       </TouchableOpacity>
                   </View>
     </View>
+    </View>
     </Modal>
 
   );
     }
     
 
-  return (
-    <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <FontAwesome5 name={'arrow-left'} style={{color: '#222', fontSize: 25, padding: 5, marginHorizontal: 5}} />
-          </TouchableOpacity>
-
-          <Text style={{fontSize: 20, flex: 1, marginLeft: 5, color: '#222', fontWeight: 'bold'}}>
-            Create a post
-          </Text>
-          {/* {uploading ? (
-            <View style={{justifyContent: 'center', alignItems: 'center'}}>
-              <Text>{transferred} % completed! </Text>
-              <ActivityIndicator size="large" color="#0000ff" />
-            </View>
-          ) : ( */}
-            <Button
-              title={'Post'}
-              // color={'#333'}
-              color={allowPost() == true ? '#006400' : '#333'}
-              onPress={submitPost}
-            />
-
-          {/* )} */}
-
-        <View style={{marginRight: 5}} />
-        </View>
-
-        <View
-          style={{
-            height: 60,
-            flexDirection: 'row',
-          }}>
-          <Image
-            source={{ uri: profileData
-              ? profileData.userImg
-                ? profileData.userImg
-                : 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png'
-              : 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png',}}
-            style={styles.UserImage}
-          />
-           <Image
-                  source={levelsource}
-                  resizeMode="contain" style={{position:'absolute',marginLeft:37, marginTop:37, width:15, height:15 }}></Image>
-          <Text
-            style={styles.UserName}>
-            {profileData ? (profileData.name ? profileData.name : profileData.email) : 'Your name'}
-          </Text>
-        </View>
-
-        <TextInput
-          placeholder="Topic here..."
-          multiline={true}
-          style={[styles.Input, {fontWeight: '700'}]}
-          placeholderTextColor={'#555'}
-          width={'96%'}
-          value={topic}
-          onChangeText={(txt) => setTopic(txt)}
-          />
-        <View>
-          <TextInput
-            placeholder="Write something here..."
-            multiline={true}
-            style={styles.Input}
-            placeholderTextColor='#555'
-            height={100}
-            width={'96%'}
-            value={text}
-            onChangeText={(txt) => setText(txt)}
-          />
-          {/* {image == null ? ( */}
-            {/* <View>
-              <Image
-                source={{uri: 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png'}}
-                style={{
-                  width: 300,
-                  height: 200,
-                  borderRadius: 15,
-                  alignSelf: 'center',
-                  marginTop: 150,
-                }}
-              />
-              <Text style={{alignSelf: 'center'}}>
-                Thêm hình ảnh mà bạn thích
-              </Text>
-            </View> */}
-          {/* ) : null} */}
-          {/* {image!=null? <Image
-            source={{uri: image}}
-            style={{height: 300, width: 400, marginTop: 70}}
-            resizeMode="contain"
-          />:null} */}
-        </View>
-        <View style={{flex:1}}>
-        {(sign=='Forum')&&<ScrollView style={{flexDirection:'column' }}>
-            {
-              image.map((each,key)=>{
-                return(  
-                    <View key={key} >
-                      {each.type=='img'?<Image source={{uri:each.uri}} style={{height:200, width:400, marginTop:5}} resizeMode='cover'/>:(each.type=='video')?
-                      <VideoPlayer
-                      video={{ uri: each.uri }}
-                      videoWidth={400}
-                      videoHeight={200}
-                  />:
-                  <View style={{justifyContent:'center', alignItems:'center',height:200, width:400}}>
-                     <Image source={{uri:'https://tse3.mm.bing.net/th?id=OIP.gh9hvhaRiqOVr8zU54fm-AHaEK&pid=Api&P=0&h=220'}} style={{height:160, width:360, marginTop:5}} resizeMode='cover'/>
-                     <Text style={{color:'black', fontSize:14}}>{each.filename}</Text>
-                  </View>
-
-                      }
-                      <TouchableOpacity style={{ marginTop:3, position:'absolute'}} onPress={()=>{
-                        let filterRssult=image.filter(function(element){
-                          return element !== each;
-                        })
-                        setimage(filterRssult);
-                       }}>
-                       <Icon name={"backspace"} style={{ color: "#FFCC00", fontSize: 25 }} />
-                     </TouchableOpacity>
-                    </View>     
-                );
-              })
-             
-            }
+    return (
+      <View style={styles.container}>
+          <View style={styles.headerContainer}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <FontAwesome5 name={'arrow-left'} style={{color: '#222', fontSize: 25, padding: 5, marginHorizontal: 5}} />
+            </TouchableOpacity>
   
-          </ScrollView>}
-          {(sign=='ReviewQuestion')&&
-          <ScrollView style={{flexDirection:'column' }}>
-            {(part=='W1')&&<WriteP1QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={Answer}/>}
-            {(part=='W2'||part=='W3')&&<WriteP23QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={Answer}/>}
-            {(part == 'S1')&&<SpeakP1QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
-            {(part == 'S2')&&<SpeakP2QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
-            {(part == 'S3')&&<SpeakP34QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
-            {(part == 'S4')&&<SpeakP5QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
-            {(part == 'S5')&&<SpeakP6QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
-          </ScrollView>
-          }
+            <Text style={{fontSize: 20, flex: 1, marginLeft: 5, color: '#222', fontWeight: 'bold'}}>
+              Create a post
+            </Text>
+            {/* {uploading ? (
+              <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                <Text>{transferred} % completed! </Text>
+                <ActivityIndicator size="large" color="#0000ff" />
+              </View>
+            ) : ( */}
+              <Button
+                title={'Post'}
+                // color={'#333'}
+                color={allowPost() == true ? '#006400' : '#333'}
+                onPress={submitPost}
+              />
+  
+            {/* )} */}
+  
+          <View style={{marginRight: 5}} />
+          </View>
+  
+          <View
+            style={{
+              height: 60,
+              flexDirection: 'row',
+            }}>
+            <Image
+              source={{ uri: profileData
+                ? profileData.userImg
+                  ? profileData.userImg
+                  : 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png'
+                : 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png',}}
+              style={styles.UserImage}
+            />
+             <Image
+                    source={levelsource}
+                    resizeMode="contain" style={{position:'absolute',marginLeft:37, marginTop:37, width:15, height:15 }}></Image>
+            <Text
+              style={styles.UserName}>
+              {profileData ? (profileData.name ? profileData.name : profileData.email) : 'Your name'}
+            </Text>
+          </View>
+  
+          <TextInput
+            placeholder="Topic here..."
+            multiline={true}
+            style={[styles.Input, {fontWeight: '700'}]}
+            placeholderTextColor={'#555'}
+            width={'96%'}
+            value={topic}
+            onChangeText={(txt) => setTopic(txt)}
+            />
+          <View>
+            <TextInput
+              placeholder="Write something here..."
+              multiline={true}
+              style={styles.Input}
+              placeholderTextColor='#555'
+              height={100}
+              width={'96%'}
+              value={text}
+              onChangeText={(txt) => setText(txt)}
+            />
+            {/* {image == null ? ( */}
+              {/* <View>
+                <Image
+                  source={{uri: 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png'}}
+                  style={{
+                    width: 300,
+                    height: 200,
+                    borderRadius: 15,
+                    alignSelf: 'center',
+                    marginTop: 150,
+                  }}
+                />
+                <Text style={{alignSelf: 'center'}}>
+                  Thêm hình ảnh mà bạn thích
+                </Text>
+              </View> */}
+            {/* ) : null} */}
+            {/* {image!=null? <Image
+              source={{uri: image}}
+              style={{height: 300, width: 400, marginTop: 70}}
+              resizeMode="contain"
+            />:null} */}
+          </View>
+          <View style={{flex:1}}>
+          {(sign=='Forum')&&<ScrollView style={{flexDirection:'column' }}>
+              {
+                image.map((each,key)=>{
+                  return(  
+                      <View key={key} >
+                        {each.type=='img'?<Image source={{uri:each.uri}} style={{height:200, width:400, marginTop:5}} resizeMode='cover'/>:(each.type=='video')?
+                        <VideoPlayer
+                        video={{ uri: each.uri }}
+                        videoWidth={400}
+                        videoHeight={200}
+                    />:
+                    <View style={{justifyContent:'center', alignItems:'center',height:200, width:400}}>
+                       <Image source={{uri:'https://tse3.mm.bing.net/th?id=OIP.gh9hvhaRiqOVr8zU54fm-AHaEK&pid=Api&P=0&h=220'}} style={{height:160, width:360, marginTop:5}} resizeMode='cover'/>
+                       <Text style={{color:'black', fontSize:14}}>{each.filename}</Text>
+                    </View>
+  
+                        }
+                        <TouchableOpacity style={{ marginTop:3, position:'absolute'}} onPress={()=>{
+                          let filterRssult=image.filter(function(element){
+                            return element !== each;
+                          })
+                          setimage(filterRssult);
+                         }}>
+                         <Icon name={"backspace"} style={{ color: "#FFCC00", fontSize: 25 }} />
+                       </TouchableOpacity>
+                      </View>     
+                  );
+                })
+               
+              }
+    
+            </ScrollView>}
+            {(sign=='ReviewQuestion')&&
+            <ScrollView style={{flexDirection:'column' }}>
+              {(part=='W1')&&<WriteP1QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={Answer}/>}
+              {(part=='W2'||part=='W3')&&<WriteP23QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={Answer}/>}
+              {(part == 'S1')&&<SpeakP1QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
+              {(part == 'S2')&&<SpeakP2QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
+              {(part == 'S3')&&<SpeakP34QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
+              {(part == 'S4')&&<SpeakP5QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
+              {(part == 'S5')&&<SpeakP6QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
+            </ScrollView>
+            }
+          </View>
+  
+          {!OpenModal2&&<View style={styles.IconContainer}>
+            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={()=>{setOpenModal2(true)}}>
+              <Icon
+                name={'caret-down'}
+                style={styles.IconWrapper}
+              />
+              <Text style={{color: '#222', fontSize: 15}}>Post Category</Text>
+            </TouchableOpacity>
+            {/* Q&A, Study Resources, Exam Analysis, Preparation Experiences, Review Exam Experiences, Share Your Results, Events/News, Others */}
+            <View style={{flex: 1}}/>
+            {(sign=='Forum')&&<>
+            <TouchableOpacity onPress={pickImageAsync}>
+              <Icon
+                name={'images'}
+                style={styles.IconWrapper}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=>{setOpenModal(true)}}>
+              <Icon
+                name={'camera'}
+                style={styles.IconWrapper}
+                light
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleFilePicker}>
+              <Icon
+                name={'paperclip'}
+                style={styles.IconWrapper}
+              />
+            </TouchableOpacity> 
+            </>}      
+          </View>}
+          {RenderCategory()}
+          {RenderModal()}
         </View>
-
-        <View style={styles.IconContainer}>
-          <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={()=>{setOpenModal2(true)}}>
-            <Icon
-              name={'caret-down'}
-              style={styles.IconWrapper}
-            />
-            <Text style={{color: '#222', fontSize: 15}}>Post Category</Text>
-          </TouchableOpacity>
-          {/* Q&A, Study Resources, Exam Analysis, Preparation Experiences, Review Exam Experiences, Share Your Results, Events/News, Others */}
-          <View style={{flex: 1}}/>
-          {(sign=='Forum')&&<>
-          <TouchableOpacity onPress={pickImageAsync}>
-            <Icon
-              name={'images'}
-              style={styles.IconWrapper}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>{setOpenModal(true)}}>
-            <Icon
-              name={'camera'}
-              style={styles.IconWrapper}
-              light
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleFilePicker}>
-            <Icon
-              name={'paperclip'}
-              style={styles.IconWrapper}
-            />
-          </TouchableOpacity> 
-          </>}      
-        </View>
-        {RenderCategory()}
-        {RenderModal()}
-      </View>
-  )
-}
-
-export default AddPostScreen
-
-const styles = StyleSheet.create({
-  container:{
-    flex: 1,
-    backgroundColor: '#fff',
+    )
+  }
+  
+  export default AddPostScreen
+  
+  const styles = StyleSheet.create({
+    container:{
+      flex: 1,
+      backgroundColor: '#fff',
+    },
+    headerContainer:{
+      height: 55,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#9ACC1C',
+    },
+    UserImage: {
+      width: 46,
+      height: 46,
+      borderRadius: 30,
+      marginLeft: 5,
+      alignSelf: 'center',
+    },
+    UserName:{
+      marginLeft: 5,
+      fontSize: 17,
+      fontWeight: '700',
+      alignSelf: 'center',
+      color: '#444'
+    },
+    Input: {
+      fontSize: 16, 
+      marginLeft: 3,
+      borderColor: '#DDD',
+      borderRadius: 5,
+      borderWidth: 1,
+      margin: 5,
+      padding: 5,
+      textAlignVertical: 'top',
+      alignSelf:'center'
+    },
+    IconContainer: {
+      height: 40,
+      padding: 5,
+      flexDirection: 'row',
+      backgroundColor: '#9ACC1C',
+    },
+    IconWrapper:{
+      marginHorizontal: 5,
+      color: '#222',
+      fontSize: 28,
+      alignSelf: 'center',
+    },
+    devider:{
+      borderBottomColor: '#DDDDDD',
+      borderBottomWidth: 1,
+      width: '98%',
+      alignSelf: 'center',
+      margin: 5,
+    },
+    popover:{
+      borderRadius: 10, 
+      padding: 16, 
+      flexDirection: 'row', 
+      alignItems: 'center', 
+      justifyContent: 'space-between'
+    },
+    popoverItem:{
+      alignItems: 'center',
+      margin: 16
   },
-  headerContainer:{
-    height: 55,
-    flexDirection: 'row',
+  panel: {
+    height: 300,
+    width: '100%',
+    backgroundColor: '#E8E8E8',
+    position: 'absolute',
+    borderColor: 'black',
+  },
+  panelButton: {
+    padding: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
     alignItems: 'center',
-    backgroundColor: '#9ACC1C',
+    marginVertical: 5,
+    marginHorizontal: 10,
   },
-  UserImage: {
-    width: 46,
-    height: 46,
-    borderRadius: 30,
-    marginLeft: 5,
-    alignSelf: 'center',
-  },
-  UserName:{
-    marginLeft: 5,
-    fontSize: 17,
-    fontWeight: '700',
-    alignSelf: 'center',
-    color: '#444'
-  },
-  Input: {
-    fontSize: 16, 
-    marginLeft: 3,
-    borderColor: '#DDD',
-    borderRadius: 5,
-    borderWidth: 1,
-    margin: 5,
-    padding: 5,
-    textAlignVertical: 'top',
-    alignSelf:'center'
-  },
-  IconContainer: {
-    height: 40,
-    padding: 5,
-    flexDirection: 'row',
-    backgroundColor: '#9ACC1C',
-    zIndex:1
-  },
-  IconWrapper:{
-    marginHorizontal: 5,
+  panelButtonTitle: {
+    fontSize: 14,
+    fontWeight: '400',
     color: '#222',
-    fontSize: 28,
-    alignSelf: 'center',
   },
-  devider:{
-    borderBottomColor: '#DDDDDD',
-    borderBottomWidth: 1,
-    width: '98%',
-    alignSelf: 'center',
-    margin: 5,
-  },
-  popover:{
-    borderRadius: 10, 
-    padding: 16, 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'space-between'
-  },
-  popoverItem:{
-    alignItems: 'center',
-    margin: 16
-},
-panel: {
-  height: '50%',
-  width: '100%',
-  backgroundColor: '#E8E8E8',
-  position: 'absolute',
-  marginTop:'100%',
-  borderColor: 'black',
-  zIndex:0,
-},
-panelButton: {
-  padding: 5,
-  paddingHorizontal: 10,
-  borderRadius: 20,
-  alignItems: 'center',
-  marginVertical: 5,
-  marginHorizontal: 10,
-},
-panelButtonTitle: {
-  fontSize: 14,
-  fontWeight: '400',
-  color: '#222',
-},
-
-})
+  
+  })

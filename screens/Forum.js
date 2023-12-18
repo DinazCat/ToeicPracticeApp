@@ -93,12 +93,14 @@ const filter =async()=>{
           transparent={true}
           visible={isModalVisible}
           onRequestClose={toggleModal}>
+            <View style={[styles.container,{backgroundColor:'rgba(0, 0, 0, 0.3)'}]}>
+              <View style={{flex:1}}/>
+              <View style={{height: 470,}}>
             <View style={styles.panel}>
                   <View style={{alignItems: 'center'}}>
               <Text style={[styles.panelSubtitle, {color: '#222'}]}>{'Filter by'}</Text>
               </View>    
-            <View style={{height: 410, borderColor: '#DDD', borderBottomWidth: 1, borderTopWidth: 1}}>
-              <ScrollView>
+            <View style={{height: 400, borderColor: '#DDD', borderBottomWidth: 1, borderTopWidth: 1}}>
               <Text style={[styles.TextStyle,{marginTop: 15}]}>Category</Text>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                       <TouchableOpacity
@@ -234,8 +236,9 @@ const filter =async()=>{
                           <Text style={[styles.panelButtonTitle, {fontWeight: '700'}]}>Cancel</Text>
                       </TouchableOpacity>         
                   </View>
-              </ScrollView>
               </View>
+            </View>
+            </View>
             </View>
         </Modal>
     )
@@ -413,7 +416,6 @@ const styles = StyleSheet.create({
   panel: {
     padding: 20,
     backgroundColor: '#E8E8E8',
-    paddingTop: 20,
     width: '100%',
     position:'absolute'
   },

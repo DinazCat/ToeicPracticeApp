@@ -6,6 +6,7 @@ import Comment from '../components/Comment';
 import auth from '@react-native-firebase/auth';
 import socketServices from '../api/socketService';
 import { Keyboard } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
 
 
 const CommentScreen = ({navigation, route}) => {
@@ -41,13 +42,22 @@ const CommentScreen = ({navigation, route}) => {
   //   getComment();
   // }, [listcm]);
   useEffect(() => {
-    socketServices.initializeSocket()
+    // socketServices.initializeSocket()
     getComments()
   }, []);
   const getComments = async()=>{
-    socketServices.on(postId,(data) => {
-      setComments(data)
-    })
+    // socketServices.on(postId,(data) => {
+    //   setComments(data)
+    // })
+      firestore()
+        .collection('Posts')
+        .doc(postId)
+        .onSnapshot(doc => {
+          if(doc.exists){
+          const data = doc.data()
+          setComments(data.comments)
+        }
+        });    
   }
   const allowSend = ()=>{
     if(comment=='')return false
@@ -97,8 +107,8 @@ const CommentScreen = ({navigation, route}) => {
           Read:'no',
         };
         await Api.addNotification(data1) 
-     
-      closeKeyBoard()
+        closeKeyBoard()
+
     }
   }
   return (

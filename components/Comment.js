@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Image,TextInput } from 'react
 import React, { useEffect, useState, } from 'react'
 import socketServices from '../api/socketService';
 import Api from '../api/Api';
+import firestore from '@react-native-firebase/firestore';
 //realtime cho 1 comment, truyền id qua bên này r ms truy vấn, đệ quy đấy, dự định là bỏ reply đi
 const Reply = ({ item }) => {
 
@@ -44,14 +45,24 @@ const Comment = ({item, onUserPress, onEdit, onDelete, flag, onReply}) => {
     //     getComment();
     //   }, [item]);
     useEffect(() => {
-        socketServices.initializeSocket()
+        // socketServices.initializeSocket()
         getComments()
       }, []);
       const getComments = async()=>{
-        socketServices.on(item,(data) => {
-          setComment(data)
-          getUser(data.userId)
-        })
+        // socketServices.on(item,(data) => {
+        //   setComment(data)
+        //   getUser(data.userId)
+        // })
+         firestore()
+        .collection('Comments')
+        .doc(item)
+        .onSnapshot(doc => {
+          if(doc.exists){
+          const data = doc.data()
+         setComment(data)
+         getUser(data.userId)
+        }
+        });    
       }
       const getUser = async (id) => {
         const data = await Api.getUserData(id)

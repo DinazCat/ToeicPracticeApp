@@ -14,51 +14,47 @@ const CompleteCard2=({navigation,route})=> {
   const [skillText, setSkillText] = useState('')
 //   const [quantity1, setQuantity1] = useState(route.params.quantity)
   const setReview= async()=>{
-    const list=[]
-    for(let i = 0; i < questionL.length; i++)
-    {
-      if(part=='W1'){
-        const data = await Api.getOneQuestion('WritePart1',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Writting')
-      }
-      else if(part=='W2'){
-        const data = await Api.getOneQuestion('WritePart2',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Writting')
-      }
-      else if(part=='W3'){
-        const data = await Api.getOneQuestion('WritePart3',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Writting')
-      }
-      else if(part=='S1'){
-        const data = await Api.getOneQuestion('SpeakPart1',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Speaking')
-      }
-      else if(part=='S2'){
-        const data = await Api.getOneQuestion('SpeakPart2',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Speaking')
+    const listId=[]
+    let changePart = '';
+    console.log(questionL.length)
+    for(let i = 0; i < questionL.length; i++){
+      listId.push(questionL[i].Qid)
+    }
+    if(part=='S1'){
+    changePart = 'SpeakPart1'
+    setSkillText('Speaking')
+    }
+    else if(part=='S2'){
+      changePart = 'SpeakPart2'
+      setSkillText('Speaking')
       }
       else if(part=='S3'){
-        const data = await Api.getOneQuestion('SpeakPart3',questionL[i].Qid)
-        list.push(data)
+        changePart = 'SpeakPart3'
         setSkillText('Speaking')
-      }
-      else if(part=='S4'){
-        const data = await Api.getOneQuestion('SpeakPart4',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Speaking')
-      }
-      else if(part=='S5'){
-        const data = await Api.getOneQuestion('SpeakPart5',questionL[i].Qid)
-        list.push(data)
-        setSkillText('Speaking')
-      }
-    }
-    setReviewList(list) 
+        }
+        else if(part=='S4'){
+          changePart = 'SpeakPart4'
+          setSkillText('Speaking')
+          }
+          else if(part=='S5'){
+            changePart = 'SpeakPart5'
+            setSkillText('Speaking')
+            }
+            else if(part=='W1'){
+              changePart = 'WritePart1'
+              setSkillText('Writting')
+              }
+              else if(part=='R2'){
+                changePart = 'WritePart2'
+                setSkillText('Writting')
+              }
+               else if(part=='R3'){
+                changePart = 'WritePart3'
+                setSkillText('Writting')
+                }
+
+    const data = await Api.getReviewQuestion({Part:changePart,listQ:listId})
+    setReviewList(data) 
   }
   const continuePractice = async()=>{
     if(part=='W1'){
