@@ -13,9 +13,7 @@ function ListenPart2({flag, index, complete, item}) {
   const [selectedAnswer, setSelectedAnswer] = useState(item?.Answer?.findIndex(function(item1) {
     return item1.status === true;
   })||(item&&item.Answer)?0:null);
-  const [script, setScript] = useState(item?.Answer?.findIndex(function(item1) {
-    return item1.status === true;
-  })||'');
+  const [script, setScript] = useState(item?.Explain?.script||'');
   const [tip, setTip] = useState(item?.Explain?.tip||'');
   const [translation, setTranslation] = useState(item?.Explain?.translate||'');
   const [textR1, setTextR1] = useState((item&&item.Answer)?item.Answer[0]?.script:'');
@@ -137,16 +135,16 @@ let audio = audioFile
       <label>Answer:</label>
       <div style={{marginTop:10, marginBottom:10, display:'grid'}}>
       <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((item.Answer[0])?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(0)}}>A</button>
-             <input type='text' onChange={(e) => setTextR1(e.target.value)} value={textR1} id='TR'></input> 
+        <button className={((item.Answer[0].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(0)}}>A</button>
+             <input type='text'  value={item.Answer[0].script} id='TR'></input> 
         </div>
         <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((item.Answer[1])?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(1)}}>B</button>
-        <input type='text' onChange={(e) => setTextR2(e.target.value)} value={textR2} id='TR'></input>
+        <button className={((item.Answer[1].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(1)}}>B</button>
+        <input type='text'  value={item.Answer[1].script} id='TR'></input>
         </div>
         <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((item.Answer[2])?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>C</button>
-        <input type='text' onChange={(e) => setTextR3(e.target.value)} value={textR3} id='TR'></input> 
+        <button className={((item.Answer[2].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>C</button>
+        <input type='text' value={item.Answer[2].script} id='TR'></input> 
         </div>
 
       </div>

@@ -26,7 +26,7 @@ function ReadPart1({flag, index, complete, item}) {
   const handleSubmit = async () => {
     let answerL = [];
     let text = [textR1, textR2, textR3]
-    for(let i = 0; i < 3; i++){
+    for(let i = 0; i < 4; i++){
       if(i == selectedAnswer){
         answerL.push({
             status:true,

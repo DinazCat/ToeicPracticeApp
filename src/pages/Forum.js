@@ -50,12 +50,20 @@ getPost()
               const list = todayposts.slice()
               list[key].Allow = true;
               SetTodayPosts(list)
+              const list1 = allposts.slice()
+              const index = list1.findIndex(value => value.postId === each.postId)
+              list1[index].Allow = true;
+              SetAllPosts(list1)
               await api.updatePost(each.postId,{Allow:true})
             }}
             Delete={async()=>{
               let list = todayposts.slice()
                 list.splice(key, 1);
                 SetTodayPosts(list)
+                const list1 = allposts.slice()
+                const index = list1.findIndex(value => value.postId === each.postId)
+                list1.splice(index,1)
+                SetAllPosts(list1)
               await api.deletePost(each.postId)
             }}
             />
@@ -72,14 +80,22 @@ getPost()
             item={each}
             Allow={async ()=>{
               const list = allposts.slice()
-              list.Allow = true;
+              list[key].Allow = true;
               SetAllPosts(list)
+              const list1 = todayposts.slice()
+              const index = list1.findIndex(value => value.postId === each.postId)
+              list1[index].Allow = true;
+              SetTodayPosts(list1)
               await api.updatePost(each.postId,{Allow:true})
             }}
             Delete={async()=>{
               let list = allposts.slice()
                 list.splice(key, 1);
                 SetAllPosts(list)
+                const list1 = todayposts.slice()
+                const index = list1.findIndex(value => value.postId === each.postId)
+                list1.splice(index,1)
+                SetTodayPosts(list1)
               await api.deletePost(each.postId)
             }}
             />

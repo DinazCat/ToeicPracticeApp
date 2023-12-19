@@ -23,7 +23,7 @@ const PostCard=({item, Allow, Delete})=> {
             <h3>{item?.topic}</h3>
             <p>{item?.text}</p>
         </div>
-        <div style={{height:300, width:400, margin:'auto',overflow:'auto'}}>
+        {item?.postImg!==null &&<div style={{height:300, width:400, margin:'auto',overflow:'auto'}}>
             {
                 item?.postImg?.map((each,key)=>{
                     if(each.type==='img'){
@@ -41,9 +41,21 @@ const PostCard=({item, Allow, Delete})=> {
                         )
 
                     }
+                    else if(each.type==='question'){
+                        return (
+                            <div  style={{width:350, height:255, backgroundColor:'white'}}>
+                           {each.part==='S4'&&<div style={{width:300, height:100, textAlign:'center', margin:'auto'}}>
+                                <h4>__Speaking skill__</h4>
+                                <h4>Part 4:Respond to questions using information provided</h4>
+                                <h4>Question: {each.item.Order}</h4>
+                                </div>}
+                            </div>
+                        )
+
+                    }
                 })
             }
-        </div>
+        </div>}
 
        
     </div>
