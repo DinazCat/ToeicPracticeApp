@@ -1,43 +1,35 @@
 .leftbar li {
     margin-top: 5px;
 }
-.BtnNormal{
-    background-color: white;
-    color: black;
-}
-.BtnClick{
-    background-color:green;
-    color: white;
-}
 .TextNormal{
     background-color: white;
     color: black;
 }
 .TextClick{
-    background-color:white;
-    color: rgb(1, 68, 44);
-    text-decoration: underline;
-    font-size: 15px;
+    background-color: #5DA110;
+    /* text-decoration: underline; */
+    font-size: 16px;
+    /* border-radius: 8%; */
 }
 .testitem-wrapper {
     border-radius: 8px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
     padding: 16px; 
     background-color: #fff; 
     display: block;
-    width: 200px;
+    width: 280px;
   }
   
 .testitem-wrapper:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
 }
 .text-dark {
-    color: #333; /* Màu chữ tối */
+    color: #333;
 }
   
 .testitem-info {
-    font-size: 14px; /* Kích thước chữ của thông tin */
-    color: #888; /* Màu chữ nhạt */
+    font-size: 16px; 
+    color: #888;
 }
 .Qicon{
     margin-left: 5px;

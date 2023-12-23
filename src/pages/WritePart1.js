@@ -5,19 +5,54 @@ import api from '../api/Api';
 import client from '../api/client';
 import axios from 'axios';
 import upload from '../api/upload';
-function WritePart1({item,complete,flag}) {
+import NotificationModal from '../components/NotificationModal';
+
+function WritePart1({item,complete,flag,index}) {
   const [imageFile, setImageFile] = useState(item?.Picture||null);
   const [imageFile1, setImageFile1] = useState(null);
   const [word, setWord] = useState(item?.SugesstedWord);
   const [sampleAnswer, setSampleAnswer] = useState(item?.Explain?.SampleAnswer||'');
   const [tip, setTip] = useState(item?.Explain?.Tips||'');
+  const [errors, setErrors] = useState('');
+  const [showNoti, setShowNoti] = useState(false)
 
   const handleImageChange = (e) => {
     setImageFile1(e.target.files[0]);
   };
 
+  function isImageUrl(url) {
+    try{
+      new URL(url);
+      const imageUrlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*\.(png|jpg|jpeg|gif)$/i;
+      return imageUrlRegex.test(url.toLowerCase());
+    }catch(error){
+      return false;
+    }
+  }
+
+  const validateData = () => {
+    let errorFields = [];
+    let imgError = '';
+    let inputError = '';
+    if(imageFile=="" || imageFile==null && imageFile1==null){
+      errorFields.push("Image File");
+    }
+    if(word == ''){
+      errorFields.push("Suggested Word");
+    }
+    const isImgValid = imageFile1!=null || isImageUrl(imageFile);
+    if(imageFile!="" && imageFile!=null && !isImgValid) imgError = "\nThe image url link is not valid!";
+    if(errorFields.length > 0) inputError = "Please input complete information: " + errorFields.join(", ") + ". ";
+    if(errorFields.length > 0 || !isImgValid){
+      setErrors(inputError + imgError);
+      return false;
+    }
+    else return true;
+  }
 
   const handleSubmit = async () => {
+    if(!validateData()) return;
+
     let image=imageFile;
     if(imageFile1!=null){
       try{
@@ -48,6 +83,13 @@ function WritePart1({item,complete,flag}) {
         Order:await api.countQuestion('WritePart1')
       }
       await api.addQuestion('WritePart1', data);
+      setImageFile('');
+       setImageFile1(null);
+       setTip('');
+       setSampleAnswer('');
+       setWord('');
+       setErrors('');
+       setShowNoti(true);
     }
     else if(flag==='fix'){
 
@@ -59,68 +101,96 @@ function WritePart1({item,complete,flag}) {
           Tips: tip,
         },
       }
+      setErrors('');
+      setShowNoti(true);
       complete(data)
     }
   };
 
   return (
     <div className='addQuestion'>
-      <h2>Add Question Write part 1</h2>
+      {(flag=='submit')?<h2>Add Question Writing Part 1</h2>:<h2>Question {index+1} </h2>}
      {(flag==='see')&&<>
       <div className='fileContainer'>
         <label>
           Image:
-          <input type="file" accept="image/*" onChange={handleImageChange} />
+          <input className="customInput" type="file" accept="image/*" onChange={handleImageChange} />
           <text style={{font:12}}>or input the link:</text>
-          <input type='url' onChange={(e) => setImageFile(e.target.value)} value={item.Picture}/>
+          <input className="customInput" type='url' onChange={(e) => setImageFile(e.target.value)} value={item.Picture}/>
         </label>
       </div>
-
-      <label>
-        Suggest word:
-        <input type='text' value={item.SugesstedWord} onChange={(e) => setWord(e.target.value)}  />
-      </label>
-
-
-      <label>
-        Tips:
-        <textarea value={item.Explain.Tips} onChange={(e) => setTip(e.target.value)} rows="4" />
-      </label>
-
-      <label>
+      <div className='flex-column'>
+        <div>
+          Suggested word:
+          <label style={{display: 'flex'}}>
+            <input className="customInput" type='text' value={item.SugesstedWord} onChange={(e) => setWord(e.target.value)}  />
+          </label>
+        </div>
+        <div>
         Sample Answer:
-        <textarea value={item.Explain.SampleAnswer} onChange={(e) => setSampleAnswer(e.target.value)} rows="12" />
-      </label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={item.Explain.SampleAnswer} onChange={(e) => setSampleAnswer(e.target.value)} rows="1" />
+        </label>
+      </div>
+      <div>
+        Tips:  
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={item.Explain.Tips} onChange={(e) => setTip(e.target.value)} rows="3" />
+        </label>
+      </div>
+      </div>
      </>}
      {(flag!=='see')&&<>
       <div className='fileContainer'>
         <label>
           Image:
-          <input type="file" accept="image/*" onChange={handleImageChange} />
+          <input className="customInput" type="file" accept="image/*" onChange={handleImageChange} />
           <text style={{font:12}}>or input the link:</text>
-          <input type='url' onChange={(e) => setImageFile(e.target.value)} value={imageFile}/>
+          <input className="customInput" type='url' onChange={(e) => setImageFile(e.target.value)} value={imageFile}/>
         </label>
       </div>
-
-      <label>
-        Suggest word:
-        <input type='text' value={word} onChange={(e) => setWord(e.target.value)}  />
-      </label>
-
-
-      <label>
-        Tips:
-        <textarea value={tip} onChange={(e) => setTip(e.target.value)} rows="4" />
-      </label>
-
-      <label>
+      <div className='flex-column'>
+        <div>
+          Suggested word:
+          <label style={{display: 'flex'}}>
+            <input className="customInput" type='text' value={word} onChange={(e) => setWord(e.target.value)}  />
+          </label>
+        </div>
+        <div>
         Sample Answer:
-        <textarea value={sampleAnswer} onChange={(e) => setSampleAnswer(e.target.value)} rows="12" />
-      </label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={sampleAnswer} onChange={(e) => setSampleAnswer(e.target.value)} rows="1" />
+        </label>
+      </div>
+      <div>
+        Tips:  
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={tip} onChange={(e) => setTip(e.target.value)} rows="3" />
+        </label>
+      </div>
+      </div>
+
      </>}
 
-     {(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
-{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
+     {errors && <div className="error">{errors}</div>}
+
+    {(flag==='submit')&&<button type="button" class="btn btn-light" style={{backgroundColor: '#F88C19', color: '#fff'}} onClick={handleSubmit}>Submit</button>}
+    {(flag==='fix')&&<button type="button" class="btn btn-light" style={{backgroundColor: '#F88C19', color: '#fff'}} onClick={handleSubmit}>Update</button>}
+
+    {(flag==='submit')&&<NotificationModal
+        show={showNoti}
+        onHide={() => setShowNoti(false)}
+        title="Success!"
+        message="Question added sucessfully!"
+    />
+    }
+    {(flag==='fix')&&<NotificationModal
+          show={showNoti}
+          onHide={() => setShowNoti(false)}
+          title="Success!"
+          message="Question updated sucessfully!"
+    />
+    }
     </div>
   );
 }

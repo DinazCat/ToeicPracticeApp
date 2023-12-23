@@ -12,6 +12,7 @@ import QuestionPage from './pages/QuestionPage';
 import VocabPage from './pages/VocabPage';
 import TestView from './pages/TestView';
 import User from './pages/User';
+import CreateTest from './pages/CreateTest';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/QuestionPage" exact element={<QuestionPage/>} />
           <Route path="/VocabPage" exact element={<VocabPage/>} />
           <Route path="/Test/:id" exact element={<TestView/>} />
+          <Route path="/Test/add" exact element={<CreateTest/>} />
         </Routes>
       </Router>
     </div>

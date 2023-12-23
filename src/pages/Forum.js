@@ -57,7 +57,9 @@ getPost()
               await api.updatePost(each.postId,{Allow:true})
             }}
             Delete={async()=>{
-              let list = todayposts.slice()
+              const shouldDelete = window.confirm('Are you sure you want to delete this post?');
+              if (shouldDelete) {               
+                let list = todayposts.slice()
                 list.splice(key, 1);
                 SetTodayPosts(list)
                 const list1 = allposts.slice()
@@ -65,6 +67,7 @@ getPost()
                 list1.splice(index,1)
                 SetAllPosts(list1)
               await api.deletePost(each.postId)
+             }
             }}
             />
         )
@@ -89,14 +92,17 @@ getPost()
               await api.updatePost(each.postId,{Allow:true})
             }}
             Delete={async()=>{
-              let list = allposts.slice()
+              const shouldDelete = window.confirm('Are you sure you want to delete this question?');
+              if (shouldDelete) {               
+                let list = allposts.slice()
                 list.splice(key, 1);
                 SetAllPosts(list)
                 const list1 = todayposts.slice()
                 const index = list1.findIndex(value => value.postId === each.postId)
                 list1.splice(index,1)
                 SetTodayPosts(list1)
-              await api.deletePost(each.postId)
+                await api.deletePost(each.postId)
+             }
             }}
             />
         )

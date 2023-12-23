@@ -6,7 +6,6 @@ import api from '../api/Api';
 import AddTopicForm from '../components/addTopicForm';
 import { useNavigate } from "react-router-dom";
 function Vocab() {
-  const [sign, SetSign] = useState('1')
   const [flag, SetFlag] = useState(false)
   const [topics, SetTopics] = useState([])
   const navigate = useNavigate();
@@ -44,29 +43,10 @@ function Vocab() {
    }
   return (
     <div style={{ display: "flex", flex: 1}}>
-    {/* <div style={{width:150,}}>
-      <ul style={{ paddingLeft: 0, marginLeft: 5 }} className="leftbar">
-        <li>
-          <button
-            onClick={() => SetSign("1")}
-            className={sign == "1" ? "BtnClick" : "BtnNormal"}
-          >
-            Add Topic
-          </button>
-        </li>
-        <li>
-          <button
-            onClick={() => SetSign("2")}
-            className={sign == "2" ? "BtnClick" : "BtnNormal"}
-          >
-            Edit Topic
-          </button>
-        </li>
-      </ul>
-    </div> */}
     <div style={{ margin:'auto'  }}>
-    {(flag!==true)&&
+    {
     <div>
+      <h3 style={{marginLeft: 20, marginTop: 20, textAlign: 'center'}}>Vocabulary Topics</h3>
       <div className="grid-container">
         {
           topics?.map((each,key)=>{
@@ -79,11 +59,13 @@ function Vocab() {
                 }
               }}
               trashClick={async ()=>{
-                alert('The topic has been successfully deleted')
-                const list = topics.slice();
-                list.splice(key, 1);
-                SetTopics(list)
-                await api.deleteTopic(each.Id)
+                const shouldDelete = window.confirm('Are you sure you want to delete this topic? It will delete all the vocabularies in this topic.');
+                if (shouldDelete) {               
+                  const list = topics.slice();
+                  list.splice(key, 1);
+                  SetTopics(list)
+                  await api.deleteTopic(each.Id)
+               }
               }}
               eyeClick={()=>{
                   navigate("/VocabPage", {
@@ -106,7 +88,10 @@ function Vocab() {
       SetTopics(list)
       SetFlag(false)
       submitVocab(data)
-    }}/>}
+      SetFlag(false)
+    }}
+    closeModal={() => SetFlag(false)}
+    />}
     </div>
   </div>
   )

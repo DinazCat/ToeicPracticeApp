@@ -5,6 +5,8 @@ import api from '../api/Api';
 import client from '../api/client';
 import axios from 'axios';
 import QuestionForm from '../components/QuestionForm';
+import NotificationModal from '../components/NotificationModal';
+
 function ReadPart2({flag, index, complete, item}) {
   const [script, setScript] = useState(item?.Explain?.script||'');
   const [tip, setTip] = useState(item?.Explain?.tip||'');
@@ -13,6 +15,8 @@ function ReadPart2({flag, index, complete, item}) {
     Q:'',
     A:[{script:'', status:false},{script:'', status:false},{script:'', status:false},{script:'', status:false}]
   }]);
+  const [errors, setErrors] = useState('');
+  const [showNoti, setShowNoti] = useState(false)
 
   const handleAnswerChange = (key, i) => {
     let list = number.slice();
@@ -27,7 +31,31 @@ function ReadPart2({flag, index, complete, item}) {
     setNumber(list)
   };
 
+  const validateData = () => {
+    let errorFields = [];
+    let inputError = '';
+    let quantityError ='';
+
+    const hasEmptyQ = number.some(item => item.Q == '');
+    const hasEmptyScript = number.some(item => item.A.some(answer => answer.script == ''));
+    const hasNoTrueAnswer = number.some((question) => {
+      return !question.A.some((answer) => answer.status);
+    });
+    if(hasEmptyQ || hasEmptyScript || hasNoTrueAnswer){
+      errorFields.push("Questions and Answers");
+    }
+
+    if(errorFields.length > 0) inputError = "Please input complete information: " + errorFields.join(", ") + ". ";
+    if(number.length != 4) quantityError= "The number of questions in this part must be 4!"
+    if(errorFields.length > 0 || number.length != 4 || hasEmptyQ || hasEmptyScript || hasNoTrueAnswer){
+      setErrors(inputError + quantityError);
+      return false;
+    }
+    else return true;
+  }
+
   const handleSubmit = async () => {
+    if(!validateData()) return;
     let correct = [];
     for(let i = 0; i < number.length;i++){
       for(let j = 0; j < 4; j ++){
@@ -46,6 +74,15 @@ function ReadPart2({flag, index, complete, item}) {
         Order: await api.countQuestion("ReadPart2"),
       };
       await api.addQuestion("ReadPart2", data);
+      setTip('');
+      setTranslation('');
+      setScript('');
+      setNumber([{
+        Q:'',
+        A:[{script:'', status:false},{script:'', status:false},{script:'', status:false},{script:'', status:false}]
+      }]);
+      setErrors('');
+      setShowNoti(true);
     } 
     else if(flag === 'Test') {
       let data = {
@@ -57,6 +94,8 @@ function ReadPart2({flag, index, complete, item}) {
         },
         Correct: correct,
       };
+      setErrors('');
+      setShowNoti(true);
       complete(data);
     }
     else if(flag === 'fix') {
@@ -69,16 +108,17 @@ function ReadPart2({flag, index, complete, item}) {
         },
         Correct: correct,
       };
+      setErrors('');
+      setShowNoti(true);
       complete(data);
     }
   };
 
   return (
     <div className='addQuestion'>
-      {(flag!='Test')?<h2>Add Question Read part 2</h2>:<h2>Question {index+1} </h2>}
+      {(flag=='submit')?<h2>Add Question Reading Part 2</h2>:<h2>Question {index+1} </h2>}
       {(flag === 'see')&&<>
-        <label>Question:</label>
-     
+        <label>Questions:</label>  
       {
         item?.Question?.map((each,key)=>{
             return(
@@ -89,25 +129,29 @@ function ReadPart2({flag, index, complete, item}) {
           />)
         })
       }
-
-
-      <label>
+      <div className='flex-column'>
+      <div>
         Script:
-        <textarea value={item.Explain.script} onChange={(e) => setScript(e.target.value)} rows="4" />
-      </label>
-
-      <label>
-        Tip:
-        <textarea value={item.Explain.tip} onChange={(e) => setTip(e.target.value)} rows="4" />
-      </label>
-
-      <label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={item.Explain.script} onChange={(e) => setScript(e.target.value)} rows="4" />
+        </label>
+      </div>
+      <div>
+        Tip:  
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={item.Explain.tip} onChange={(e) => setTip(e.target.value)} rows="4" />
+        </label>
+      </div>
+      <div>
         Translation:
-        <textarea value={item.Explain.translate} onChange={(e) => setTranslation(e.target.value)} rows="4" />
-      </label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={item.Explain.translate} onChange={(e) => setTranslation(e.target.value)} rows="4" />
+        </label>
+      </div>
+     </div>
       </>}
       {(flag !== 'see')&&<>
-        <label>Question:</label>
+        <label>Questions:</label>
       <button onClick={() => {
         let list = number.slice();
         list.push({
@@ -115,7 +159,7 @@ function ReadPart2({flag, index, complete, item}) {
             A:[{script:'', status:false},{script:'', status:false},{script:'', status:false},{script:'', status:false}]
           })
           setNumber(list)
-      }} style={{marginLeft:5}}>Add question</button>
+      }} style={{marginLeft:10, borderRadius: 5}}>Add question</button>
       {
         number.map((each,key)=>{
             return(
@@ -141,25 +185,47 @@ function ReadPart2({flag, index, complete, item}) {
         })
       }
 
-
-      <label>
+    <div className='flex-column'>
+      <div>
         Script:
-        <textarea value={script} onChange={(e) => setScript(e.target.value)} rows="4" />
-      </label>
-
-      <label>
-        Tip:
-        <textarea value={tip} onChange={(e) => setTip(e.target.value)} rows="4" />
-      </label>
-
-      <label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={script} onChange={(e) => setScript(e.target.value)} rows="4" />
+        </label>
+      </div>
+      <div>
+        Tip:  
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={tip} onChange={(e) => setTip(e.target.value)} rows="4" />
+        </label>
+      </div>
+      <div>
         Translation:
-        <textarea value={translation} onChange={(e) => setTranslation(e.target.value)} rows="4" />
-      </label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={translation} onChange={(e) => setTranslation(e.target.value)} rows="4" />
+        </label>
+      </div>
+     </div>
       </>}
-      {(flag==='Test')&&<button onClick={handleSubmit}>Add</button>}
-{(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
-{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
+      {errors && <div className="error">{errors}</div>}
+
+      {(flag==='Test')&&<button type="button" class="btn btn-light" style={{backgroundColor: '#F88C19', color: '#fff'}} onClick={handleSubmit}>Add</button>}
+      {(flag==='submit')&&<button type="button" class="btn btn-light" style={{backgroundColor: '#F88C19', color: '#fff'}} onClick={handleSubmit}>Submit</button>}
+      {(flag==='fix')&&<button type="button" class="btn btn-light" style={{backgroundColor: '#F88C19', color: '#fff'}} onClick={handleSubmit}>Update</button>}
+
+      {(flag==='submit')&&<NotificationModal
+          show={showNoti}
+          onHide={() => setShowNoti(false)}
+          title="Success!"
+          message="Question added sucessfully!"
+      />
+      }
+      {(flag==='fix')&&<NotificationModal
+            show={showNoti}
+            onHide={() => setShowNoti(false)}
+            title="Success!"
+            message="Question updated sucessfully!"
+      />
+      }
     </div>
   );
 }

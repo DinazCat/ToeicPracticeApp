@@ -2,14 +2,12 @@ import React from 'react'
 import "../styles/Test.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEye, faPen } from '@fortawesome/free-solid-svg-icons';
-
+import { Card } from 'react-bootstrap';
 function TestItem({item, eyeClick, penClick, trashClick}) {
   return (
-    <div className='testitem'>
-        <div className='testitem-wrapper '>
-            <a className='text-dark' 
-            // href='/tests/4590/practice-set-2023-toeic-test-1/'
-            >
+    <Card className='testitem question-item'>
+        <div className='testitem-wrapper'>
+            <div className='text-dark'>
                 <h2>           
                     {item.Name}
                 </h2>
@@ -27,9 +25,9 @@ function TestItem({item, eyeClick, penClick, trashClick}) {
                     <FontAwesomeIcon icon={faPen} onClick={penClick} className='Qicon'/>
                     <FontAwesomeIcon icon={faTrash} onClick={trashClick} className='Qicon'/>
                 </div>
-            </a>
+            </div>
         </div>
-    </div>
+    </Card>
   )
 }
 

@@ -1,37 +1,8 @@
 .leftbar li {
     margin-top: 5px;
 }
-.BtnNormal{
-    background-color: white;
-    color: black;
+#TR{
+  width: '70%';
+  margin-left: 10px;
+  flex: 1;
 }
-.BtnClick{
-    background-color:green;
-    color: white;
-}
-.roundBtn1 {
-    height: 30px;
-    width: 30px;
-    border-radius: 50%;
-    background-color: white;
-    color:black ;
-    border-width: 1px;
-    border-color: black;
-    cursor: pointer;
-  }
-  .roundBtn2 {
-    height: 30px;
-    width: 30px;
-    border-radius: 50%;
-    background-color: green;
-    color:black ;
-    border-width: 1px;
-    border-color: black;
-    cursor: pointer;
-  }
-  #TR{
-    width: '70%';
-    height: 20px;
-    margin-left: 10px;
-    flex: 1;
-  }

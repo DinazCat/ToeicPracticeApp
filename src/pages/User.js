@@ -17,6 +17,7 @@ const UserRow = ({ user }) => {
     <TableCell>{user.currentScore ? user.currentScore : 'unk'}</TableCell>
     <TableCell>{user.targetScore ? user.targetScore : 'unk'}</TableCell>
     <TableCell>{user.HistoryPractice ? user.HistoryPractice.length : 0}</TableCell>
+    <TableCell>{user.PracticeTime ? user.PracticeTime : '00:00:00'}</TableCell>
     <TableCell>{user.level ? user.level : 'unk'}</TableCell>
   </TableRow>
   );
@@ -25,16 +26,17 @@ const UserTable = ({ users }) => {
   return (
     <Paper>
     <Table>
-      <TableHead>
+      <TableHead  style={{backgroundColor: '#62A912'}}>
         <TableRow>
-          <TableCell>Name</TableCell>
-          <TableCell>Email</TableCell>
-          <TableCell>Age</TableCell>
-          <TableCell>Entry Score</TableCell>
-          <TableCell>Current Score</TableCell>
-          <TableCell>Target Score</TableCell>
-          <TableCell>Practice History</TableCell>
-          <TableCell>Expected Level</TableCell>
+          <TableCell style={{ color: '#fff', fontSize: 15}}>Name</TableCell>
+          <TableCell style={{ color: '#fff', fontSize: 15}}>Email</TableCell>
+          <TableCell style={{ color: '#fff', fontSize: 15}}>Age</TableCell>
+          <TableCell style={{ color: '#fff', fontSize: 15}}>Entry Score</TableCell>
+          <TableCell style={{ color: '#fff', fontSize: 15}}>Current Score</TableCell>
+          <TableCell style={{ color: '#fff', fontSize: 15}}>Target Score</TableCell>
+          <TableCell style={{ color: '#fff', fontSize: 15}}>Practice History</TableCell>
+          <TableCell style={{ color: '#fff', fontSize: 15}}>Practice Time</TableCell>
+          <TableCell style={{ color: '#fff', fontSize: 15}}>Expected Level</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -81,7 +83,28 @@ function User() {
   }, []);
   return (
     <div style={{paddingRight: '20px', paddingLeft: '20px'}}>
-      <h2>User List</h2>
+      <h2 style={{marginTop: 20, textAlign: 'center', marginBottom: 10}}>User List</h2>
+      <div style={{marginTop: 20, marginBottom: 10}}>
+        <input className="customInput" style={{width: 250, height: 40, marginLeft: 10}}
+            type="text"
+            // onChange={(e) => {
+            //   setSearchVocab(e.target.value)
+            // }}
+            // value={searchVocab}
+            placeholder='Enter user name'
+        ></input>
+        <input className="customInput" style={{width: 250, height: 40, marginLeft: 10}}
+            type="text"
+            // onChange={(e) => {
+            //   setSearchVocab(e.target.value)
+            // }}
+            // value={searchVocab}
+            placeholder='Enter email'
+        ></input>
+      </div>
+      <button type="button" class="btn btn-light" style={{ backgroundColor: '#F88C19', color: '#fff', marginLeft: 10, marginBottom: 15}}>
+          Search
+      </button>
       <UserTable users={users} />
     </div>
   );

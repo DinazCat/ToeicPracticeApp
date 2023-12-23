@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import "../styles/Test.css";
-import CreateTest from './CreateTest';
 import TestItem from '../components/TestItem';
 import { useNavigate } from "react-router-dom";
 import api from '../api/Api';
 
 function Test() {
-  const [sign, SetSign] = useState('2')
+  const [searchTest, setSearchTest] = useState('')
   const [tests, setTests] = useState([]);
   const navigate = useNavigate();
 
@@ -16,36 +15,34 @@ function Test() {
   }
 
   useEffect(() => {
-    getTests();
+    getTests()
   }, []);
 
   return (
-    <div style={{ display: "flex", flex: 1 }}>
-      <div style={{width:150,}}>
-        <ul style={{ paddingLeft: 0, marginLeft: 5 }} className="leftbar">
-          <li>
-            <button
-              onClick={() => SetSign("2")}
-              className={sign == "2" ? "BtnClick" : "BtnNormal"}
-            >
-              Tests
+    <div>
+      <h2 style={{marginLeft: 20, marginTop: 20, textAlign: 'center'}}>Test List</h2>
+      <div style={{marginTop: 20, marginBottom: 10}}>
+            <button type="button" class="btn btn-light" style={{ backgroundColor: '#F88C19', color: '#fff', marginLeft: 30}} 
+            onClick={() => {
+              navigate(`/Test/add`);
+            }}>
+              Add Test
             </button>
-          </li>
-          <li>
-            <button
-              onClick={() => SetSign("1")}
-              className={sign == "1" ? "BtnClick" : "BtnNormal"}
-            >
-              Create New
+            <button type="button" class="btn btn-light" style={{ backgroundColor: '#5DA110', color: '#fff', marginLeft: 10}}>
+              Search
             </button>
-          </li>
-        </ul>
-      </div>
-      <div style={{ flex: 1, display: "grid" }}>
-      {(sign=='1')&&<CreateTest/>}
-      {(sign=='2') && (
-        <div>
-      <div className="grid-container">
+            <input className="customInput" style={{width: 250, height: 40, marginLeft: 10}}
+                  type="text"
+                  onChange={(e) => {
+                    setSearchTest(e.target.value)
+                  }}
+                  value={searchTest}
+                  placeholder='Enter test name'
+            ></input>
+          </div>
+
+      <div style={{ display: "flex", flex: 1 }}>
+      <div className="grid-container" style={{marginLeft: 20}}>
         {
           tests?.map((each,key)=>{
             return(
@@ -74,10 +71,9 @@ function Test() {
           })
         }
       </div>
-     </div>
-      )}
-      </div>
     </div>
+    </div>
+
   );
 }
 

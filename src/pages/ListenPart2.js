@@ -5,6 +5,8 @@ import api from '../api/Api';
 import client from '../api/client';
 import axios from 'axios';
 import upload from '../api/upload';
+import NotificationModal from '../components/NotificationModal';
+
 function ListenPart2({flag, index, complete, item}) {
   const [audioFile, setAudioFile] = useState(item?.Audio||null);
   const [imageFile, setImageFile] = useState(null);
@@ -19,6 +21,8 @@ function ListenPart2({flag, index, complete, item}) {
   const [textR1, setTextR1] = useState((item&&item.Answer)?item.Answer[0]?.script:'');
   const [textR2, setTextR2] = useState((item&&item.Answer)?item.Answer[1]?.script:'');
   const [textR3, setTextR3] = useState((item&&item.Answer)?item.Answer[2]?.script:'');
+  const [errors, setErrors] = useState('');
+  const [showNoti, setShowNoti] = useState(false)
 
   const handleAudioChange = (e) => {
     const selectedAudio = e.target.files[0];
@@ -30,15 +34,44 @@ function ListenPart2({flag, index, complete, item}) {
     }
   };
 
-  const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]);
-  };
 
   const handleAnswerChange = (e) => {
     setSelectedAnswer(e);
   };
 
+  function isAudioUrl(url) {
+    try{
+      new URL(url);
+      const audioUrlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*\.(mp3|wav)$/i;
+      return audioUrlRegex.test(url.toLowerCase());
+    } catch(error){
+      return false;
+    }
+  }
+
+
+  const validateData = () => {
+    let errorFields = [];
+    let audioError = '';
+    let inputError = '';
+    if(audioFile==null || audioFile=="" && audioFile1==null){
+      errorFields.push("Audio File");
+    }
+    if(selectedAnswer==null || selectedAnswer==-1 || textR1=="" || textR2=="" || textR3==""){
+      errorFields.push("Answer");
+    }
+    const isAudioValid = audioFile1!=null || isAudioUrl(audioFile);
+    if(audioFile!=null && audioFile!="" && !isAudioValid) audioError = "\nThe audio url link is not valid!"
+    if(errorFields.length > 0) inputError = "Please input complete information: " + errorFields.join(", ") + ". ";
+    if(errorFields.length > 0|| !isAudioValid){
+      setErrors(inputError + audioError);
+      return false;
+    }
+    else return true;
+  }
+
   const handleSubmit = async () => {
+    if(!validateData()) return;
     let answerL = [];
     let text = [textR1, textR2, textR3]
     for(let i = 0; i < 3; i++){
@@ -81,8 +114,19 @@ let audio = audioFile
         },
         Order:await api.countQuestion('ListenPart2')
       }
-      alert('Add question successfully')
       await api.addQuestion('ListenPart2', data);
+      setAudioFile('');
+      setAudioFile1(null);
+      setSelectedAnswer(null);
+      setTextR1('');
+      setTextR2('');
+      setTextR3('');
+      setTip('');
+      setTranslation('');
+      setScript('');
+      setErrors('');
+      setShowNoti(true);
+
     }
     else if(flag==='fix') {
       let data = {
@@ -94,7 +138,8 @@ let audio = audioFile
           translate: translation,
         },
       }
-      alert('Update successfully')
+      setErrors('');
+      setShowNoti(true);
       complete(data)
     }
     else if(flag==='Test'){
@@ -107,7 +152,8 @@ let audio = audioFile
           translate: translation,
         },
       }
-      alert('Add successfully')
+      setErrors('');
+      setShowNoti(true);
       complete(data)
     }
    
@@ -119,50 +165,55 @@ let audio = audioFile
 
   return (
     <div className='addQuestion'>
-     {(flag!=='Test')?<h2>Add Question Listen part 2</h2>:<h2>Question {index+1} </h2>}
+      {(flag=='submit')?<h2>Add Question Listening Part 2</h2>:<h2>Question {index+1} </h2>}
      {(flag==='see')&&
      <>
       <div className='fileContainer'>
       <label>
           Audio:
-          <input type="file" accept="audio/*" onChange={handleAudioChange} />
+          <input className="customInput" type="file" accept="audio/*" onChange={handleAudioChange} />
           <text style={{font:12}}>or input the link:</text>
-          <input type='url' onChange={(e) => setAudioFile(e.target.value)} value={item.Audio}/>
+          <input className="customInput" type='url' onChange={(e) => setAudioFile(e.target.value)} value={item.Audio}/>
         </label>
       </div>
 
 
       <label>Answer:</label>
       <div style={{marginTop:10, marginBottom:10, display:'grid'}}>
-      <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((item.Answer[0].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(0)}}>A</button>
-             <input type='text'  value={item.Answer[0].script} id='TR'></input> 
+        <div style={{display:'inline-flex', marginLeft:5, marginBottom: 10}}>
+          <button className="btn rounded-circle" style={{backgroundColor: selectedAnswer === 0 && '#5DA110', marginRight: 10, border: '1px solid black', height: 40}} onClick={() => {handleAnswerChange(0)}}>A</button>
+          <input className="customInput" type='text'  value={item.Answer[0].script} id='TR'></input> 
         </div>
-        <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((item.Answer[1].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(1)}}>B</button>
-        <input type='text'  value={item.Answer[1].script} id='TR'></input>
+        <div style={{display:'inline-flex', marginLeft:5, marginBottom: 10}}>
+          <button className="btn rounded-circle" style={{backgroundColor: selectedAnswer === 1 && '#5DA110', marginRight: 10, border: '1px solid black', height: 40}} onClick={() => {handleAnswerChange(1)}}>B</button>
+          <input className="customInput" type='text'  value={item.Answer[1].script} id='TR'></input>
         </div>
-        <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((item.Answer[2].status)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>C</button>
-        <input type='text' value={item.Answer[2].script} id='TR'></input> 
+        <div style={{display:'inline-flex', marginLeft:5, marginBottom: 10}}>
+          <button className="btn rounded-circle" style={{backgroundColor: selectedAnswer === 2 && '#5DA110', marginRight: 10, border: '1px solid black', height: 40}} onClick={() => {handleAnswerChange(2)}}>C</button>
+          <input className="customInput" type='text' value={item.Answer[2].script} id='TR'></input> 
         </div>
-
       </div>
 
-      <label>
+      <div className='flex-column'>
+      <div>
         Script:
-        <textarea value={item.Explain.script} onChange={(e) => setScript(e.target.value)} rows="4" />
-      </label>
-
-      <label>
-        Tip:
-        <textarea value={item.Explain.tip} onChange={(e) => setTip(e.target.value)} rows="4" />
-      </label>
-
-      <label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={item.Explain.script} onChange={(e) => setScript(e.target.value)} rows="4" />
+        </label>
+      </div>
+      <div>
+        Tip:  
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={item.Explain.tip} onChange={(e) => setTip(e.target.value)} rows="4" />
+        </label>
+      </div>
+      <div>
         Translation:
-        <textarea value={item.Explain.translate} onChange={(e) => setTranslation(e.target.value)} rows="4" />
-      </label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={item.Explain.translate} onChange={(e) => setTranslation(e.target.value)} rows="4" />
+        </label>
+      </div>
+     </div>
      </>
      }
       {(flag!=='see')&&
@@ -170,50 +221,71 @@ let audio = audioFile
       <div className='fileContainer'>
       <label>
           Audio:
-          <input type="file" accept="audio/*" onChange={handleAudioChange} />
+          <input className="customInput" type="file" accept="audio/*" onChange={handleAudioChange} />
           <text style={{font:12}}>or input the link:</text>
-          <input type='url' onChange={(e) => setAudioFile(e.target.value)} value={audioFile}/>
+          <input className="customInput" type='url' onChange={(e) => setAudioFile(e.target.value)} value={audioFile}/>
         </label>
       </div>
 
-
       <label>Answer:</label>
-      <div style={{marginTop:10, marginBottom:10, display:'grid'}}>
-      <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((selectedAnswer == 0)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(0)}}>A</button>
-             <input type='text' onChange={(e) => setTextR1(e.target.value)} value={textR1} id='TR'></input> 
+      <div style={{marginTop:10, marginBottom:10, display:'grid'}}>      
+        <div style={{display:'inline-flex', marginLeft:5, marginBottom: 10}}>
+          <button className="btn rounded-circle" style={{backgroundColor: selectedAnswer === 0 && '#5DA110', marginRight: 10, border: '1px solid black', height: 40}} onClick={() => {handleAnswerChange(0)}}>A</button>
+          <input className="customInput" type='text' onChange={(e) => setTextR1(e.target.value)} value={textR1} id='TR'></input> 
         </div>
-        <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((selectedAnswer == 1)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(1)}}>B</button>
-        <input type='text' onChange={(e) => setTextR2(e.target.value)} value={textR2} id='TR'></input>
+        <div style={{display:'inline-flex', marginLeft:5, marginBottom: 10}}>
+          <button className="btn rounded-circle" style={{backgroundColor: selectedAnswer === 1 && '#5DA110', marginRight: 10, border: '1px solid black', height: 40}} onClick={() => {handleAnswerChange(1)}}>B</button>
+          <input className="customInput" type='text' onChange={(e) => setTextR2(e.target.value)} value={textR2} id='TR'></input>
         </div>
-        <div style={{display:'inline-flex', marginLeft:5}}>
-        <button className={((selectedAnswer == 2)?'roundBtn2':'roundBtn1')} onClick={() => {handleAnswerChange(2)}}>C</button>
-        <input type='text' onChange={(e) => setTextR3(e.target.value)} value={textR3} id='TR'></input> 
+        <div style={{display:'inline-flex', marginLeft:5, marginBottom: 10}}>
+          <button className="btn rounded-circle" style={{backgroundColor: selectedAnswer === 2 && '#5DA110', marginRight: 10, border: '1px solid black', height: 40}} onClick={() => {handleAnswerChange(2)}}>C</button>
+          <input className="customInput" type='text' onChange={(e) => setTextR3(e.target.value)} value={textR3} id='TR'></input> 
         </div>
-
       </div>
-
-      <label>
+      
+      <div className='flex-column'>
+      <div>
         Script:
-        <textarea value={script} onChange={(e) => setScript(e.target.value)} rows="4" />
-      </label>
-
-      <label>
-        Tip:
-        <textarea value={tip} onChange={(e) => setTip(e.target.value)} rows="4" />
-      </label>
-
-      <label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={script} onChange={(e) => setScript(e.target.value)} rows="4" />
+        </label>
+      </div>
+      <div>
+        Tip:  
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={tip} onChange={(e) => setTip(e.target.value)} rows="4" />
+        </label>
+      </div>
+      <div>
         Translation:
-        <textarea value={translation} onChange={(e) => setTranslation(e.target.value)} rows="4" />
-      </label>
+        <label style={{display: 'flex'}}>
+          <textarea className="customInput" value={translation} onChange={(e) => setTranslation(e.target.value)} rows="4" />
+        </label>
+      </div>
+     </div>
      </>
      }
+  
+  {errors && <div className="error">{errors}</div>}
 
-      {(flag==='Test')&&<button onClick={handleSubmit}>Add</button>}
-{(flag==='submit')&&<button onClick={handleSubmit}>Submit</button>}
-{(flag==='fix')&&<button onClick={handleSubmit}>Update</button>}
+    {(flag==='Test')&&<button type="button" class="btn btn-light" style={{backgroundColor: '#F88C19', color: '#fff'}} onClick={handleSubmit}>Add</button>}
+    {(flag==='submit')&&<button type="button" class="btn btn-light" style={{backgroundColor: '#F88C19', color: '#fff'}} onClick={handleSubmit}>Submit</button>}
+    {(flag==='fix')&&<button type="button" class="btn btn-light" style={{backgroundColor: '#F88C19', color: '#fff'}} onClick={handleSubmit}>Update</button>}
+
+    {(flag==='submit')&&<NotificationModal
+        show={showNoti}
+        onHide={() => setShowNoti(false)}
+        title="Success!"
+        message="Question added sucessfully!"
+    />
+    }
+    {(flag==='fix')&&<NotificationModal
+          show={showNoti}
+          onHide={() => setShowNoti(false)}
+          title="Success!"
+          message="Question updated sucessfully!"
+    />
+    }
     </div>
   );
 }

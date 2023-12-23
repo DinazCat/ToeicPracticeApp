@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const PostCard=({item, Allow, Delete})=> {
     const navigate = useNavigate();
   return (
-    <div style={{width:600, flexDirection:'column', margin:'auto',boxShadow:' 0 0 10px rgba(0, 0, 0, 0.3)', marginTop:20, backgroundColor:'#EEEEEE'}}>
+    <div className="question-item" style={{width:600, flexDirection:'column', margin:'auto', boxShadow:' 0 0 10px rgba(0, 0, 0, 0.3)', marginTop:20, backgroundColor:'#f8f8f8', borderRadius: 5}}>
         <div style={{display:'flex', height:60, alignItems:'center', borderColor:'gray', borderBottomWidth:1,marginLeft:20, marginTop:10}}>
         <div style={{borderRadius:'50%', width:50, height:50, borderColor:'black', borderWidth:1}}>
         {(item?.userImg&&item?.userImg!=null)&&<img src={item.userImg} alt="User's Image" style={{width:50, height:50,borderRadius:'50%'}}  />}
@@ -16,8 +16,8 @@ const PostCard=({item, Allow, Delete})=> {
         <span>{item?.postTime}</span>
         </div>
         <div style={{flex:1}}/>
-        {(item?.Allow==false)&&<button style={{marginRight:5}} onClick={() => {Allow()}}>Allow</button>}
-        <button style={{marginRight:5}} onClick={() => {Delete()}}>Delete</button>
+        {(item?.Allow==false)&&<button style={{marginRight:5, borderRadius: 5}} onClick={() => {Allow()}}>Allow</button>}
+        <button style={{marginRight:5, borderRadius: 5, backgroundColor: '#F88C19'}} onClick={() => {Delete()}}>Delete</button>
         </div>
         <div style={{marginLeft:20, marginTop:15}}>
             <h3>{item?.topic}</h3>
@@ -27,7 +27,7 @@ const PostCard=({item, Allow, Delete})=> {
             {
                 item?.postImg?.map((each,key)=>{
                     if(each.type==='img'){
-                        return  <img src={each.uri} alt="Topic'sImg" style={{width:380, height:295}} />
+                        return  <img src={each.uri} alt="Topic'sImg" style={{width:380, height:295, marginBottom: 10}} />
                     }
                     else if(each.type === 'video'){
                         return <ReactPlayer url={each.uri} controls={true} width="390" height="295" />
