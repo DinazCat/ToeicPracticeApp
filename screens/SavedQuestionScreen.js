@@ -20,6 +20,11 @@ import {
   const SavedQuestionScreen = ({navigation,route}) => {
     const {questionLId} = route.params
     const [listQ, setListQ] = useState([])
+    const unSave = async (id)=>{
+      let list = listQ.slice()
+      const filteredData = list.filter(i => i.Id!== id);
+      setListQ(filteredData)
+    }
     const getListQuestion= async()=>{
        const list = [];
     //    console.log(questionLId[0].Part)
@@ -73,12 +78,11 @@ import {
               Saved Question
             </Text>
           </View>
-            {(listQ.length>0)?<FlatList
+            {(listQ.length>0)&&<FlatList
                 data={listQ}
                 renderItem={({item, index}) => (
                     <TouchableOpacity style={{width:'90%',height:60,marginTop:5, alignSelf:'center', justifyContent:'space-between', flexDirection:'row', borderBottomWidth:1, borderBottomColor:'black', alignItems:'center'}}
-                    onPress={()=>{navigation.navigate('QuestionScreen',{questionList:[item],part:questionLId[index].Part, isExplain:'Explain'})}}
-                    >
+                    onPress={()=>{navigation.navigate('QuestionScreen',{questionList:[item],part:questionLId[index].Part, isExplain:'Explain',RemoveQinSavedQ:(id)=>unSave(id)})}}>
                         <View style={{flexDirection:'column'}}>
                         <Text style={[styles.TextFont,{fontSize:20}]}>{'Question '+item.Order}</Text>
                         <Text style={[styles.TextFont,{color:PRIMARY_COLOR}]}>{'Part: '+item.part}</Text>
@@ -90,7 +94,7 @@ import {
           style={{marginRight:5}}
         />
                     </TouchableOpacity>
-              )}/>:<LottieView source={require('../assets/animation_lnu2onmv.json')} autoPlay loop style={{flex: 1, width:100, height:100, alignSelf:'center'}}/>}
+              )}/>}
               </ImageBackground>
         </View>
     )

@@ -14,9 +14,10 @@ import SpeakP5QuestionForm from '../components/SpeakP5QuestionForm';
 import SpeakP6QuestionForm from '../components/SpeakP6QuestionForm';
 import WriteP1QuestionForm from '../components/WriteP1QuestionForm';
 import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
+import firestore from '@react-native-firebase/firestore';
 
 
-const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress,editright, Remove}) => {  
+const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress,editright, Remove, fixPost}) => {  
   const navigation = useNavigation();
   const [levelsource, setLevelSource] = useState(require('../assets/Lv0.png'))
   const [Allow, SetAllow] = useState(false);
@@ -124,16 +125,23 @@ const PostCard = ({item, onUserPress, onCommentPress, onGotoPostPress,editright,
         title:"Delete",
         action:async()=>{
           setvisible(false)
-          Alert.alert('Success!', "Post delete successfully");
-          await Api.deletePost(item.postId)
+          // await Api.deletePost(item.postId)
+          try {
+            const collectionRef = firestore().collection('Posts');
+            await collectionRef.doc(item.postId).delete();
+            Alert.alert('Success!', "Post delete successfully");
+          } catch (error) {
+            console.error('Lỗi khi xóa document:', error);
+          }
         },
       },
-      // {
-      //   title:'Edit',
-      //   action:()=>{
-      //     setvisible(false)
-      //   },
-      // }
+      {
+        title:'Edit',
+        action:()=>{
+          setvisible(false)
+          fixPost()
+        },
+      }
     ];
     const options2 = [
       {

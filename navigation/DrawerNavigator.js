@@ -8,8 +8,13 @@ import VocabStack from './VocabStack';
 import HomeStack from './HomeStack';
 import ForumStack from './ForumStack';
 import PracticePlanStack from './PracticePlanStack';
+import Analysis from '../screens/Analysis';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {PRIMARY_COLOR, card_color} from '../assets/colors/color'
+import firestore from '@react-native-firebase/firestore';
+import { subDays, format } from 'date-fns';
+import auth from '@react-native-firebase/auth';
+import AnalysisStack from './AnalysisStack';
 
 const Drawer = createDrawerNavigator();
 const SideMenu = () => {
@@ -18,6 +23,7 @@ const SideMenu = () => {
   </SafeAreaView>;
 };
 function DrawerNavigator() {
+ 
   return (
     <Drawer.Navigator
     screenOptions={{
@@ -84,6 +90,14 @@ function DrawerNavigator() {
         drawerLabel: 'Setting', 
         drawerIcon: () => (
           <Image source={require("../assets/cogwheel.png")}/>
+        ),
+        headerShown:false
+      }}/>
+       <Drawer.Screen name="AnalysisStack" component={AnalysisStack} 
+      options={{
+        drawerLabel: 'Analysis', 
+        drawerIcon: () => (
+          <Image source={require("../assets/exploration.png")}/>
         ),
         headerShown:false
       }}/>

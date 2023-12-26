@@ -130,6 +130,25 @@ const CompleteCard=({navigation,route})=> {
       setQuantity1(DetailQty)
     }
   },[])
+  const checkMess = ()=>{
+    const rate = parseInt((score * 100) / quantity1)
+    if(rate < 50){
+      return "Your skills are still very poor, you need to put in more effort"
+    }
+    else if(rate >=50 && rate <= 70)
+    {
+      return "Your score is not very high, please continue to practice more"
+    }
+    else if(rate > 70 && rate <= 90)
+    {
+      return "Congratulations, you are about to become a master, keep trying"
+    }
+    else if(rate > 90)
+    {
+      return "Congratulations, you are a master, please maintain your current form"
+    }
+    return "Your skills are still very poor, you need to put in more effort"
+  }
  
   return (
     <View style={styles.container}>
@@ -164,10 +183,10 @@ const CompleteCard=({navigation,route})=> {
               fontSize: 25,
               marginLeft: 5,
             }}>
-            Congratulations!
+            Complete!
           </Text>
           <Text style={[styles.TextFont, {fontWeight: '400'}]}>
-            You have completed the exercise
+            {checkMess()}
           </Text>
           <Text style={[styles.TextFont, {fontWeight: '400'}]}>
             {skillText+' '}
@@ -196,7 +215,7 @@ const CompleteCard=({navigation,route})=> {
             </Text>
           </View>
           <Progress.Bar
-            progress={score / quantity1}
+            progress={score / quantity1||0.0}
             width={250}
             height={10}
             style={{height: 10}}

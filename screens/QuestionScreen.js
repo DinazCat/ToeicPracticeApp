@@ -41,7 +41,7 @@ const {width} = Dimensions.get('window');
 const QuestionScreen = ({navigation, route}) => {
   const {user} = useContext(AuthContext);
   const scrollX = useRef(new Animated.Value(0)).current;
-  const {questionList, part, partName, sign, numberofQuestion, isFromPL,isExplain} = route.params;
+  const {questionList, part, partName, sign, numberofQuestion, isFromPL,isExplain,RemoveQinSavedQ} = route.params;
   const [soundL, setsoundL] = useState(null);
   const [ItemIndex, setItemIndex] = useState(0);
   const [OpenModal, setOpenModal] = useState(false);
@@ -72,6 +72,7 @@ const QuestionScreen = ({navigation, route}) => {
           setSavedQ(list)
           setIsSaved(false)
           await Api.updateSavedQuestion({SavedQuestion:list})
+          RemoveQinSavedQ(id)
         }
       }
       else{
@@ -201,6 +202,8 @@ const gettime = ()=>{
             Part: part,
             PartName:partName,
             Quantity:questionList.length,
+            DetailQty:0,
+            Score:0,
           }; 
           //console.log(practiceHistoryData);
           //console.log(practiceHistoryData.result)
@@ -254,6 +257,8 @@ const gettime = ()=>{
         Part: part,
         PartName:partName,
         Quantity:questionList.length,
+        DetailQty:0,
+        Score:0,
       }; 
       //console.log(practiceHistoryData);
 
@@ -278,6 +283,8 @@ const gettime = ()=>{
         Part: part,
         PartName:partName,
         Quantity:questionList.length,
+        DetailQty:0,
+        Score:0,
       }; 
       //console.log(practiceHistoryData);
 
@@ -289,13 +296,22 @@ const gettime = ()=>{
       if (soundL!='-1'&&soundL[ItemIndex].isPlaying()) {
         soundL[ItemIndex].stop();
       }
+      let score = 0;
+      for(let i = 0; i < history.length; i++){
+        if(history[i].Default==history[i].Select){
+          score = score + 1
+        }
+      }
       const time = gettime()
       const data = {
         PartName:partName,
         Part:part,
         Quantity:questionList.length,
         History:history,
-        Time:time
+        Time:time,
+        Score:score,
+        DetailQty:questionList.length,
+        userId: user.uid,
       }
       Api.pushPracticeHistory(data, sign);
       navigation.navigate('CompleteCard',{quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:history})
@@ -307,13 +323,26 @@ const gettime = ()=>{
       if (soundL!='-1'&&soundL[ItemIndex].isPlaying()) {
         soundL[ItemIndex].stop();
       }
+      let score = 0;
+      let qty = 0;
+      for(let i = 0; i < history.length; i++){
+        qty = qty + history[i].Default.length
+        for(let j = 0; j < history[i].Default.length;j++){
+          if(history[i].Default[j]==history[i].Select[j]){
+            score = score + 1
+          }
+        }
+      }
       const time = gettime()
       const data = {
         PartName:partName,
         Part:part,
         Quantity:questionList.length,
         History:history,
-        Time:time
+        Time:time,
+        DetailQty:qty,
+        Score:score,
+        userId: user.uid,
       }
       Api.pushPracticeHistory(data, sign);
       navigation.navigate('CompleteCard',{quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:history})
@@ -321,12 +350,21 @@ const gettime = ()=>{
     else if(part == 'R1')
     {
       const time = gettime()
+      let score = 0;
+      for(let i = 0; i < history.length; i++){
+        if(history[i].Default==history[i].Select){
+          score = score + 1
+        }
+      }
       const data = {
         PartName:partName,
         Part:part,
         Quantity:questionList.length,
         History:history,
-        Time:time
+        Time:time,
+        Score:score,
+        DetailQty:questionList.length,
+        userId: user.uid,
       }
       Api.pushPracticeHistory(data, sign);
       navigation.navigate('CompleteCard',{quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:history})
@@ -334,17 +372,25 @@ const gettime = ()=>{
     else if(part == 'R2'||part == 'R3')
     {
       const time = gettime()
-      let sum = 0;
-      for(let i = 0; i < questionList.length;i++){
-        sum = sum + questionList[i].Question.length
+      let score = 0;
+      let qty = 0;
+      for(let i = 0; i < history.length; i++){
+        qty = qty + history[i].Default.length
+        for(let j = 0; j < history[i].Default.length;j++){
+          if(history[i].Default[j]==history[i].Select[j]){
+            score = score + 1
+          }
+        }
       }
       const data = {
         PartName:partName,
         Part:part,
         Quantity:questionList.length,
-        DetailQty:sum,
+        DetailQty:qty,
         History:history,
-        Time:time
+        Time:time,
+        Score:score,
+        userId: user.uid,
       }
       Api.pushPracticeHistory(data, sign);
       navigation.navigate('CompleteCard',{quantity:questionList.length,answer:history,sign:'QuestionScreen',part:part, isFromPL: route.params.isFromPL,questionL:history,DetailQty:sum})
@@ -588,7 +634,7 @@ const gettime = ()=>{
           </TouchableOpacity>
           {ExplainButton == '1' && 
             <View style={{marginLeft: 5, marginTop: 10}}>
-               <Text>
+               <Text style={styles.answertext2}>
                 {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script}
                 {questionList[ItemIndex]&&questionList[ItemIndex].Explain.SampleAnswer}
                </Text>
@@ -596,7 +642,7 @@ const gettime = ()=>{
           }
           {ExplainButton == '2' && (
             <View style={{marginLeft: 5, marginTop: 10}}>
-             <Text>
+             <Text style={styles.answertext2}>
                 {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate}
                 {questionList[ItemIndex]&&questionList[ItemIndex].Explain.Translation}
                </Text>
@@ -604,7 +650,7 @@ const gettime = ()=>{
           )}
           {ExplainButton == '3' && (
             <View style={{marginLeft: 5, marginTop: 10}}>
-             <Text>
+             <Text style={styles.answertext2}>
                 {questionList[ItemIndex]&&questionList[ItemIndex].Explain.tip}
                 {questionList[ItemIndex]&&questionList[ItemIndex].Explain.Tips}
                </Text>
@@ -781,7 +827,7 @@ const gettime = ()=>{
               const History = [...history];
               let correct = 0;
               for(let j = 0;j < 3; j++){
-                if(questionList[index].Answer[j]) correct=j
+                if(questionList[index].Answer[j].status) correct=j
               }
               History[index].Select = i
               History[index].Default = correct
@@ -891,6 +937,10 @@ const styles = StyleSheet.create({
   ExplainFontFalse: {
     color: 'white',
     fontSize: 18,
+  },
+  answertext2: {
+    color: 'black',
+    fontSize: 17,
   },
 });
 export default QuestionScreen;

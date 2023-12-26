@@ -19,8 +19,8 @@ import SpeakP6QuestionForm from '../components/SpeakP6QuestionForm';
 import WriteP1QuestionForm from '../components/WriteP1QuestionForm';
 import WriteP23QuestionForm from '../components/WriteP23QuestionForm';
 
-const AddPostScreen = ({navigation,route}) => {
-  const {sign,Answer,part,item} = route.params
+const FixPostScreen = ({navigation,route}) => {
+  const {PostId} = route.params
   const [profileData, setProfileData] = useState(null);
   const [OpenModal, setOpenModal] = useState(false);
   const [OpenModal2, setOpenModal2] = useState(false);
@@ -62,196 +62,64 @@ const AddPostScreen = ({navigation,route}) => {
   };
   useEffect(() => {
     getProfile();
+    getPost();
   }, []);
-  const pickImageAsync = async () => {
-    setOpenModal(false);
-    setOpenModal2(false)
-    ImagePicker.openPicker({
-      width: 300,
-      height: 300,
-      cropping: true,
-    }).then(img => {
-      let image2 = image.slice();
-      image2.push({
-        uri:img.path,
-        type:'img'
-      });
-      setimage(image2);
-    });
-  };
-  const takePhotoFromCamera = () => {
-    setOpenModal(false);
-    setOpenModal2(false)
-    ImagePicker.openCamera({
-      compressImageMaxWidth: 300,
-      compressImageMaxHeight: 300,
-      cropping: true,
-      compressImageQuality: 0.7,
-    }).then((img) => {
-      let image2 = image.slice();
-      image2.push({
-        uri:img.path,
-        type:'img'
-      });
-      setimage(image2);
-    });
-  };
-  const videoFromCamera = () => {
-    setOpenModal(false);
-    setOpenModal2(false)
-    ImagePicker.openCamera({
-      mediaType: 'video',
-    }).then((img) => {
-      let image2 = image.slice();
-      image2.push({
-        uri:img.path,
-        type:'video'
-      });
-      setimage(image2);
-    });
-  };
-  handleFilePicker = async () => {
-    try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.pdf],
-        allowMultiSelection:false,
-        copyTo:'cachesDirectory'
-      });
-      console.log(res)
-      // console.log('URI : ' + res[0].uri);
-      // console.log('Type : ' + res[0].type);
-      // console.log('File Name : ' + res[0].name);
-      // console.log('File Size : ' + res[0].size);
-      let image2 = image.slice();
-      image2.push({
-        uri:res[0].fileCopyUri,
-        type:'pdf',
-        filename:res[0].name
-      });
-      setimage(image2);
-      console.log(image2)
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        console.log('User cancelled the file picker');
-      } else {
-        console.log('Something went wrong', err);
-      }
-    }
-  };
+  const getPost =async()=>{
+    await firestore().collection('Posts')
+    .doc(PostId)
+    .get()
+    .then((doc)=>{
+        const data = doc.data()
+        setText(data.text)
+        setTopic(data.topic)
+        sethashtag(data.hashtag)
+        setimage(data.postImg)
+    })
+  }
   const allowPost=()=>{
-    if(sign=='ReviewQuestion'){
-      if(topic!='' && text!=''&& hashtag!=null) return true
-      return false
-    }
-    else{
+
       if((topic!='' && text!=''&& hashtag!=null)||(image.length>0 && topic!=''&& hashtag!=null)) return true
       return false
-    }
+    
   }
-  const uploadImage = async () => {
-    const list = []
-    try {
-      for(let i = 0; i < image.length; i++){
-        if(image[i].type=='img'){
-          const formData = new FormData();
-          formData.append('image', {
-            uri: image[i].uri,
-            name: 'image.jpg',
-            type: 'image/jpg',
-          });     
-          const response = await axios.post('http://192.168.1.6:3000/upload', formData);
-          list.push({uri:response.data.photo,type:'img'})
-        }
-        else if(image[i].type=='video'){
-          const formData = new FormData();
-          formData.append('video', {
-            uri: image[i].uri,
-            name: 'video.mp4',
-            type: 'video/mp4',
-          });     
-          const response = await axios.post('http://192.168.1.6:3000/uploadvideo', formData);
-          list.push({uri:response.data.video,type:'video'})
-        }
-        else if(image[i].type=='pdf'){
-          const formData = new FormData();
-          formData.append('pdf', {
-            uri: image[i].uri,
-            name: 'file.pdf',
-            type: 'application/pdf',
-          });     
-          const response = await axios.post('http://192.168.1.6:3000/uploadpdf', formData);
-          list.push({uri:response.data.filepdf,type:'pdf',name:image[i].filename})
-        }
-        if(i == image.length-1){
-          const data = {
-            postTime: firebase.firestore.Timestamp.fromDate(new Date()),
-            likes: [],
-            comments: [],
-            topic:topic,
-            text:text,
-            postImg:list,
-            userId:auth().currentUser.uid,
-            userImg:profileData.userImg,
-            userName:profileData.name||profileData.email,
-            hashtag:hashtag,
-            Allow: false
-          }
-          Alert.alert('Success!', "Your post has been sent for moderation");
-          await Api.addPost(data);
-          navigation.goBack()
-          
-        }
-      }
-     
-    } catch (error) {
-      console.error(error);
-    }
-  };
+ 
   const submitPost= async()=>{
     if(allowPost())
     {
-      if(sign=='ReviewQuestion'){
-        // post question
-        const data = {
-          postTime: firebase.firestore.Timestamp.fromDate(new Date()),
-          likes: [],
-          comments: [],
-          topic:topic,
-          text:text,
-          postImg:[{item:item, part:part , flag:'ReviewQuestion', check:Answer, type:'question'}],
-          userId:auth().currentUser.uid,
-          userImg:profileData.userImg,
-          userName:profileData.name||profileData.email,
-          hashtag:hashtag,
-          Allow: false
-        }
-        Alert.alert('Success!', "Your post has been sent for moderation");
-        await Api.addPost(data)
-        navigation.goBack()
-      }
-      else{
-        if(image.length>0){
-          uploadImage()
-        }
-        else{
-          const data = {
-            postTime: firebase.firestore.Timestamp.fromDate(new Date()),
-            likes: [],
-            comments: [],
+      
+        //   const data = {
+        //     postTime: firebase.firestore.Timestamp.fromDate(new Date()),
+        //     likes: [],
+        //     comments: [],
+        //     topic:topic,
+        //     text:text,
+        //     postImg:null,
+        //     userId:auth().currentUser.uid,
+        //     userImg:profileData.userImg,
+        //     userName:profileData.name||profileData.email,
+        //     hashtag:hashtag,
+        //     Allow: false
+        //   }
+        //   Alert.alert('Success!', "Your post has been sent for moderation.");
+        //   await Api.addPost(data)   
+        //   navigation.goBack()
+        await firestore()
+      .collection('Posts')
+      .doc(PostId)
+      .update({
             topic:topic,
             text:text,
-            postImg:null,
-            userId:auth().currentUser.uid,
-            userImg:profileData.userImg,
-            userName:profileData.name||profileData.email,
             hashtag:hashtag,
-            Allow: false
-          }
-          Alert.alert('Success!', "Your post has been sent for moderation.");
-          await Api.addPost(data)   
-          navigation.goBack()
-        }
-      }
+      })
+      .then(() => {
+        console.log('Post Updated!');
+        Alert.alert(
+          'Post Updated!',
+          'Your Post has been updated successfully.',
+        );
+        navigation.goBack();
+      });
+      
       
     }
     else{
@@ -266,36 +134,6 @@ const AddPostScreen = ({navigation,route}) => {
       }
     }
 
-  }
-  function RenderModal() {
-    return (
-      <Modal visible={OpenModal} animationType="slide" transparent={true}>
-        <View style={{ height:160,width:300, borderRadius:15 ,backgroundColor:PRIMARY_COLOR,borderColor:'white', borderWidth:2, alignSelf:'center', marginVertical:300, position:'absolute'}}>
-        <TouchableOpacity style={{marginLeft:255, padding:5,}}
-            onPress={() => setOpenModal(false)}>
-            <Icon
-              name={'times-circle'}
-              style={{color: 'white', fontSize: 20, marginRight:10}}
-            />
-          </TouchableOpacity>
-          <View style={styles.popover}>
-                <TouchableOpacity onPress={takePhotoFromCamera}>
-                    <View style={styles.popoverItem}>
-                        <Icon name="camera" size={35} color={card_color} />
-                        <Text style={{ fontSize: 16, marginTop: 8, color: 'white' }}>Take photo</Text>
-                    </View>
-                </TouchableOpacity>           
-                <TouchableOpacity onPress={videoFromCamera}>
-                    <View style={styles.popoverItem}>
-                        <Icon name="video" size={35} color={card_color} />
-                        <Text style={{ fontSize: 16, marginTop: 8, color: 'white' }}>Video</Text>
-                    </View>
-                </TouchableOpacity>
-          
-          </View>
-        </View>
-        </Modal>
-    )
   }
 
 
@@ -315,37 +153,8 @@ const AddPostScreen = ({navigation,route}) => {
           </TouchableOpacity>
           {/* Q&A, Study Resources, Exam Analysis, Preparation Experiences, Review Exam Experiences, Share Your Results, Events/News, Others */}
           <View style={{flex: 1}}/>
-          {(sign=='Forum')&&<>
-            <TouchableOpacity onPress={pickImageAsync}>
-            <Icon
-              name={'images'}
-              style={styles.IconWrapper}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>{setOpenModal(true)}}>
-            <Icon
-              name={'camera'}
-              style={styles.IconWrapper}
-              light
-            />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Icon
-              name={'paperclip'}
-              style={styles.IconWrapper}
-            />
-          </TouchableOpacity>  
-          </>}       
+         
         </View>
-          {/* <FlatList
-            data={hashtagList}
-            renderItem={({item, index}) => (
-              <Hashtags
-                  each={item} 
-                   />
-              )}
-            numColumns={2}
-          /> */}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', backgroundColor:'white' }}>
                       <TouchableOpacity
                       style={[styles.panelButton, {backgroundColor:(hashtag!='Q&A')?'#EAABAB':'white'}]}
@@ -445,7 +254,7 @@ const AddPostScreen = ({navigation,route}) => {
             </TouchableOpacity>
   
             <Text style={{fontSize: 20, flex: 1, marginLeft: 5, color: '#222', fontWeight: 'bold'}}>
-              Create a post
+              Fix a post
             </Text>
             {/* {uploading ? (
               <View style={{justifyContent: 'center', alignItems: 'center'}}>
@@ -454,7 +263,7 @@ const AddPostScreen = ({navigation,route}) => {
               </View>
             ) : ( */}
               <Button
-                title={'Post'}
+                title={'Save'}
                 // color={'#333'}
                 color={allowPost() == true ? '#006400' : '#333'}
                 onPress={submitPost}
@@ -507,31 +316,10 @@ const AddPostScreen = ({navigation,route}) => {
               value={text}
               onChangeText={(txt) => setText(txt)}
             />
-            {/* {image == null ? ( */}
-              {/* <View>
-                <Image
-                  source={{uri: 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png'}}
-                  style={{
-                    width: 300,
-                    height: 200,
-                    borderRadius: 15,
-                    alignSelf: 'center',
-                    marginTop: 150,
-                  }}
-                />
-                <Text style={{alignSelf: 'center'}}>
-                  Thêm hình ảnh mà bạn thích
-                </Text>
-              </View> */}
-            {/* ) : null} */}
-            {/* {image!=null? <Image
-              source={{uri: image}}
-              style={{height: 300, width: 400, marginTop: 70}}
-              resizeMode="contain"
-            />:null} */}
+
           </View>
           <View style={{flex:1}}>
-          {(sign=='Forum')&&<ScrollView style={{flexDirection:'column' }}>
+          <ScrollView style={{flexDirection:'column' }}>
               {
                 image.map((each,key)=>{
                   return(  
@@ -541,39 +329,30 @@ const AddPostScreen = ({navigation,route}) => {
                         video={{ uri: each.uri }}
                         videoWidth={400}
                         videoHeight={200}
-                    />:
+                    />:each.type=='pdf'?
                     <View style={{justifyContent:'center', alignItems:'center',height:200, width:400}}>
                        <Image source={{uri:'https://tse3.mm.bing.net/th?id=OIP.gh9hvhaRiqOVr8zU54fm-AHaEK&pid=Api&P=0&h=220'}} style={{height:160, width:360, marginTop:5}} resizeMode='cover'/>
-                       <Text style={{color:'black', fontSize:14}}>{each.filename}</Text>
+                       <Text style={{color:'black', fontSize:14}}>{each.name}</Text>
                     </View>
-  
+                    :each.type=='question'?
+                    <ScrollView style={{flexDirection:'column' }}>
+                    {(each.part=='W1')&&<WriteP1QuestionForm item={each.item} part={each.part}  flag={'ReviewQuestion'} check={each.check}/>}
+                    {(each.part=='W2'||each.part=='W3')&&<WriteP23QuestionForm item={each.item} part={each.part}  flag={'ReviewQuestion'} check={each.check}/>}
+                    {(each.part == 'S1')&&<SpeakP1QuestionForm item={each.item} part={each.part} flag={'ReviewQuestion'} check={each.check}/>}
+                    {(each.part == 'S2')&&<SpeakP2QuestionForm item={each.item} part={each.part} flag={'ReviewQuestion'} check={each.check}/>}
+                    {(each.part == 'S3')&&<SpeakP34QuestionForm item={each.item} part={each.part} flag={'ReviewQuestion'} check={each.check}/>}
+                    {(each.part == 'S4')&&<SpeakP5QuestionForm item={each.item} part={each.part} flag={'ReviewQuestion'} check={each.check}/>}
+                    {(each.part == 'S5')&&<SpeakP6QuestionForm item={each.item} part={each.part} flag={'ReviewQuestion'} check={each.check}/>}
+                  </ScrollView>:null
                         }
-                        <TouchableOpacity style={{ marginTop:3, position:'absolute'}} onPress={()=>{
-                          let filterRssult=image.filter(function(element){
-                            return element !== each;
-                          })
-                          setimage(filterRssult);
-                         }}>
-                         <Icon name={"backspace"} style={{ color: "#FFCC00", fontSize: 25 }} />
-                       </TouchableOpacity>
                       </View>     
                   );
                 })
                
               }
     
-            </ScrollView>}
-            {(sign=='ReviewQuestion')&&
-            <ScrollView style={{flexDirection:'column' }}>
-              {(part=='W1')&&<WriteP1QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={Answer}/>}
-              {(part=='W2'||part=='W3')&&<WriteP23QuestionForm item={item} part={part}  flag={'ReviewQuestion'} check={Answer}/>}
-              {(part == 'S1')&&<SpeakP1QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
-              {(part == 'S2')&&<SpeakP2QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
-              {(part == 'S3')&&<SpeakP34QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
-              {(part == 'S4')&&<SpeakP5QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
-              {(part == 'S5')&&<SpeakP6QuestionForm item={item} part={part} flag={'ReviewQuestion'} check={Answer}/>}
             </ScrollView>
-            }
+         
           </View>
   
           {!OpenModal2&&<View style={styles.IconContainer}>
@@ -586,35 +365,14 @@ const AddPostScreen = ({navigation,route}) => {
             </TouchableOpacity>
             {/* Q&A, Study Resources, Exam Analysis, Preparation Experiences, Review Exam Experiences, Share Your Results, Events/News, Others */}
             <View style={{flex: 1}}/>
-            {(sign=='Forum')&&<>
-            <TouchableOpacity onPress={pickImageAsync}>
-              <Icon
-                name={'images'}
-                style={styles.IconWrapper}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={()=>{setOpenModal(true)}}>
-              <Icon
-                name={'camera'}
-                style={styles.IconWrapper}
-                light
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleFilePicker}>
-              <Icon
-                name={'paperclip'}
-                style={styles.IconWrapper}
-              />
-            </TouchableOpacity> 
-            </>}      
+            
           </View>}
           {RenderCategory()}
-          {RenderModal()}
         </View>
     )
   }
   
-  export default AddPostScreen
+  export default FixPostScreen
   
   const styles = StyleSheet.create({
     container:{

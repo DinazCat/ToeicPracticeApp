@@ -8,10 +8,10 @@ const PartFormatCard=({display})=>{
   const { navigate } = useNavigation()
   return (
     <View>
-      <TouchableOpacity style={AppStyle.viewstyle.column_card} onPress={() => navigate('InPartCard',{part:display.part})}>
+      <TouchableOpacity style={AppStyle.viewstyle.column_card} onPress={() => navigate('InPartCard',{part:display.part, Analysis:display?.Analysis, MaxQ: display.MaxQ})}>
         <Text style={{color:PRIMARY_COLOR, fontWeight:'500', fontSize:17, marginLeft:5}}>{display.PartName}</Text>
-        <Text style={[styles.TextFont,{fontWeight:'400',}]}>Number of sentences completed: <Text style={[styles.TextFont,{fontWeight:'400',}]}>0</Text></Text>
-        <Text style={[styles.TextFont,{fontWeight:'400',}]}>Correct: <Text style={[styles.TextFont,{fontWeight:'400',}]}>0</Text></Text>
+        <Text style={[styles.TextFont,{fontWeight:'400',}]}>Number of sentences completed: <Text style={[styles.TextFont,{fontWeight:'400',}]}>{display?.Analysis?.Qty||display?.MaxQ||0}</Text></Text>
+        <Text style={[styles.TextFont,{fontWeight:'400',}]}>Correct: <Text style={[styles.TextFont,{fontWeight:'400',}]}>{display?.Analysis?.Score||0}</Text></Text>
       </TouchableOpacity>
     </View>
   )

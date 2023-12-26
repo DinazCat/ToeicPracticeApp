@@ -215,6 +215,9 @@ const ProfileScreen = ({navigation, route}) => {
               onCommentPress={() => navigation.navigate('CommentScreen', {postId:item.postId})}
               onGotoPostPress={() => navigation.navigate('PostScreen')}
               editright={true}
+              fixPost={()=>
+                navigation.navigate('FixPostScreen', {PostId:item.postId})
+              }
             />
           ))}
         </>

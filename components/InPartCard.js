@@ -22,10 +22,22 @@ const InPartCard = ({route, navigation}) => {
  // const [screen, setscreen] = useState('');
   const [partname, setpartname]= useState('');
   const [directions, setDirections] = useState('');
-  const [collection, setcollection]= useState('');
-  const { part } = route.params;
-
+  const [sum, setSum]= useState(0);
+  const { part, Analysis, MaxQ} = route.params;
+  const getSum = async(Part)=>{
+    try{
+      const collectionRef = firestore().collection(Part);
+      const snapshot = await collectionRef.get();
+      const count = snapshot.size;
+      if(count>0)
+      setSum(count)
+    else setSum(1)   
+    } catch(e){
+      console.log(e);
+    }
+  }
    const fetchQuestion = async (part) => {
+    getSum(part)
      if (!isopen) {
        const list = await Api.getQuestion(number, part);
        setquestionL(list);
@@ -146,15 +158,15 @@ const InPartCard = ({route, navigation}) => {
           <View style={{flexDirection: 'column'}}>
             <Text style={[styles.TextFont, {fontWeight: '300'}]}>
               Sentences completed:{' '}
-              <Text style={[styles.TextFont, {fontWeight: '400'}]}>0</Text>
+              <Text style={[styles.TextFont, {fontWeight: '400'}]}>{Analysis?.Qty||MaxQ||0}</Text>
             </Text>
             <Text style={[styles.TextFont, {fontWeight: '300'}]}>
               Correct:{' '}
-              <Text style={[styles.TextFont, {fontWeight: '400'}]}>0</Text>
+              <Text style={[styles.TextFont, {fontWeight: '400'}]}>{Analysis?.Score||0}</Text>
             </Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
               <Text style={[styles.TextFont, {fontWeight: '300', marginRight:5}]}>Progress:</Text>
-              <Progress.Bar progress={0} width={120} height={10} style={{height:10,}} color={PRIMARY_COLOR}/>
+              <Progress.Bar progress={MaxQ>0?MaxQ / sum:1/sum} width={120} height={10} style={{height:10,}} color={PRIMARY_COLOR}/>
             </View>
           </View>
         </View>

@@ -147,7 +147,7 @@ const onSubmit = async() =>{
       Incorrect: 200 - sum - unAnswers,
       Unanswer: unAnswers,
     }
-    //Api.uploadTestHistory(data);
+    Api.uploadTestHistory(data);
     navigation.navigate('CompleteTestCard', {answer:answers, sign:'QuestionScreen', questionL:questionList, testHistory: data})
     //navigation.navigate('CompleteTestCard');
   }

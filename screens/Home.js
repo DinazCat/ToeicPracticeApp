@@ -10,6 +10,7 @@ import CustomHeader from '../components/CustomHeader'
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import socketServices from '../api/socketService';
+import Api from '../api/Api'
 
 
  const Home=({navigation})=> {

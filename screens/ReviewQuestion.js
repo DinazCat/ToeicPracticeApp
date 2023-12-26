@@ -155,7 +155,7 @@ import {
     function RenderModal() {
       return (
         <Modal visible={OpenModal} animationType="slide" transparent={true}>
-          <View
+ <View
             style={{
               height: '60%',
               width: '100%',
@@ -241,37 +241,28 @@ import {
               />
             </TouchableOpacity>
             {ExplainButton == '1' && 
-              <View style={{marginLeft: 5, marginTop: 10}}>
-                 <Text style={styles.answertext2}>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script?.split("(")[1]}
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.SampleAnswer}
-                 </Text>
-                 <Text style={styles.answertext2}>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script?.split("(")[2]}
-                 </Text>
-                 <Text style={styles.answertext2}>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script?.split("(")[3]}
-                 </Text>
-                 <Text style={styles.answertext2}>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script?.split("(")[4]}
-                 </Text>
-              </View>
-            }
-            {ExplainButton == '2' && (
+            <View style={{marginLeft: 5, marginTop: 10}}>
+               <Text style={styles.answertext2}>
+                {questionList[ItemIndex]&&questionList[ItemIndex].Explain.script}
+                {questionList[ItemIndex]&&questionList[ItemIndex].Explain.SampleAnswer}
+               </Text>
+            </View>
+          }
+          {ExplainButton == '2' && (
+            <View style={{marginLeft: 5, marginTop: 10}}>
+             <Text style={styles.answertext2}>
+                {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate}
+                {questionList[ItemIndex]&&questionList[ItemIndex].Explain.Translation}
+               </Text>
+            </View>
+          )}
+             {ExplainButton == '3' && (
               <View style={{marginLeft: 5, marginTop: 10}}>
                <Text style={styles.answertext2}>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate?.split("(")[1]}
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.Translation}
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.tip}
+                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.Tips}
                  </Text>
-                 <Text style={styles.answertext2}>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate?.split("(")[2]}
-                 </Text>
-                 <Text style={styles.answertext2}>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate?.split("(")[3]}
-                 </Text>
-                 <Text style={styles.answertext2}>
-                  {questionList[ItemIndex]&&questionList[ItemIndex].Explain.translate?.split("(")[4]}
-                 </Text>
+                
               </View>
             )}
           </View>
@@ -513,7 +504,7 @@ import {
       fontSize: 18,
     },
     answertext2: {
-      color: '#333',
+      color: 'black',
       fontSize: 17,
     },
   });
