@@ -2,6 +2,50 @@ const { getFirestore, collection, getDocs,addDoc, updateDoc, doc, setDoc,getDoc,
 const {firebase,db, admin}= require('../config')
 const firestore = getFirestore(firebase);
 const {uploadImage} = require('./User')
+const getAnalysis = async (userId, Part)=>{
+  const myCollection = collection(firestore, 'Users');
+  const docRef = doc(myCollection, userId);
+  try{
+  const documentSnapshot = await getDoc(docRef);
+
+if (documentSnapshot.exists()) {
+  if(Part == 'ListenPart1'||Part=='L1'){
+  const data = documentSnapshot.data().AnalysisPractice?.L1||{Score:0,Qty:0};
+  return data;
+  }
+  if(Part == 'ListenPart2'||Part=='L2'){
+    const data = documentSnapshot.data().AnalysisPractice?.L2||{Score:0,Qty:0};
+    return data;
+    }
+    else if(Part == 'ListenPart3'||Part=='L3'){
+      const data = documentSnapshot.data().AnalysisPractice?.L3||{Score:0,Qty:0};
+      return data;
+      }
+      else if(Part == 'ListenPart4'||Part=='L4'){
+        const data = documentSnapshot.data().AnalysisPractice?.L4||{Score:0,Qty:0};
+        return data;
+        }
+        else if(Part == 'ReadPart1'||Part=='R1'){
+          const data = documentSnapshot.data().AnalysisPractice?.R1||{Score:0,Qty:0};
+          return data;
+          }
+          else if(Part == 'ReadPart2'||Part=='R2'){
+            const data = documentSnapshot.data().AnalysisPractice?.R2||{Score:0,Qty:0};
+            return data;
+            }
+            else if(Part == 'ReadPart3'||Part=='R3'){
+              const data = documentSnapshot.data().AnalysisPractice?.R3||{Score:0,Qty:0};
+              return data;
+              }
+
+} 
+else return {Score:0,Qty:0}
+  }
+  catch(e){
+    console.error('Error get document: ', e);
+    return {Score:0,Qty:0};
+  }
+}
 
 const getMaxquestion = async (userId, Part)=>{
     const myCollection = collection(firestore, 'Users');
@@ -106,7 +150,7 @@ const getQuestion = async (req,res)=>{
       });
     }
  }
- const pushHistoryUser1 = async (userId, id, part, quantity, sign) => {
+ const pushHistoryUser1 = async (userId, id, part, quantity, sign, DetailQty, Score) => {
    const myCollection = collection(firestore, "Users");
    const docRef = doc(myCollection, userId);
    try {
@@ -122,40 +166,62 @@ const getQuestion = async (req,res)=>{
            max = item;
          });
          const num = parseInt(quantity) + parseInt(max);
+         //
+         let analysisPr = {};
+         await getAnalysis(userId,part).then((item)=>{
+          analysisPr = item;
+         })
+         const SumQuantity = DetailQty + analysisPr.Qty
+         const SumScore = Score + analysisPr.Score
+         
          if (part == "L1") {
            const data2 = documentSnapshot.data().MaxQuestion || { L1: num };
            data2.L1 = num;
-           await updateDoc(docRef, { MaxQuestion: data2 });
+           const data3 = documentSnapshot.data().AnalysisPractice || {L1:{Score:SumScore,Qty:SumQuantity}}
+           data3.L1 = {Score:SumScore,Qty:SumQuantity}
+           await updateDoc(docRef, { MaxQuestion: data2, AnalysisPractice: data3});
          }
          else if (part == "L2") {
           const data2 = documentSnapshot.data().MaxQuestion || { L2: num };
           data2.L2 = num;
-          await updateDoc(docRef, { MaxQuestion: data2 });
+          const data3 = documentSnapshot.data().AnalysisPractice || {L2:{Score:SumScore,Qty:SumQuantity}}
+          data3.L2 = {Score:SumScore,Qty:SumQuantity}
+          await updateDoc(docRef, { MaxQuestion: data2, AnalysisPractice: data3});
         }
         else if (part == "L3") {
           const data2 = documentSnapshot.data().MaxQuestion || { L3: num };
           data2.L3 = num;
-          await updateDoc(docRef, { MaxQuestion: data2 });
+          const data3 = documentSnapshot.data().AnalysisPractice || {L3:{Score:SumScore,Qty:SumQuantity}}
+          data3.L3 = {Score:SumScore,Qty:SumQuantity}
+          await updateDoc(docRef, { MaxQuestion: data2, AnalysisPractice: data3});
         }
         else if (part == "L4") {
           const data2 = documentSnapshot.data().MaxQuestion || { L4: num };
           data2.L4 = num;
-          await updateDoc(docRef, { MaxQuestion: data2 });
+          const data3 = documentSnapshot.data().AnalysisPractice || {L4:{Score:SumScore,Qty:SumQuantity}}
+          data3.L4 = {Score:SumScore,Qty:SumQuantity}
+          await updateDoc(docRef, { MaxQuestion: data2, AnalysisPractice: data3});
         }
         else if (part == "R1") {
           const data2 = documentSnapshot.data().MaxQuestion || { R1: num };
           data2.R1 = num;
-          await updateDoc(docRef, { MaxQuestion: data2 });
+          const data3 = documentSnapshot.data().AnalysisPractice || {R1:{Score:SumScore,Qty:SumQuantity}}
+          data3.R1 = {Score:SumScore,Qty:SumQuantity}
+          await updateDoc(docRef, { MaxQuestion: data2, AnalysisPractice: data3});
         }
         else if (part == "R2") {
           const data2 = documentSnapshot.data().MaxQuestion || { R2: num };
           data2.R2 = num;
-          await updateDoc(docRef, { MaxQuestion: data2 });
+          const data3 = documentSnapshot.data().AnalysisPractice || {R2:{Score:SumScore,Qty:SumQuantity}}
+          data3.R2 = {Score:SumScore,Qty:SumQuantity}
+          await updateDoc(docRef, { MaxQuestion: data2, AnalysisPractice: data3});
         }
         else if (part == "R3") {
           const data2 = documentSnapshot.data().MaxQuestion || { R3: num };
           data2.R3 = num;
-          await updateDoc(docRef, { MaxQuestion: data2 });
+          const data3 = documentSnapshot.data().AnalysisPractice || {R3:{Score:SumScore,Qty:SumQuantity}}
+          data3.R3 = {Score:SumScore,Qty:SumQuantity}
+          await updateDoc(docRef, { MaxQuestion: data2, AnalysisPractice: data3});
         }
         else if (part == "W1") {
           const data2 = documentSnapshot.data().MaxQuestion || { W1: num };
@@ -216,7 +282,7 @@ const getQuestion = async (req,res)=>{
     await addDoc(myCollection, data)
     .then((docRef) => {
       res.send({ message: 'Data saved successfully' });
-      pushHistoryUser1(req.params.userId,docRef.id, req.body.Part, req.body.Quantity,req.params.sign)
+      pushHistoryUser1(req.params.userId,docRef.id, req.body.Part, req.body.Quantity,req.params.sign, req.body.DetailQty, req.body.Score)
     })
     .catch((error) => {
       console.error('Error adding document pushHistory: ', error);
@@ -307,14 +373,19 @@ const get1PHistory = async(list)=>{
  const addQuestion = async (req, res) => {
   try {
     const data = req.body;
-    if(data.Image.startsWith('uploads')){
+    if(data.Image && data.Image.startsWith('uploads')){
       await uploadImage(data.Image).then((x)=>{
         data.Image = x      
       })
     }
-    if(data.Audio.startsWith('uploads')){
+    if(data.Audio&&data.Audio.startsWith('uploads')){
       await uploadAudio(data.Audio).then((x)=>{
         data.Audio = x      
+      })
+    }
+    if(data.Picture && data.Picture.startsWith('uploads')){
+      await uploadImage(data.Picture).then((x)=>{
+        data.Image = x      
       })
     }
     const myCollection = collection(firestore, req.params.Part);

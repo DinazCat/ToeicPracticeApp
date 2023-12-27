@@ -64,11 +64,12 @@ const getVocabLesson = async (req,res)=>{
   const myCollection = collection(firestore, 'Vocabulary');
     try {
          const querySnapshot = await getDocs(myCollection);
-         const list = querySnapshot.docs.map((doc) => {
+         const list = []
+          querySnapshot.docs.map((doc) => {
           if(doc.data().TopicId == req.params.TopicId){
              const data = doc.data();
              const docId = doc.id;
-             return { ...data, Id: docId };
+             list.push({ ...data, Id: docId });
           }
            });
           res.json({success:true, vocabs:list});
