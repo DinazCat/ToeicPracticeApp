@@ -55,8 +55,7 @@ const checkAlarm = async()=>{
     await firestore()
      .collection('Users')
      .doc(auth().currentUser.uid)
-     .get()
-     .then(doc => {
+     .onSnapshot(doc => {
        if(doc.exists){
        const list = doc.data().vocabAlarms||[];
        if(list)

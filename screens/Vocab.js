@@ -63,7 +63,7 @@ const Vocab=({navigation})=>{
               renderItem={({item, index}) => (
             <VocabLessonCard
                 display={item} 
-                onpress={()=>navigation.push('InVocabLessonCard',{Topicid:item.Id})}
+                onpress={()=>navigation.push('InVocabLessonCard',{Topicid:item.Id, TopicName:item.Topic})}
                  />
             )}/>
             </ImageBackground>

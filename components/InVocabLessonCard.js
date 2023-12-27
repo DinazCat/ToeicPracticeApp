@@ -24,7 +24,7 @@ const InVocabLessonCard = ({navigation,route}) => {
   const [soundL, setsoundL] = useState(null);
   const [OpenModal, setOpenModal] = useState(false);
   const [i, seti] = useState(-1);
-  const {Topicid} = route.params
+  const {Topicid, TopicName} = route.params
   const getVocab= async()=>{
       // try{
       //  await firestore()
@@ -59,11 +59,11 @@ const InVocabLessonCard = ({navigation,route}) => {
       setvocabs(list)
       // console.log(list[0].ListenFile)
       for(let i = 0; i < list.length;i++){
-        createsound(list[i].ListenFile, i+1)
+        createsound(list[i].ListenFile, i+1,list.length)
       }
     }
     const list=[]
-    const createsound = (url,j) => {
+    const createsound = (url,j,L) => {
       //for (let i = 0; i < vocabs.length; i++) {
         //questionList[i].Audio, null
          // console.log(questionList[i].Audio)
@@ -73,7 +73,7 @@ const InVocabLessonCard = ({navigation,route}) => {
             return;
           }
           else{
-            if(j==12) setloading(true);
+            if(j==L) setloading(true);
           }
         });
         list.push(sound);
@@ -128,7 +128,7 @@ const InVocabLessonCard = ({navigation,route}) => {
     const showAlert = () => {
       Alert.alert(
         'Hey!',
-        'Do you want to save all the vocabulary in the reminder?',
+        'Do you want to set all vocab for reminder?',
         [
           { text: 'OK', onPress: () => {
            saveAlarm()
@@ -154,7 +154,7 @@ const InVocabLessonCard = ({navigation,route}) => {
               fontSize: 20,
               marginLeft: 15,
             }}>
-            Topic: Contracts
+            Topic: {TopicName}
           </Text>
         </View>
         <View

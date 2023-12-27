@@ -228,7 +228,7 @@ const CompleteCard=({navigation,route})=> {
             justifyContent: 'space-evenly',
             marginTop: '10%',
           }}>
-          <TouchableOpacity
+          {reviewList!=null&&<TouchableOpacity
             style={[AppStyle.button.button2]}
             onPress={() =>
               navigation.push('ResultTable', {
@@ -240,7 +240,7 @@ const CompleteCard=({navigation,route})=> {
               })
             }>
             <Text style={AppStyle.button.button2_Text}>Show answer</Text>
-          </TouchableOpacity>
+          </TouchableOpacity>}
           {sign == 'Home' ? (
             <TouchableOpacity
               style={[AppStyle.button.button2]}
