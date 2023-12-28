@@ -192,7 +192,7 @@ function ReadPart1({flag, index, complete, item}) {
           <input className="customInput" type='text' onChange={(e) => setTextR3(e.target.value)} value={textR3} id='TR'></input> 
         </div>
         <div style={{display:'inline-flex', marginLeft:5, marginBottom: 10}}>
-          <button className="btn rounded-circle" style={{backgroundColor: selectedAnswer === 3 && '#5DA110', marginRight: 10, border: '1px solid black', height: 40}} onClick={() => {handleAnswerChange(2)}}>C</button>
+          <button className="btn rounded-circle" style={{backgroundColor: selectedAnswer === 3 && '#5DA110', marginRight: 10, border: '1px solid black', height: 40}} onClick={() => {handleAnswerChange(3)}}>D</button>
           <input className="customInput" type='text' onChange={(e) => setTextR4(e.target.value)} value={textR4} id='TR'></input> 
         </div>
       </div>

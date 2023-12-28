@@ -205,13 +205,13 @@ function VocabPage() {
                 </thead>
                 {vocabL?.map((each, key) => {
                     return (
-                    <tr key={each.Id}>
-                        <td>{each.Vocab}</td>
-                        <td>{each.Type}</td>
-                        <td>{each.Spelling}</td>
-                        <td>{each.Translate}</td>
-                        <td>{each.Example}</td>
-                        <td>{each.ListenFile}</td>
+                    <tr key={each?.Id}>
+                        <td>{each?.Vocab}</td>
+                        <td>{each?.Type}</td>
+                        <td>{each?.Spelling}</td>
+                        <td>{each?.Translate}</td>
+                        <td>{each?.Example}</td>
+                        <td>{each?.ListenFile}</td>
                         <td className="fit">
                             <span className="actions" style={{ display: 'flex', alignItems: 'center' }}>
                             <FontAwesomeIcon icon={faPen} onClick={() => {
