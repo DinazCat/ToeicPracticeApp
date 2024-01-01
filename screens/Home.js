@@ -284,7 +284,7 @@ import Api from '../api/Api'
             <View style={{width: 1, height: 100, backgroundColor: 'black'}} />
             <View style={styles.boxStorage}>
               <Text style={AppStyle.button.buttonText}>Question</Text>
-              <Text style={styles.StorageText}>{savedQ.length}</Text>
+              <Text style={styles.StorageText}>{savedQ?savedQ.length:0}</Text>
               <TouchableOpacity
                 style={[
                   AppStyle.button.button1,

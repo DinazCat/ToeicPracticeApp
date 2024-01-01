@@ -127,7 +127,7 @@ const CompleteTestCard = ({navigation,route})=> {
               }
         
               else {
-                navigation.goBack();
+                navigation.navigate('Testinstack')
               }
             }}>
             <FontAwesome name="chevron-left" color={PRIMARY_COLOR} size={27} />

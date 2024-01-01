@@ -392,7 +392,7 @@ const Analysis  = ({navigation, route}) => {
   const checkProgress = (Part)=>{
     if(Part=='L1'){
 
-      const rate =  profileData?.AnalysisPractice.L1.Score/ profileData?.AnalysisPractice.L1.Qty
+      const rate =  profileData?.AnalysisPractice?.L1.Score/ profileData?.AnalysisPractice?.L1.Qty
       if(rate < 0.5){
         return {m:'In this part, your skills are still very poor, you need to put in more effort',c:'red'}
       }
@@ -803,7 +803,7 @@ const Analysis  = ({navigation, route}) => {
           </Text>
           <View style={{flexDirection:'row', alignItems:'center'}}>
               <Text style={[styles.TextFont, {fontWeight: '500', marginRight:5}]}>Correct Rate:</Text>
-              <Progress.Bar progress={profileData?(profileData?.AnalysisPractice?.L1?.Score/profileData?.AnalysisPractice?.L1?.Qty):0/1} width={120} height={10} style={{height:10,}} color={checkProgress('L1').c}/>
+              <Progress.Bar progress={profileData?(profileData?.AnalysisPractice?.L1?.Score/profileData?.AnalysisPractice?.L1?.Qty|0.0):0.0} width={120} height={10} style={{height:10,}} color={checkProgress('L1').c}/>
               <Text style={[styles.TextFont, {fontWeight: '500', marginRight:5}]}>   {profileData?(profileData?.AnalysisPractice?.L1?.Score/profileData?.AnalysisPractice?.L1?.Qty||0.1):0.1}</Text>
             </View>
             <View style={styles.MessBox}>
@@ -816,7 +816,7 @@ const Analysis  = ({navigation, route}) => {
           </Text>
           <View style={{flexDirection:'row', alignItems:'center'}}>
               <Text style={[styles.TextFont, {fontWeight: '500', marginRight:5}]}>Correct Rate:</Text>
-              <Progress.Bar progress={profileData?(profileData?.AnalysisPractice?.L2?.Score/profileData?.AnalysisPractice?.L2?.Qty):0/1} width={120} height={10} style={{height:10,}} color={checkProgress('L2').c}/>
+              <Progress.Bar progress={profileData?(profileData?.AnalysisPractice?.L2?.Score/profileData?.AnalysisPractice?.L2?.Qty|0.0):0.0} width={120} height={10} style={{height:10,}} color={checkProgress('L2').c}/>
               <Text style={[styles.TextFont, {fontWeight: '500', marginRight:5}]}>   {profileData?(profileData?.AnalysisPractice?.L2?.Score/profileData?.AnalysisPractice?.L2?.Qty||0.1):0.1}</Text>
             </View>
             <View style={styles.MessBox}>
@@ -829,7 +829,7 @@ const Analysis  = ({navigation, route}) => {
           </Text>
           <View style={{flexDirection:'row', alignItems:'center'}}>
               <Text style={[styles.TextFont, {fontWeight: '500', marginRight:5}]}>Correct Rate:</Text>
-              <Progress.Bar progress={profileData?(profileData?.AnalysisPractice?.L3?.Score/profileData?.AnalysisPractice?.L3?.Qty):0/1} width={120} height={10} style={{height:10,}} color={checkProgress('L3').c}/>
+              <Progress.Bar progress={profileData?(profileData?.AnalysisPractice?.L3?.Score/profileData?.AnalysisPractice?.L3?.Qty|0.0):0.0} width={120} height={10} style={{height:10,}} color={checkProgress('L3').c}/>
               <Text style={[styles.TextFont, {fontWeight: '500', marginRight:5}]}>   {profileData?(profileData?.AnalysisPractice?.L3?.Score/profileData?.AnalysisPractice?.L3?.Qty||0.1):0.1}</Text>
             </View>
             <View style={styles.MessBox}>
@@ -842,7 +842,7 @@ const Analysis  = ({navigation, route}) => {
           </Text>
           <View style={{flexDirection:'row', alignItems:'center'}}>
               <Text style={[styles.TextFont, {fontWeight: '500', marginRight:5}]}>Correct Rate:</Text>
-              <Progress.Bar progress={profileData?(profileData?.AnalysisPractice?.L4?.Score/profileData?.AnalysisPractice?.L4?.Qty):0/1} width={120} height={10} style={{height:10,}} color={checkProgress('L4').c}/>
+              <Progress.Bar progress={profileData?(profileData?.AnalysisPractice?.L4?.Score/profileData?.AnalysisPractice?.L4?.Qty|0.0):0.0} width={120} height={10} style={{height:10,}} color={checkProgress('L4').c}/>
               <Text style={[styles.TextFont, {fontWeight: '500', marginRight:5}]}>   {profileData?(profileData?.AnalysisPractice?.L4?.Score/profileData?.AnalysisPractice?.L4?.Qty||0.1):0.1}</Text>
             </View>
             <View style={styles.MessBox}>
